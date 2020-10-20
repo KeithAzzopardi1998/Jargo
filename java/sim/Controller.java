@@ -654,26 +654,62 @@ public class Controller {
          SQLException, GtreeNotLoadedException, GtreeIllegalSourceException,
          GtreeIllegalTargetException {
            Scanner sc = new Scanner(new File(p));
-           while (sc.hasNext()) {
-             final int uid = sc.nextInt();
-             final int  uo = sc.nextInt();
-             final int  ud = sc.nextInt();
-             final int  uq = sc.nextInt();
-             final int  ue = sc.nextInt();
+           while(sc.hasNextLine()){
+             String[] user_info=sc.nextLine().split("\\s");
+             final int uid = Integer.parseInt(user_info[0]);
+             final int  uo = Integer.parseInt(user_info[1]);
+             final int  ud = Integer.parseInt(user_info[2]);
+             final int  uq = Integer.parseInt(user_info[3]);
+             final int  ue = Integer.parseInt(user_info[4]);
              final int  ub = this.tools.computeShortestPathDistance(uo, ud);
-             final int  ul = (ud == 0)
-                 ? Integer.MAX_VALUE
-                 : ue + (int) Math.round((float) ub/10)  // TODO: 10 speed
-                   + ( (int) Math.round(Math.abs
-                       ( this.random.nextGaussian()*this.STD_DELAY + this.MEAN_DELAY ))
-                         * 60 );
+             int temp_ul;
+             if (user_info.length == 6){
+              temp_ul = Integer.parseInt(user_info[5]);
+             }
+             else{
+              temp_ul = (ud == 0)
+                ? Integer.MAX_VALUE
+                : ue + (int) Math.round((float) ub/10)  // TODO: 10 speed
+                  + ( (int) Math.round(Math.abs
+                      ( this.random.nextGaussian()*this.STD_DELAY + this.MEAN_DELAY ))
+                        * 60 );
+             }
+             final int ul=temp_ul;
              final int[] user = new int[] { uid, uq, ue, ul, uo, ud, ub };
              if (uq < 0) {
                this.insertServer(user);
              } else {
                this.insertRequest(user);
              }
-           }
+           }    
+           /*
+           while (sc.hasNext()) {            
+             final int uid = sc.nextInt();
+             final int  uo = sc.nextInt();
+             final int  ud = sc.nextInt();
+             final int  uq = sc.nextInt();
+             final int  ue = sc.nextInt();
+             final int  ub = this.tools.computeShortestPathDistance(uo, ud);
+             int temp_ul;
+             try{
+              
+             }catch(Exception e)
+             {
+              temp_ul = (ud == 0)
+              ? Integer.MAX_VALUE
+              : ue + (int) Math.round((float) ub/10)  // TODO: 10 speed
+                + ( (int) Math.round(Math.abs
+                    ( this.random.nextGaussian()*this.STD_DELAY + this.MEAN_DELAY ))
+                      * 60 );
+             }
+             final int ul=temp_ul; 
+             final int[] user = new int[] { uid, uq, ue, ul, uo, ud, ub };
+             if (uq < 0) {
+               this.insertServer(user);
+             } else {
+               this.insertRequest(user);
+             }
+           }*/
          }
   public void loadRoadNetworkFromFile(final String f_rnet)
          throws FileNotFoundException, SQLException {
