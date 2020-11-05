@@ -4,3 +4,4 @@ jar/
 pdf/
 release/
 www/
+*.log
