@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #_CLASSPATH=.:jar/*:dep:dep/*
-_CLASSPATH=.:jar/*:dep:dep/*:example:example/jar/*
+#_CLASSPATH=.:jar/*:dep:dep/*:example:example/jar/*
+_CLASSPATH=.:jar/*:dep:dep/*:solvers:solvers/jar/*
 java \
     -Xmx6g \
     -Djava.library.path=dep \

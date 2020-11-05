@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-_CLASSPATH=.:jar/*:dep:dep/*:example:example/jar/*
+#_CLASSPATH=.:jar/*:dep:dep/*:example:example/jar/*
+_CLASSPATH=.:jar/*:dep:dep/*:solvers:solvers/jar/*
 java \
     --module-path dep \
     --add-modules javafx.controls,javafx.fxml,javafx.swing \

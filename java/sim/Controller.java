@@ -57,10 +57,10 @@ public class Controller {
       Integer.parseInt(System.getProperty("jargors.controller.request_timeout", "30"));
   private int QUEUE_TIMEOUT =
       Integer.parseInt(System.getProperty("jargors.controller.queue_timeout", "30"));
-  private int REQUEST_COLLECTION_PERIOD =
-      Integer.parseInt(System.getProperty("jargors.controller.request_collection_period", "1"));
-  private int REQUEST_HANDLING_PERIOD =
-      Integer.parseInt(System.getProperty("jargors.controller.request_handling_period", "1"));
+  private int REQUEST_COLLECTION_PERIOD = 10;
+      //Integer.parseInt(System.getProperty("jargors.controller.request_collection_period", "1"));
+  private int REQUEST_HANDLING_PERIOD = 10;
+      //Integer.parseInt(System.getProperty("jargors.controller.request_handling_period", "1"));
   private int SERVER_COLLECTION_PERIOD =
       Integer.parseInt(System.getProperty("jargors.controller.server_collection_period", "1"));
   private int loop_delay = 0;
