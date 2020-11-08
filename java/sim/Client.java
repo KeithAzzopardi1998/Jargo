@@ -11,6 +11,10 @@ import java.util.HashMap;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 public abstract class Client {
+  //by default, we use the Jargo request processing method of loading new customers from the queue and inserting them 
+  //one by one. However, inheriting classes may set this flag to TRUE to overwrite this functiinality
+  //and get the list of requests for this current time step as a batch instead
+  protected boolean batch_processing=false;
   protected ConcurrentLinkedQueue<int[]> queue = new ConcurrentLinkedQueue<int[]>();
   protected Communicator communicator;
   protected Tools tools = new Tools();
@@ -101,13 +105,23 @@ public abstract class Client {
          }
   public void init() { }
   public void notifyNew() throws ClientException, ClientFatalException {
-           while (!this.queue.isEmpty()) {
-             long A0 = System.currentTimeMillis();
-             this.handleRequest(this.queue.remove());
-             this.dur_handle_request = System.currentTimeMillis() - A0;
-             if (DEBUG) {
-               System.out.printf("handleRequest(1), arg1=[#]\n");
-             }
+           if (batch_processing==true) {
+            long A0 = System.currentTimeMillis();
+            this.handleRequestBatch(this.queue.toArray());
+            this.queue.clear();
+            this.dur_handle_request = System.currentTimeMillis() - A0;
+            if (DEBUG) {
+              System.out.printf("----processed request batch----\n");
+            }            
+           } else {
+            while (!this.queue.isEmpty()) {
+              long A0 = System.currentTimeMillis();
+              this.handleRequest(this.queue.remove());
+              this.dur_handle_request = System.currentTimeMillis() - A0;
+              if (DEBUG) {
+                System.out.printf("handleRequest(1), arg1=[#]\n");
+              }
+            }
            }
          }
   public int[] routeMinDistMinDur(int sid, int[] bnew, boolean strict) throws ClientException {
@@ -261,6 +275,7 @@ public abstract class Client {
          }
   protected void end() { }
   protected void handleRequest(final int[] r) throws ClientException, ClientFatalException { }
+  protected void handleRequestBatch(final Object[] rb) throws ClientException, ClientFatalException { }
   protected void handleServerLocation(final int[] loc) throws ClientException, ClientFatalException {
               this.lut.put(loc[0], loc[1]);
               this.luv.put(loc[0], loc[2]);

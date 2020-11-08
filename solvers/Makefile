@@ -6,6 +6,7 @@ JAVA1 = \
 	java/client/NearestPerpendicular.java \
 	java/client/GreedyInsertion.java \
 	java/client/GreedyInsertionFallback.java \
+	java/client/MLridesharing.java \
 
 # Here I am getting the names of all the *.class files to be compiled.
 CLASS1=$(addsuffix .class, $(subst java/client/,com/github/jargors/client/,$(basename $(wildcard java/client/*.java))))
