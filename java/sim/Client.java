@@ -108,7 +108,6 @@ public abstract class Client {
            if (batch_processing==true) {
             long A0 = System.currentTimeMillis();
             this.handleRequestBatch(this.queue.toArray());
-            this.queue.clear();
             this.dur_handle_request = System.currentTimeMillis() - A0;
             if (DEBUG) {
               System.out.printf("----processed request batch----\n");
