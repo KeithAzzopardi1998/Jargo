@@ -2,8 +2,13 @@ package com.github.jargors.client;
 import com.github.jargors.sim.*;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.HashMap;
+import java.util.Collections;
+
+import java.util.Random;
+
 public class MLridesharing extends Client {
   final int MAX_PROXIMITY = 1800;
   public void init() {
@@ -15,9 +20,29 @@ public class MLridesharing extends Client {
       System.out.printf("processing batch of size %d\n", rb.length);
     }
 
+    if (rb.length < 1) { 
+      return; 
+    }
+
     //1. call context mapping module
+    Integer[][] cm = new Integer[rb.length][20];
+    cm = contextMappingModule(rb);
+    if (DEBUG) {
+      System.out.printf("Context Map: \n");
+      for(Integer[] x: cm)
+            System.out.println(Arrays.toString(x));  
+      System.out.printf("\n-----------------------\n\n");
+    }
 
     //2. ask vehicles for insertion costs
+    Integer[][] c = new Integer[rb.length][20];
+    c = calculateInsertionCosts(rb,cm);
+    if (DEBUG) {
+      System.out.printf("Insertion Costs: \n");
+      for(Integer[] x: c)
+            System.out.println(Arrays.toString(x));  
+      System.out.printf("\n-----------------------\n\n");
+    }
 
     //3. call optimization module
 
@@ -28,8 +53,10 @@ public class MLridesharing extends Client {
   }
 
   //performs the Context Mapping describe in Simonetto 2019
-  protected Object[] contextMappingModule(Object[] rb) {
+  protected Integer[][] contextMappingModule(final Object[] rb) {
     
+    Integer [][] contextMapping = new Integer[rb.length][20];
+
     //1. filter out vehicles which are full
 
     //2. distinguish between vehicles which are idle (i.e. current route is empty)
@@ -47,8 +74,44 @@ public class MLridesharing extends Client {
     
     //6. return the 2D array of candidate requests
     
-    return rb;
+    //for now, we will just fill in the context mapping block with random values
+    Integer[] random_values= new Integer[contextMapping[0].length + 5];
+    for (int i = 0; i < random_values.length; i++) {
+      random_values[i] = i;
+    }
+    List<Integer> random_values_list = Arrays.asList(random_values);
+    for (int r = 0; r < contextMapping.length; r++) {
+      Collections.shuffle(random_values_list);
+      random_values_list.toArray(random_values);
+      contextMapping[r] = Arrays.copyOfRange(random_values,0,contextMapping[0].length);
+    }
+    return contextMapping;
   }
 
+  protected Integer[][] calculateInsertionCosts(final Object[] rb, final Integer[][] contextMapping) {
+    //for each entry in the context mapping block, we will have an entry in this
+    //new array with the corresponding insertion cost
+    Integer[][] costs = new Integer[contextMapping.length][contextMapping[0].length];
 
+    //IDEA: if we want to have different cost calculation techniques
+    //within the same fleet, we might want to store a map/dictionary
+    //with the function to use for each vehicle (or range of vehicles)
+
+    //for now, we will just fill it in with random values between 1 and 100
+    for (int row = 0; row < costs.length; row++) {
+      for (int col = 0; col < costs[row].length; col++) {
+        costs[row][col] = new Random().nextInt(101)  + 1;
+      }
+    }
+    
+    return costs;
+  }
+
+  protected Integer[] optimizationModule(final Integer[] contextMapping, final Integer[][] costs) {
+    //we shall store an array with one entry for each request
+    //the value corresponds to the vehicle ID
+    Integer matches = new Integer[contextMapping.length];
+
+    
+  }
 }
