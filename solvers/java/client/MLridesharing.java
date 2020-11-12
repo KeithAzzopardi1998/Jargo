@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Collections;
 import java.util.stream.IntStream;
 import java.util.Random;
+import java.lang.Math;
 
 public class MLridesharing extends Client {
   final int MAX_PROXIMITY = 1800;
@@ -34,9 +35,8 @@ public class MLridesharing extends Client {
       System.out.printf("\n-----------------------\n\n");
     }
 
-    //2. ask vehicles for insertion costs
-    Integer[][] c = new Integer[rb.length][20];
-    c = calculateInsertionCosts(rb,cm);
+    //2. ask vehicles for insertion costs and form the cost matrix
+    Integer[][] c = getCostMatrix(rb,cm);
     if (DEBUG) {
       System.out.printf("Insertion Costs: \n");
       for(Integer[] x: c)
@@ -45,7 +45,6 @@ public class MLridesharing extends Client {
     }
 
     //3. call optimization module
-    int[] matches = optimizationModule(cm, c);
 
     //4. update vehicle routes
     
@@ -89,32 +88,13 @@ public class MLridesharing extends Client {
     return contextMapping;
   }
 
-  protected Integer[][] calculateInsertionCosts(final Object[] rb, final Integer[][] contextMapping) {
-    //for each entry in the context mapping block, we will have an entry in this
-    //new array with the corresponding insertion cost
-    Integer[][] costs = new Integer[contextMapping.length][contextMapping[0].length];
+  //takes the list of requests and output of the context mapping module to
+  //form the cost matrix by asking the vehicles for the insertion cost
+  protected Integer [][] getCostMatrix(final Object[] rb, final Integer[][] contextMapping ) {
+    int num_customers=rb.length;
 
-    //IDEA: if we want to have different cost calculation techniques
-    //within the same fleet, we might want to store a map/dictionary
-    //with the function to use for each vehicle (or range of vehicles)
-
-    //for now, we will just fill it in with random values between 1 and 100
-    for (int row = 0; row < costs.length; row++) {
-      for (int col = 0; col < costs[row].length; col++) {
-        costs[row][col] = new Random().nextInt(101)  + 1;
-      }
-    }
-    
-    return costs;
-  }
-
-  protected int[] optimizationModule(final Integer[][] contextMapping, final Integer[][] costs) {
-    //we shall store an array with one entry for each request
-    //the value corresponds to the vehicle ID
-    Integer[] matches = new Integer[contextMapping.length];
- 
-    int num_customers=contextMapping.length;
-
+    //getting a unique list of vehicles by first flattening out the context map, and then
+    //adding to an array of unique items
     int[] vehicle_list=new int[num_customers*contextMapping[0].length];
     for (int i = 0; i < contextMapping.length; i++) {
         // tiny change 1: proper dimensions
@@ -123,13 +103,11 @@ public class MLridesharing extends Client {
             vehicle_list[(i*contextMapping[0].length) + j] = contextMapping[i][j]; 
         }
     }
-
-    //getting a unique list of vehicles
-    int[] vehicles_unique = IntStream.of(vehicle_list).distinct().toArray();
-    int num_vehicles=vehicles_unique.length;
+    int[] vehicles = IntStream.of(vehicle_list).distinct().toArray();
+    int num_vehicles=vehicles.length;
     if (DEBUG) {
       System.out.println("Unique list of vehicles\n");
-      System.out.println(Arrays.toString(vehicles_unique));
+      System.out.println(Arrays.toString(vehicles));
     }
 
     //building the matrix which will eventually be passed to the matching algorithmbg
@@ -138,20 +116,61 @@ public class MLridesharing extends Client {
     for (int i = 0; i < num_customers; i++) {
       //looping through the vehicles
       for (int j = 0; j < num_vehicles; j++) {
-        int vehicle_id = vehicles_unique[j];
+        int vehicle_id = vehicles[j];
 
         //check if this vehicle can serve this customer (from the context mapping module)
         if (Arrays.stream(contextMapping[i]).anyMatch(x -> x == vehicle_id) ) {
           //IDEA: calculate the cost here
+          weight_matrix[i][j]=getInsertionCost(rb[i], vehicle_id);
         } else {
           //if the vehicle cannot serve this customer, set the weight to infinity 
           weight_matrix[i][j]=Integer.MAX_VALUE;
         }
-
       }
     }
 
-    return vehicles_unique;
+    return padCostMatrix(weight_matrix);
 
+  }
+
+  //takes a cost matrix and pads it so that it is a square matrix
+  protected Integer [][] padCostMatrix(final Integer[][] costMatrix) {
+    int num_requests = costMatrix.length; 
+    int num_vehicles = costMatrix[0].length;
+    int n = Math.max(num_requests, num_vehicles);
+    Integer[][] weight_matrix = new Integer[n][n];  
+
+    //padding the cost matrix by iterating through the square matrix and inserting "infinity"
+    //whenever there is no corresponding entry in the cost matrix
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        if (i >= num_requests || j >= num_vehicles) {
+          weight_matrix[i][j] = Integer.MAX_VALUE;
+        }
+        else {
+          weight_matrix[i][j] = costMatrix[i][j];
+        }
+      }
+    }
+
+    return weight_matrix;
+  }
+
+  //takes a request and vehicle id and returns the insertion cost
+  protected Integer getInsertionCost(final Object r, final int sid){
+    //IDEA: if we want to have different cost calculation techniques
+    //within the same fleet, we might want to store a map/dictionary
+    //with the function to use for each vehicle (or range of vehicles)   
+
+    //for now we just return a random integer to represent the insertion cost
+    return new Random().nextInt(101)  + 1;
+  }
+
+  protected void optimizationModule(final Integer[][] costMatrix) {
+    //if the cost matrix is sparse, it might be worth looking into the Jonker-Volgenant algorithm
+    //(https://javadoc.scijava.org/Fiji/fiji/plugin/trackmate/tracking/sparselap/linker/LAPJV.html) 
+
+    //implementation of the Hungarian algorithm which may also allow for non-square inputs
+    //https://github.com/KevinStern/software-and-algorithms/blob/master/src/main/java/blogspot/software_and_algorithms/stern_library/optimization/HungarianAlgorithm.java
   }
 }
