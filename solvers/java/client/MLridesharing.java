@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.stream.IntStream;
 import java.util.Random;
 import java.lang.Math;
+import blogspot.software_and_algorithms.stern_library.optimization.HungarianAlgorithm;
 
 public class MLridesharing extends Client {
   final int MAX_PROXIMITY = 1800;
@@ -36,15 +37,20 @@ public class MLridesharing extends Client {
     }
 
     //2. ask vehicles for insertion costs and form the cost matrix
-    Integer[][] c = getCostMatrix(rb,cm);
+    double[][] c = getCostMatrix(rb,cm);
     if (DEBUG) {
       System.out.printf("Insertion Costs: \n");
-      for(Integer[] x: c)
+      for(double[] x: c)
             System.out.println(Arrays.toString(x));  
       System.out.printf("\n-----------------------\n\n");
     }
 
     //3. call optimization module
+    HungarianAlgorithm optModule = new HungarianAlgorithm(c);
+    int[] assignments = optModule.execute();
+    System.out.printf("assignments: \n");
+    System.out.println(Arrays.toString(assignments));  
+    System.out.printf("\n-----------------------\n\n");
 
     //4. update vehicle routes
     
@@ -90,7 +96,7 @@ public class MLridesharing extends Client {
 
   //takes the list of requests and output of the context mapping module to
   //form the cost matrix by asking the vehicles for the insertion cost
-  protected Integer [][] getCostMatrix(final Object[] rb, final Integer[][] contextMapping ) {
+  protected double [][] getCostMatrix(final Object[] rb, final Integer[][] contextMapping ) {
     int num_customers=rb.length;
 
     //getting a unique list of vehicles by first flattening out the context map, and then
@@ -111,7 +117,7 @@ public class MLridesharing extends Client {
     }
 
     //building the matrix which will eventually be passed to the matching algorithmbg
-    Integer[][] weight_matrix = new Integer[num_customers][num_vehicles];
+    double[][] weight_matrix = new double[num_customers][num_vehicles];
     //looping through the customers
     for (int i = 0; i < num_customers; i++) {
       //looping through the vehicles
@@ -120,17 +126,16 @@ public class MLridesharing extends Client {
 
         //check if this vehicle can serve this customer (from the context mapping module)
         if (Arrays.stream(contextMapping[i]).anyMatch(x -> x == vehicle_id) ) {
-          //IDEA: calculate the cost here
           weight_matrix[i][j]=getInsertionCost(rb[i], vehicle_id);
         } else {
           //if the vehicle cannot serve this customer, set the weight to infinity 
-          weight_matrix[i][j]=Integer.MAX_VALUE;
+          weight_matrix[i][j]=1000.0;
         }
       }
     }
 
-    return padCostMatrix(weight_matrix);
-
+    //return padCostMatrix(weight_matrix);
+    return weight_matrix;
   }
 
   //takes a cost matrix and pads it so that it is a square matrix
@@ -157,13 +162,14 @@ public class MLridesharing extends Client {
   }
 
   //takes a request and vehicle id and returns the insertion cost
-  protected Integer getInsertionCost(final Object r, final int sid){
+  protected double getInsertionCost(final Object r, final int sid){
     //IDEA: if we want to have different cost calculation techniques
     //within the same fleet, we might want to store a map/dictionary
     //with the function to use for each vehicle (or range of vehicles)   
 
     //for now we just return a random integer to represent the insertion cost
-    return new Random().nextInt(101)  + 1;
+    Random rand = new Random();
+    return 1 + (100 - 1) * rand.nextDouble();
   }
 
   protected void optimizationModule(final Integer[][] costMatrix) {

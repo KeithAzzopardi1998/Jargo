@@ -6,6 +6,7 @@ JAVA1 = \
 	java/client/NearestPerpendicular.java \
 	java/client/GreedyInsertion.java \
 	java/client/GreedyInsertionFallback.java \
+	java/client/HungarianAlgorithm.java \
 	java/client/MLridesharing.java \
 
 # Here I am getting the names of all the *.class files to be compiled.
