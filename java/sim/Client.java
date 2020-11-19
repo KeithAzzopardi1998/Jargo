@@ -20,7 +20,9 @@ public abstract class Client {
   protected Tools tools = new Tools();
   protected final boolean DEBUG =
       "true".equals(System.getProperty("jargors.client.debug"));
+  //map containing the ID of each server and the time at which it was at the last vertex 
   protected ConcurrentHashMap<Integer, Integer> lut = new ConcurrentHashMap<Integer, Integer>();
+  //map containing the ID of each server and the last visited vertex
   protected ConcurrentHashMap<Integer, Integer> luv = new ConcurrentHashMap<Integer, Integer>();
   protected long dur_handle_request = 0;
   public Client() {
@@ -50,11 +52,12 @@ public abstract class Client {
            this.queue.add(r);
          }
   public void collectServerLocations(final int[] src) throws ClientException, ClientFatalException {
-           for (int i = 0; i < (src.length - 2); i += 3) {
+            //loop through the servers
+            for (int i = 0; i < (src.length - 2); i += 3) {
              this.handleServerLocation(new int[] {
-               src[i],
-               src[(i + 1)],
-               src[(i + 2)]
+               src[i],//server "s" id
+               src[(i + 1)],//time of the last location of "s"
+               src[(i + 2)]//vertex of the last location of "s"
              });
            }
          }
@@ -276,7 +279,7 @@ public abstract class Client {
   protected void handleRequest(final int[] r) throws ClientException, ClientFatalException { }
   protected void handleRequestBatch(final Object[] rb) throws ClientException, ClientFatalException { }
   protected void handleServerLocation(final int[] loc) throws ClientException, ClientFatalException {
-              this.lut.put(loc[0], loc[1]);
-              this.luv.put(loc[0], loc[2]);
+              this.lut.put(loc[0], loc[1]);//server ID and time
+              this.luv.put(loc[0], loc[2]);//server ID and location
             }
 }

@@ -12,7 +12,9 @@ import java.lang.Math;
 import blogspot.software_and_algorithms.stern_library.optimization.HungarianAlgorithm;
 
 public class MLridesharing extends Client {
-  final int MAX_PROXIMITY = 1800;
+  //final int MAX_PROXIMITY = 1800;
+  final int MAXN = 8;
+
   public void init() {
     System.out.printf("Set MAX_PROXIMITY=%d\n", MAX_PROXIMITY);
     this.batch_processing=true;
@@ -36,8 +38,7 @@ public class MLridesharing extends Client {
     this.queue.clear();
 
     //1. call context mapping module
-    Integer[][] context_map = new Integer[rb.length][20];
-    context_map = contextMappingModule(rb);
+    Integer[][] context_map = contextMappingModule(rb);
     if (DEBUG) {
       System.out.printf("Context Map: \n");
       for(Integer[] x: context_map)
@@ -121,8 +122,9 @@ public class MLridesharing extends Client {
   //performs the Context Mapping as described in Simonetto 2019
   protected Integer[][] contextMappingModule(final Object[] rb) {
     
-    Integer [][] contextMapping = new Integer[rb.length][20];
+    Integer [][] contextMapping = new Integer[rb.length][2*MAXN];
 
+    //get the list of available vehicles
     //1. filter out vehicles which are full
 
     //2. distinguish between vehicles which are idle (i.e. current route is empty)
