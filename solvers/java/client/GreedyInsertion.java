@@ -39,7 +39,7 @@ public class GreedyInsertion extends Client {
                     results.put(sid, val);
                 }
 
-                //update "candidates" so that it only includes the filnext location
+                //update "candidates" so that it only includes the filtered vehicle list
                 candidates = new HashMap<Integer, Integer>(results);
                 if (DEBUG) {
                   System.out.printf("do map/filter: proximity\n");
