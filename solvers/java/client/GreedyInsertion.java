@@ -161,6 +161,9 @@ public class GreedyInsertion extends Client {
                   if (DEBUG) {
                     System.out.printf("start insertion heuristic\n");
                   }
+
+                  //i is used to check where the pickup of this request should be inserted,
+                  //and j is used for the dropoff point
                   for (int i = 0; i < imax; i++) {
                     //time at which the current pickup/dropoff point is going to be visited
                     int tbeg = (i == 0 ? now : brem[4*(i - 1)]);
@@ -189,7 +192,8 @@ public class GreedyInsertion extends Client {
                       if (ok) {
                         brem = bold.clone();  // reset to original
                         int[] bnew = new int[] { };
-
+                        
+                        //inserting the pickup into the schedule at i
                         int[] stop = new int[] { 0, ro, 0, rid };
                         int ipos = i;
                         if (DEBUG) {
@@ -214,7 +218,9 @@ public class GreedyInsertion extends Client {
                         }
 
                         brem = bnew;
-
+                        
+                        //repeating a similar procedure to insert the
+                        //dropoff into the scedule at j
                         stop[1] = rd;
                         ipos = (j + 1);
                         if (DEBUG) {
@@ -236,8 +242,9 @@ public class GreedyInsertion extends Client {
                           }
                         }
 
+                        //once we have computed the schedule, we go through it
+                        //and calculate the actual route to follow
                         int[] wnew = null;
-
                         {
                           final int _p = (bnew.length/4);
                           final int[][] _legs = new int[_p][];
@@ -286,7 +293,10 @@ public class GreedyInsertion extends Client {
                                 wnew[__i], wnew[(__i + 1)]);
                           }
                         }
-
+                        
+                        //once the route is calculated, we check the time windows
+                        //and abandon this configuration if one of them is 
+                        //violated
                         if (DEBUG) {
                           System.out.printf("check time window\n");
                         }
@@ -306,7 +316,9 @@ public class GreedyInsertion extends Client {
                         if (DEBUG) {
                           System.out.printf("set ok=%s\n", (ok ? "true" : "false"));
                         }
-
+                        
+                        //if the insertion position we are checking beats the others
+                        //we have tested so far, we record it as the minimium cost insertion
                         if (ok) {
                           int cdel = bnew[(bnew.length - 4)] - cost;
                           if (cdel < cmin) {
@@ -343,7 +355,9 @@ public class GreedyInsertion extends Client {
                 if (DEBUG) {
                   System.out.printf("got candidates={ #%d }\n", candidates.size());
                 }
-
+                
+                //once we've determined the insertion point, we can update the database
+                //with the new routes and schedules
                 if (smin != 0) {
                   this.communicator.updateServerService(smin, wmin, bmin,
                       new int[] { rid }, new int[] { });
