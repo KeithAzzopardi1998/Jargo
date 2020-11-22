@@ -108,23 +108,33 @@ public abstract class Client {
          }
   public void init() { }
   public void notifyNew() throws ClientException, ClientFatalException {
-           if (batch_processing==true) {
-            long A0 = System.currentTimeMillis();
-            this.handleRequestBatch(this.queue.toArray());
-            this.dur_handle_request = System.currentTimeMillis() - A0;
-            if (DEBUG) {
-              System.out.printf("----processed request batch----\n");
-            }            
-           } else {
-            while (!this.queue.isEmpty()) {
+            if (batch_processing==true) {
+              if (DEBUG) {
+                System.out.printf("----there are %d requests in the queue----\n",this.queue.size());
+              } 
               long A0 = System.currentTimeMillis();
-              this.handleRequest(this.queue.remove());
+              if (!this.queue.isEmpty()){
+                //this.handleRequestBatch(this.queue.toArray(new int[this.queue.size()][this.queue.peek().length]));
+                int[][] rb = this.queue.toArray(new int[this.queue.size()][7]);
+                if (DEBUG) {
+                  System.out.println(Arrays.deepToString(rb).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
+                }
+                this.handleRequestBatch(rb);
+              }
               this.dur_handle_request = System.currentTimeMillis() - A0;
               if (DEBUG) {
-                System.out.printf("handleRequest(1), arg1=[#]\n");
+                System.out.printf("----processed request batch----\n");
+              }            
+            } else {
+              while (!this.queue.isEmpty()) {
+                long A0 = System.currentTimeMillis();
+                this.handleRequest(this.queue.remove());
+                this.dur_handle_request = System.currentTimeMillis() - A0;
+                if (DEBUG) {
+                  System.out.printf("handleRequest(1), arg1=[#]\n");
+                }
               }
             }
-           }
          }
   public int[] routeMinDistMinDur(int sid, int[] bnew, boolean strict) throws ClientException {
            int[] wnew = null;
@@ -277,7 +287,7 @@ public abstract class Client {
          }
   protected void end() { }
   protected void handleRequest(final int[] r) throws ClientException, ClientFatalException { }
-  protected void handleRequestBatch(final Object[] rb) throws ClientException, ClientFatalException { }
+  protected void handleRequestBatch(final int[][] rb) throws ClientException, ClientFatalException { }
   protected void handleServerLocation(final int[] loc) throws ClientException, ClientFatalException {
               this.lut.put(loc[0], loc[1]);//server ID and time
               this.luv.put(loc[0], loc[2]);//server ID and location

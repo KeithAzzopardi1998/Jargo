@@ -25,7 +25,7 @@ public class MLridesharing extends Client {
   //NOTE: the order of rb must be preserved at all times
   //      example: in the cost matrix and context map, there is one row
   //      for each request in rb
-  protected void handleRequestBatch(final Object[] rb) throws ClientException, ClientFatalException {
+  protected void handleRequestBatch(final int[][] rb) throws ClientException, ClientFatalException {
     if (DEBUG) {
       System.out.printf("processing batch of size %d\n", rb.length);
     }
@@ -90,7 +90,7 @@ public class MLridesharing extends Client {
         //the info about the request to be inserted
         //is obtained from rb (recall that the order of "assignments"
         //MUST follow the order of rb)
-        Object r = rb[i];
+        int[] r = rb[i];
 
         //NOTE: the "assignments" array does not hold vehicle IDs which can be 
         //      used directly. It contains the index of that vehicle inside
@@ -127,7 +127,7 @@ public class MLridesharing extends Client {
   }
 
   //performs the Context Mapping as described in Simonetto 2019
-  protected Integer[][] contextMappingModule(final Object[] rb) throws ClientException, ClientFatalException {
+  protected Integer[][] contextMappingModule(final int[][] rb) throws ClientException, ClientFatalException {
 
     try {
       Integer [][] contextMapping = new Integer[rb.length][2*MAXN];
@@ -163,8 +163,22 @@ public class MLridesharing extends Client {
       //3. for each request:
       for (int r_index = 0; r_index < contextMapping.length; r_index++)
       {
+        final int r_origin = rb[r_index][4];
+
         //a. from the list of idle vehicles, pick the closest "maxn" ones
-  
+        final int n_closest_candidates = candidates_idle.size() < MAXN
+                              ? candidates_idle.size()
+                              : MAXN;
+        Integer[] closest_candidates = closest_n_vehicles(r_origin,
+                                        (Integer[])candidates_idle.toArray(new Integer[candidates_idle.size()]),
+                                        n_closest_candidates);                              
+        for (int i1 = 0; i1 < n_closest_candidates; i1++) {
+          contextMapping[r_index][i1] = closest_candidates[i1];
+        }
+        for (int i2 = n_closest_candidates; i2 < MAXN; i2++ ) {
+          contextMapping[r_index][i2] = -1;
+        }
+
         //b. from the list of non-idle vehicles, pick "maxn" ones at random
         //TODO: speed up by only shuffling the number of elements we need
         //      (but make sure we don't end up picking duplicates)
@@ -203,9 +217,70 @@ public class MLridesharing extends Client {
     
   }
 
+  //TODO benchmark against something found online
+  protected Integer[] closest_n_vehicles(final int vertex, final Integer[] vehicle_ids , final int n) throws ClientException, ClientFatalException {
+    try{
+      Integer[] sorted_ids = new Integer[n];
+      Arrays.fill(sorted_ids,-1);//fill with an invalid vehicle ID
+      Integer[] sorted_values = new Integer[n];
+      Arrays.fill(sorted_values,Integer.MAX_VALUE);//fill with the highest possible value since we want a list of the smallest values
+
+      //for the first entry there's nothing to compare, so we just insert it into the
+      //array of sorted items. This is why the following loop starts at 1
+      sorted_ids[0]=vehicle_ids[0];
+      sorted_values[0]=this.tools.computeHaversine(luv.get(vehicle_ids[0]), vertex);
+
+      //used as a temporary space when swapping two elements during the sort
+      Integer tmp_swp=0;
+
+      //loop through the vehicles
+      for (int v_index = 1; v_index < vehicle_ids.length; v_index++) {
+        //get the vehicle ID and its distance to the vertex of interest
+        Integer v_id = vehicle_ids[v_index];
+        final int dist = this.tools.computeHaversine(luv.get(v_id), vertex);
+        if (dist > 0){//just a sanity check
+          
+          //we use a bubble-sort like technique (ascending), but the sort is only performed
+          //if the calculated value is less than the greatest value in the subset, which will
+          //always be at the very end of the array since we maintain a sorted list.
+          //this is computationally efficient since n, the length of the subset we want,
+          //is usually going to be much smaller than the length of the vehicle id array
+          //i.e. as we progress, the "bubble sort" part will happen less and less often,
+          //because this if statement won't pass
+          if (dist < sorted_values[n-1]) {
+            //place the element at the last location
+            sorted_ids[n-1]=v_id;
+            sorted_values[n-1]=dist;
+            //"bubble" through the rest of the array, until we find a value which is less
+            //than the current distance. temp_n keeps track of the current location of the entry
+            //as it bubbles through the array
+            int temp_n=n-1;
+            while ( (temp_n>0) && sorted_values[temp_n-1]>sorted_values[temp_n] ) {
+              //swap out the values at temp_n and temp_n-1
+              tmp_swp=sorted_ids[temp_n];//swapping the IDs
+              sorted_ids[temp_n]=sorted_ids[temp_n-1];
+              sorted_ids[temp_n-1]=tmp_swp;
+
+              tmp_swp=sorted_values[temp_n];//swapping the values
+              sorted_values[temp_n]=sorted_values[temp_n-1];
+              sorted_values[temp_n-1]=tmp_swp;
+              
+              temp_n--;
+            }
+          }
+
+        }
+      }
+      return sorted_ids;
+
+    } catch (Exception e) {
+      throw new ClientException(e);
+    }
+  }
+
   //takes the list of requests and output of the context mapping module to
   //form the cost matrix by asking the vehicles for the insertion cost
-  protected double [][] getCostMatrix(final Object[] rb, final int [] vehicles, final Integer[][] contextMapping ) {
+  protected double [][] getCostMatrix(final int[][] rb, final int [] vehicles, final Integer[][] contextMapping ) {
     int num_customers=rb.length;
     int num_vehicles=vehicles.length;
 
@@ -255,7 +330,7 @@ public class MLridesharing extends Client {
   }
 
   //takes a request and vehicle id and returns the insertion cost
-  protected double getInsertionCost(final Object r, final int sid){
+  protected double getInsertionCost(final int[] r, final int sid){
     //IDEA: if we want to have different cost calculation techniques
     //within the same fleet, we might want to store a map/dictionary
     //with the function to use for each vehicle (or range of vehicles)   
