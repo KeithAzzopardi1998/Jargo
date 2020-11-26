@@ -1,4 +1,3 @@
-package com.github.jargors.client;
 import com.github.jargors.sim.*;
 import java.util.Arrays;
 import java.util.Map;
@@ -10,9 +9,9 @@ import java.util.Collections;
 import java.util.stream.IntStream;
 import java.util.Random;
 import java.lang.Math;
-import blogspot.software_and_algorithms.stern_library.optimization.HungarianAlgorithm;
+//import blogspot.software_and_algorithms.stern_library.optimization.HungarianAlgorithm;
 
-public class MLridesharing extends Client {
+public abstract class MLridesharing extends Client {
   //final int MAX_PROXIMITY = 1800;
   final int MAXN = 8;
 
@@ -329,17 +328,6 @@ public class MLridesharing extends Client {
     return weight_matrix;
   }
 
-  //takes a request and vehicle id and returns the insertion cost
-  protected double getInsertionCost(final int[] r, final int sid){
-    //IDEA: if we want to have different cost calculation techniques
-    //within the same fleet, we might want to store a map/dictionary
-    //with the function to use for each vehicle (or range of vehicles)   
-
-    //for now we just return a random integer to represent the insertion cost
-    Random rand = new Random();
-    return 1 + (100 - 1) * rand.nextDouble();
-  }
-
   //used to insert a request into a vehicle's route
   protected void addToRoute(final Object r, final int sid){
     //TODO: we need some way to cache the insertion point when we are calculating the insertion cost
@@ -347,5 +335,8 @@ public class MLridesharing extends Client {
     return;    
   }
 
+  //takes a request and vehicle id and returns the insertion cost
+  protected abstract double getInsertionCost(final int[] r, final int sid);
 
 }
+
