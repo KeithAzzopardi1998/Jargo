@@ -1,4 +1,3 @@
-com/
 jar/
-blogspot/
+*.class
 build.log

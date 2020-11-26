@@ -13,8 +13,9 @@ default: classes jar
 
 classes: $(CLASSES:.java=.class)
 
-jar: 
-	@jar cvf solvers.jar HungarianAlgorithm.class MLridesharing.class Exhaustive.class
+jar:
+	@mkdir -p jar/
+	@jar cvf jar/solvers.jar HungarianAlgorithm.class MLridesharing.class Exhaustive.class
 
 clean:
-		$(RM) *.class solvers.jar
+		$(RM) *.class jar/solvers.jar
