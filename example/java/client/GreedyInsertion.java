@@ -19,18 +19,27 @@ public class GreedyInsertion extends Client {
                 final int rq  = r[1];
                 final int ro  = r[4];
                 final int rd  = r[5];
-
+                
+                //store a copy of all vehicles and their last recorded times inside "candidates"
                 Map<Integer, Integer> candidates = new HashMap<Integer, Integer>(lut);
+                
+                //initialize "results" to an empty map
                 Map<Integer, Integer> results = new HashMap<Integer, Integer>();
                 if (DEBUG) {
                   System.out.printf("got candidates={ #%d }\n", candidates.size());
                 }
 
+                //loop through candidatates, and if the vehicle is at most "MAX_PROXIMITY"
+                //away from the origin of the request, place it in "results"
+                //this means that results is effectively a shortlist of vehicles which are 
+                //close to the origin
                 for (final int sid : candidates.keySet()) {
                   final int val = this.tools.computeHaversine(luv.get(sid), ro);
                   if (0 < val && val <= MAX_PROXIMITY)
                     results.put(sid, val);
                 }
+
+                //update "candidates" so that it only includes the filtered vehicle list
                 candidates = new HashMap<Integer, Integer>(results);
                 if (DEBUG) {
                   System.out.printf("do map/filter: proximity\n");
@@ -45,8 +54,11 @@ public class GreedyInsertion extends Client {
                 int cmin = Integer.MAX_VALUE;
                 int smin = 0;
 
+                //loop until we have eliminated all possible servers
                 while (!candidates.isEmpty()) {
-
+                  
+                  //loop through the candidate vehicles, and store the vehicle
+                  //which is closest to the request's origin inside "cand"
                   Entry<Integer, Integer> cand = null;
                   for (final Entry<Integer, Integer> entry : candidates.entrySet()) {
                     if (cand == null || cand.getValue() > entry.getValue()) {
@@ -60,6 +72,19 @@ public class GreedyInsertion extends Client {
                   final int sid = cand.getKey();
                   final int now = this.communicator.retrieveClock();
 
+                  //schedule -> pickups and dropoffs
+                  //(any variable which starts in "b" denotes a schedule)
+                  //"brem" is the remaining schedule i.e. yet to be visited
+                  //four successive elements represent one entry:
+                  //0 -> time at which the pickup/delivery waypoint is to be visited
+                  //1 -> request pickup/delivery waypoint
+                  //2 -> 0
+                  //3 -> request id
+                  //except for the final entry, which represents:
+                  //0 -> server end point time
+                  //1 -> server end point vertex
+                  //2 -> server id
+                  //3 -> 0                  
                   int[] brem = this.communicator.queryServerScheduleRemaining(sid, now);
                   if (DEBUG) {
                     System.out.printf("got brem=\n");
@@ -68,7 +93,12 @@ public class GreedyInsertion extends Client {
                           brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
                     }
                   }
-
+                  
+                  //route -> actual route traversed in the network
+                  //(any variable which starts in "w" denotes a route)
+                  //"wact" is the route represented by an array in which each
+                  //two successive elements represent one entry, in which the second
+                  //is the vertex to visit, and the first is the time at which it will be visited
                   final int[] wact = this.communicator.queryServerRouteActive(sid);
                   if (DEBUG) {
                     System.out.printf("got wact=\n");
@@ -78,6 +108,16 @@ public class GreedyInsertion extends Client {
                     }
                   }
 
+                  //it makes sense that wact has at least 4 elements:
+                  //0 -> timestamp of the last visited vertex
+                  //1 -> last visited vertex (current location?)
+                  //2 -> timestamp of when the next location will be visited
+                  //3 -> the location to which the vehicle is travelling
+                  
+                  //if wact[3] is 0, it means that the vehicle is idle (because 0 is the index
+                  //of the dummy vertex), so we start the route ("wbeg" stands for "beginning waypoint")
+                  //now, and at the vehicle's current location. Else, we start the route at the vehicle's current
+                  //destination
                   int[] wbeg = (wact[3] == 0
                       ? new int[] { now    , wact[1] }
                       : new int[] { wact[2], wact[3] });
@@ -112,17 +152,24 @@ public class GreedyInsertion extends Client {
                   if (DEBUG) {
                     System.out.printf("set imax=%d, jmax=%d, cost=%d\n", imax, jmax, cost);
                   }
-
+                  
+                  //"bold" refers to the old schedule, i.e. the schedule
+                  //of the vehicle before this new request is inserted
                   final int[] bold = brem;
 
                   // Try all insertion positions
                   if (DEBUG) {
                     System.out.printf("start insertion heuristic\n");
                   }
+
+                  //i is used to check where the pickup of this request should be inserted,
+                  //and j is used for the dropoff point
                   for (int i = 0; i < imax; i++) {
+                    //time at which the current pickup/dropoff point is going to be visited
                     int tbeg = (i == 0 ? now : brem[4*(i - 1)]);
 
                     for (int j = i; j < jmax; j++) {
+                      //time at which the next pickup/dropoff point is going to be visited
                       int tend = bold[4*j];
 
                       if (DEBUG) {
@@ -141,11 +188,12 @@ public class GreedyInsertion extends Client {
                       if (DEBUG) {
                         System.out.printf("set ok=%s\n", (ok ? "true" : "false"));
                       }
-
+                      //proceed only if we do not violate capacity constraints
                       if (ok) {
                         brem = bold.clone();  // reset to original
                         int[] bnew = new int[] { };
-
+                        
+                        //inserting the pickup into the schedule at i
                         int[] stop = new int[] { 0, ro, 0, rid };
                         int ipos = i;
                         if (DEBUG) {
@@ -155,6 +203,8 @@ public class GreedyInsertion extends Client {
                         if (DEBUG) {
                           System.out.printf("set ipos=%d\n", ipos);
                         }
+                        //the new schedule will have a length of the old one
+                        //plus one new entry (four array elements)
                         bnew = new int[(brem.length + 4)];
                         System.arraycopy(stop, 0, bnew, 4*ipos, 4);
                         System.arraycopy(brem, 0, bnew, 0, 4*ipos);
@@ -168,7 +218,9 @@ public class GreedyInsertion extends Client {
                         }
 
                         brem = bnew;
-
+                        
+                        //repeating a similar procedure to insert the
+                        //dropoff into the scedule at j
                         stop[1] = rd;
                         ipos = (j + 1);
                         if (DEBUG) {
@@ -190,8 +242,9 @@ public class GreedyInsertion extends Client {
                           }
                         }
 
+                        //once we have computed the schedule, we go through it
+                        //and calculate the actual route to follow
                         int[] wnew = null;
-
                         {
                           final int _p = (bnew.length/4);
                           final int[][] _legs = new int[_p][];
@@ -240,7 +293,10 @@ public class GreedyInsertion extends Client {
                                 wnew[__i], wnew[(__i + 1)]);
                           }
                         }
-
+                        
+                        //once the route is calculated, we check the time windows
+                        //and abandon this configuration if one of them is 
+                        //violated
                         if (DEBUG) {
                           System.out.printf("check time window\n");
                         }
@@ -260,7 +316,9 @@ public class GreedyInsertion extends Client {
                         if (DEBUG) {
                           System.out.printf("set ok=%s\n", (ok ? "true" : "false"));
                         }
-
+                        
+                        //if the insertion position we are checking beats the others
+                        //we have tested so far, we record it as the minimium cost insertion
                         if (ok) {
                           int cdel = bnew[(bnew.length - 4)] - cost;
                           if (cdel < cmin) {
@@ -297,7 +355,9 @@ public class GreedyInsertion extends Client {
                 if (DEBUG) {
                   System.out.printf("got candidates={ #%d }\n", candidates.size());
                 }
-
+                
+                //once we've determined the insertion point, we can update the database
+                //with the new routes and schedules
                 if (smin != 0) {
                   this.communicator.updateServerService(smin, wmin, bmin,
                       new int[] { rid }, new int[] { });
