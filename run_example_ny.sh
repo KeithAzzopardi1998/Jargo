@@ -15,7 +15,7 @@ CLIENT="/home/keith/Dissertation/github/jargo/solvers/jar/solvers.jar"
 
 #CLASSNAME="com.github.jargors.sim.Client"
 #CLASSNAME="example.com.github.jargors.client.GreedyInsertion"
-CLASSNAME="com.github.jargors.client.MLridesharing"
+CLASSNAME="Exhaustive"
 
 #time_start=10
 #time_end=30
