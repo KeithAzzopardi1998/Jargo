@@ -279,30 +279,34 @@ public abstract class MLridesharing extends Client {
 
   //takes the list of requests and output of the context mapping module to
   //form the cost matrix by asking the vehicles for the insertion cost
-  protected double [][] getCostMatrix(final int[][] rb, final int [] vehicles, final Integer[][] contextMapping ) {
-    int num_customers=rb.length;
-    int num_vehicles=vehicles.length;
+  protected double [][] getCostMatrix(final int[][] rb, final int [] vehicles, final Integer[][] contextMapping ) throws ClientException {
+    try {
+      int num_customers=rb.length;
+      int num_vehicles=vehicles.length;
 
-    //building the matrix which will eventually be passed to the matching algorithmbg
-    double[][] weight_matrix = new double[num_customers][num_vehicles];
-    //looping through the customers
-    for (int i = 0; i < num_customers; i++) {
-      //looping through the vehicles
-      for (int j = 0; j < num_vehicles; j++) {
-        int vehicle_id = vehicles[j];
+      //building the matrix which will eventually be passed to the matching algorithmbg
+      double[][] weight_matrix = new double[num_customers][num_vehicles];
+      //looping through the customers
+      for (int i = 0; i < num_customers; i++) {
+        //looping through the vehicles
+        for (int j = 0; j < num_vehicles; j++) {
+          int vehicle_id = vehicles[j];
 
-        //check if this vehicle can serve this customer (from the context mapping module)
-        if (Arrays.stream(contextMapping[i]).anyMatch(x -> x == vehicle_id) ) {
-          weight_matrix[i][j]=getInsertionCost(rb[i], vehicle_id);
-        } else {
-          //if the vehicle cannot serve this customer, set the weight to infinity 
-          weight_matrix[i][j]=1000.0;
+          //check if this vehicle can serve this customer (from the context mapping module)
+          if (Arrays.stream(contextMapping[i]).anyMatch(x -> x == vehicle_id) ) {
+            weight_matrix[i][j]=getInsertionCost(rb[i], vehicle_id);
+          } else {
+            //if the vehicle cannot serve this customer, set the weight to infinity 
+            weight_matrix[i][j]=1000.0;
+          }
         }
       }
-    }
 
-    //return padCostMatrix(weight_matrix);
-    return weight_matrix;
+      //return padCostMatrix(weight_matrix);
+      return weight_matrix;
+    } catch (Exception e) {
+      throw new ClientException(e);
+    }
   }
 
   //takes a cost matrix and pads it so that it is a square matrix
@@ -336,7 +340,7 @@ public abstract class MLridesharing extends Client {
   }
 
   //takes a request and vehicle id and returns the insertion cost
-  protected abstract double getInsertionCost(final int[] r, final int sid);
+  protected abstract double getInsertionCost(final int[] r, final int sid) throws ClientException;
 
 }
 

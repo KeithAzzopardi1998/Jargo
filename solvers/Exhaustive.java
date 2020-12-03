@@ -15,7 +15,7 @@ public class Exhaustive extends MLridesharing {
     return 1 + (100 - 1) * rand.nextDouble();
   }
 
-  protected double getInsertionCost(final int[] r, final int sid) {
+  protected double getInsertionCost(final int[] r, final int sid) throws ClientException {
     final int rid = r[0];
     final int rq  = r[1];
     final int ro  = r[4];
@@ -25,24 +25,42 @@ public class Exhaustive extends MLridesharing {
       System.out.printf("calculating insertion cost for vehicle ID %d and request ID %d\n",sid,rid);
     }
 
-    final int now = this.communicator.retrieveClock();
-
-    int[] brem = this.communicator.queryServerScheduleRemaining(sid, now);
-    if (DEBUG) {
-      System.out.printf("got brem=\n");
-      for (int __i = 0; __i < (brem.length - 3); __i += 4) {
-        System.out.printf("  { %d, %d, %d, %d }\n",
-            brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
-      }
+    //dummy vehicle, we don't want it being chosen so we set the cost to an arbitrarily large number
+    if (sid == -1) {
+      return 10000;
     }
 
-    final int[] wact = this.communicator.queryServerRouteActive(sid);
-    if (DEBUG) {
-      System.out.printf("got wact=\n");
-      for (int __i = 0; __i < (wact.length - 1); __i += 2) {
-        System.out.printf("  { %d, %d }\n",
-            wact[__i], wact[(__i + 1)]);
+    try{
+      final int now = this.communicator.retrieveClock();
+
+      if (DEBUG) {
+        System.out.printf("fetching routes and schedule for vehicle %d at time %d",sid,now);
       }
+
+      int[] brem = this.communicator.queryServerScheduleRemaining(sid, now);
+      if (DEBUG) {
+        System.out.printf("got brem=\n");
+        for (int __i = 0; __i < (brem.length - 3); __i += 4) {
+          System.out.printf("  { %d, %d, %d, %d }\n",
+              brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
+        }
+      }
+
+      final int[] wact = this.communicator.queryServerRouteActive(sid);
+      if (DEBUG) {
+        System.out.printf("got wact=\n");
+        for (int __i = 0; __i < (wact.length - 1); __i += 2) {
+          System.out.printf("  { %d, %d }\n",
+              wact[__i], wact[(__i + 1)]);
+        }
+      }
+      
+      Random rand = new Random();
+      return 1 + (100 - 1) * rand.nextDouble();
+
+
+    } catch (Exception e) {
+      throw new ClientException(e);
     }
   }
 }
