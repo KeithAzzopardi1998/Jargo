@@ -9,15 +9,67 @@ import java.util.Collections;
 import java.util.stream.IntStream;
 import java.util.Random;
 import java.lang.Math;
+import java.util.concurrent.ConcurrentHashMap;
+//import javafx.util.Pair;
 //import blogspot.software_and_algorithms.stern_library.optimization.HungarianAlgorithm;
+
+
+//from https://www.techiedelight.com/implement-map-with-multiple-keys-multikeymap-java/
+class Key<K1, K2> {
+  public K1 key1;
+  public K2 key2;
+
+  public Key(K1 key1, K2 key2) {
+      this.key1 = key1;
+      this.key2 = key2;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Key key = (Key) o;
+
+      if (key1 != null ? !key1.equals(key.key1) : key.key1 != null) return false;
+      if (key2 != null ? !key2.equals(key.key2) : key.key2 != null) return false;
+
+      return true;
+  }
+
+  @Override
+  public int hashCode() {
+      int result = key1 != null ? key1.hashCode() : 0;
+      result = 31 * result + (key2 != null ? key2.hashCode() : 0);
+      return result;
+  }
+
+  @Override
+  public String toString() {
+      return "[" + key1 + ", " + key2 + "]";
+  }
+}
 
 public abstract class MLridesharing extends Client {
   //final int MAX_PROXIMITY = 1800;
   final int MAXN = 8;
 
+  //the constant used to indicate the cost of an infeasible insertion (arbitrarily high)
+  final double COST_INFEASIBLE=10000;
+
+  //we keep a "cache" containing the new routes after insertion of each customer into the route of each vehicle
+  //we use a concurrent hash map for easy retrieval and since we're not going to keep all possible customer-vehicle combinations
+  ConcurrentHashMap<Key,int[]> cache_b;
+  ConcurrentHashMap<Key,int[]> cache_w;
+
+
+
+
   public void init() {
     System.out.printf("Set MAXN=%d\n", MAXN);
     this.batch_processing=true;
+    this.cache_w = new ConcurrentHashMap<Key,int[]>();
+    this.cache_b = new ConcurrentHashMap<Key,int[]>();
   }
 
   //used to process a batch of requests rb
