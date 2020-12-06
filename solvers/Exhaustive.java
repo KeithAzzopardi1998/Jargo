@@ -47,23 +47,23 @@ public class Exhaustive extends MLridesharing {
 
       //remaining schedule (i.e. pickups and dropoffs)
       int[] brem = this.communicator.queryServerScheduleRemaining(sid, now);
-      if (DEBUG) {
-        System.out.printf("got brem=\n");
-        for (int __i = 0; __i < (brem.length - 3); __i += 4) {
-          System.out.printf("  { %d, %d, %d, %d }\n",
-              brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
-        }
-      }
+      //if (DEBUG) {
+      //  System.out.printf("got brem=\n");
+      //  for (int __i = 0; __i < (brem.length - 3); __i += 4) {
+      //    System.out.printf("  { %d, %d, %d, %d }\n",
+      //        brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
+      //  }
+      //}
 
       //active route (i.e. actual list of nodes left to traverse)
       final int[] wact = this.communicator.queryServerRouteActive(sid);
-      if (DEBUG) {
-        System.out.printf("got wact=\n");
-        for (int __i = 0; __i < (wact.length - 1); __i += 2) {
-          System.out.printf("  { %d, %d }\n",
-              wact[__i], wact[(__i + 1)]);
-        }
-      }
+      //if (DEBUG) {
+      //  System.out.printf("got wact=\n");
+      //  for (int __i = 0; __i < (wact.length - 1); __i += 2) {
+      //    System.out.printf("  { %d, %d }\n",
+      //        wact[__i], wact[(__i + 1)]);
+      //  }
+      //}
       
       //if wact[3] is 0, it means that the vehicle is idle (because 0 is the index
       //of the dummy vertex), so we start the route ("wbeg" stands for "beginning waypoint")
@@ -72,9 +72,9 @@ public class Exhaustive extends MLridesharing {
       int[] wbeg = (wact[3] == 0
           ? new int[] { now    , wact[1] }
           : new int[] { wact[2], wact[3] });
-      if (DEBUG) {
-        System.out.printf("set wbeg={ %d, %d }\n", wbeg[0], wbeg[1]);
-      }
+      //if (DEBUG) {
+      //  System.out.printf("set wbeg={ %d, %d }\n", wbeg[0], wbeg[1]);
+      //}
 
       // if next events occurs at next waypoint and is not server's own
       // destination, then delete these events from schedule (limitation #4).
@@ -87,13 +87,13 @@ public class Exhaustive extends MLridesharing {
           if (DEBUG) {
             System.out.printf("remove event\n");
           }
-          if (DEBUG) {
-            System.out.printf("got brem=\n");
-            for (int __i = 0; __i < (brem.length - 3); __i += 4) {
-              System.out.printf("  { %d, %d, %d, %d }\n",
-                  brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
-            }
-          }
+          //if (DEBUG) {
+          //  System.out.printf("got brem=\n");
+          //  for (int __i = 0; __i < (brem.length - 3); __i += 4) {
+          //    System.out.printf("  { %d, %d, %d, %d }\n",
+          //        brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
+          //  }
+          //}
         }
       } 
 
@@ -150,10 +150,10 @@ public class Exhaustive extends MLridesharing {
           //inserting the pickup into the schedule at i
           int[] stop = new int[] { 0, ro, 0, rid };
           int ipos = i;
-          if (DEBUG) {
-            System.out.printf("set stop={ %d, %d, %d, %d }\n",
-                stop[0], stop[1], stop[2], stop[3]);
-          }
+          //if (DEBUG) {
+          //  System.out.printf("set stop={ %d, %d, %d, %d }\n",
+          //      stop[0], stop[1], stop[2], stop[3]);
+          //}
           if (DEBUG) {
             System.out.printf("set ipos=%d\n", ipos);
           }
@@ -163,13 +163,13 @@ public class Exhaustive extends MLridesharing {
           System.arraycopy(stop, 0, bnew, 4*ipos, 4);
           System.arraycopy(brem, 0, bnew, 0, 4*ipos);
           System.arraycopy(brem, 4*ipos, bnew, 4*(ipos + 1), brem.length - 4*ipos);
-          if (DEBUG) {
-            System.out.printf("got bnew=\n");
-            for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
-              System.out.printf("  { %d, %d, %d, %d }\n",
-                  bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
-            }
-          }
+          //if (DEBUG) {
+          //  System.out.printf("got bnew=\n");
+          //  for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
+          //    System.out.printf("  { %d, %d, %d, %d }\n",
+          //        bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
+          //  }
+          //}
 
           brem = bnew;
 
@@ -177,10 +177,10 @@ public class Exhaustive extends MLridesharing {
           //dropoff into the scedule at j
           stop[1] = rd;
           ipos = (j + 1);
-          if (DEBUG) {
-            System.out.printf("set stop={ %d, %d, %d, %d }\n",
-                stop[0], stop[1], stop[2], stop[3]);
-          }
+          //if (DEBUG) {
+          //  System.out.printf("set stop={ %d, %d, %d, %d }\n",
+          //      stop[0], stop[1], stop[2], stop[3]);
+          //}
           if (DEBUG) {
             System.out.printf("set ipos=%d\n", ipos);
           }
@@ -188,13 +188,13 @@ public class Exhaustive extends MLridesharing {
           System.arraycopy(stop, 0, bnew, 4*ipos, 4);
           System.arraycopy(brem, 0, bnew, 0, 4*ipos);
           System.arraycopy(brem, 4*ipos, bnew, 4*(ipos + 1), brem.length - 4*ipos);
-          if (DEBUG) {
-            System.out.printf("got bnew=\n");
-            for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
-              System.out.printf("  { %d, %d, %d, %d }\n",
-                  bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
-            }
-          }
+          //if (DEBUG) {
+          //  System.out.printf("got bnew=\n");
+          //  for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
+          //    System.out.printf("  { %d, %d, %d, %d }\n",
+          //        bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
+          //  }
+          //}
 
           //once we have computed the schedule, we go through it
           //and calculate the actual route to follow
@@ -239,13 +239,13 @@ public class Exhaustive extends MLridesharing {
               wnew[0] = lut.get(sid);
             }
 
-            if (DEBUG) {
-              System.out.printf("set wnew=\n");
-              for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
-                System.out.printf("  { %d, %d }\n",
-                    wnew[__i], wnew[(__i + 1)]);
-              }
-            }
+            //if (DEBUG) {
+            //  System.out.printf("set wnew=\n");
+            //  for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
+            //    System.out.printf("  { %d, %d }\n",
+            //        wnew[__i], wnew[(__i + 1)]);
+            //  }
+            //}
 
             //once the route is calculated, we check the time windows
             //and abandon this configuration if one of them is 
@@ -284,13 +284,13 @@ public class Exhaustive extends MLridesharing {
             bmin = bnew;
             wmin = wnew;
             cmin = cdel;
-            if (DEBUG) {
-              System.out.printf("got bnew=\n");
-              for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
-                System.out.printf("  { %d, %d, %d, %d }\n",
-                    bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
-              }
-            }
+            //if (DEBUG) {
+            //  System.out.printf("got bnew=\n");
+            //  for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
+            //    System.out.printf("  { %d, %d, %d, %d }\n",
+            //        bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
+            //  }
+            //}
             if (DEBUG) {
               System.out.printf("set cmin=%d\n", cmin);
             }

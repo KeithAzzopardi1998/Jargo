@@ -141,7 +141,7 @@ public abstract class MLridesharing extends Client {
         //the info about the request to be inserted
         //is obtained from rb (recall that the order of "assignments"
         //MUST follow the order of rb)
-        int[] r = rb[i];
+        final int r_id = rb[i][0];
 
         //NOTE: the "assignments" array does not hold vehicle IDs which can be 
         //      used directly. It contains the index of that vehicle inside
@@ -157,11 +157,16 @@ public abstract class MLridesharing extends Client {
           //TODO: this is where the reactive repositioning should probably come in too
         }
         else {
+          //insert the request into the vehicle's route by fetching the updated route
+          //with the new request from the cache
           int v_id = vehicles[v_index];
           if (DEBUG) {
             System.out.printf("Adding request %d to vehicle with ID %d\n",i,v_id);
           }
-          addToRoute(r,v_id);
+          Key<Integer,Integer> k_temp=new Key<Integer,Integer>(r_id,v_id);
+          final int[] wnew = this.cache_w.get(k_temp);
+          final int[] bnew = this.cache_b.get(k_temp);
+          this.communicator.updateServerService(v_id, wnew, bnew, new int[] { r_id }, new int[] { });
         }
       }
       if (DEBUG) {
@@ -382,13 +387,6 @@ public abstract class MLridesharing extends Client {
     }
 
     return weight_matrix;
-  }
-
-  //used to insert a request into a vehicle's route
-  protected void addToRoute(final Object r, final int sid){
-    //TODO: we need some way to cache the insertion point when we are calculating the insertion cost
-
-    return;    
   }
 
   //takes a request and vehicle id and returns the insertion cost
