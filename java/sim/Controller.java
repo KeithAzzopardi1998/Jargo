@@ -766,14 +766,16 @@ public class Controller {
            }
 
            this.cb2 = exe.scheduleAtFixedRate(
-             this.RequestCollectionLoop, this.loop_delay, REQUEST_COLLECTION_PERIOD, TimeUnit.SECONDS);
+             //this.RequestCollectionLoop, this.loop_delay, REQUEST_COLLECTION_PERIOD, TimeUnit.SECONDS);
+             this.RequestCollectionLoop, 10, REQUEST_COLLECTION_PERIOD, TimeUnit.SECONDS);
            if (DEBUG) {
              System.out.printf("exe RequestCollectionLoop, delay=%d, int=%d\n",
                  this.loop_delay, REQUEST_COLLECTION_PERIOD);
            }
 
            this.cb3 = exe.scheduleAtFixedRate(
-             this.RequestHandlingLoop, this.loop_delay, REQUEST_HANDLING_PERIOD, TimeUnit.MILLISECONDS);
+             //this.RequestHandlingLoop, this.loop_delay, REQUEST_HANDLING_PERIOD, TimeUnit.MILLISECONDS);
+             this.RequestHandlingLoop, 10, REQUEST_HANDLING_PERIOD, TimeUnit.MILLISECONDS);
            if (DEBUG) {
              System.out.printf("exe RequestHandlingLoop, delay=%d, int=%d\n",
                  this.loop_delay, REQUEST_HANDLING_PERIOD);

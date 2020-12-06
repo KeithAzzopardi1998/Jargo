@@ -55,7 +55,7 @@ public abstract class MLridesharing extends Client {
   final int MAXN = 8;
 
   //the constant used to indicate the cost of an infeasible insertion (arbitrarily high)
-  final double COST_INFEASIBLE=10000;
+  final double COST_INFEASIBLE=100000;
 
   //we keep a "cache" containing the new routes after insertion of each customer into the route of each vehicle
   //we use a concurrent hash map for easy retrieval and since we're not going to keep all possible customer-vehicle combinations
@@ -149,10 +149,10 @@ public abstract class MLridesharing extends Client {
         //      check if it is -1 (which means that the request should not be assigned to any vehicle)
         //      and if not, proceed to fetch the actual vehicle ID and insert it into the route
         int v_index = assignments[i];
-        if (v_index == -1) {
+        if ((v_index == -1) || (cost_matrix[i][v_index]==this.COST_INFEASIBLE)) {
           //add the request back to the queue so that we can try to insert it in the next epoch
           if (DEBUG) {
-            System.out.printf("Adding request %d to queue\n",i);
+            System.out.printf("Adding request %d (ID %d) to queue\n",i,r_id);
           }
           //TODO: this is where the reactive repositioning should probably come in too
         }
@@ -161,12 +161,26 @@ public abstract class MLridesharing extends Client {
           //with the new request from the cache
           int v_id = vehicles[v_index];
           if (DEBUG) {
-            System.out.printf("Adding request %d to vehicle with ID %d\n",i,v_id);
+            System.out.printf("Adding request %d (ID %d) to vehicle with ID %d\n",i,r_id,v_id);
+            System.out.printf("Insertion cost is %f\n",cost_matrix[i][v_index]);
           }
           Key<Integer,Integer> k_temp=new Key<Integer,Integer>(r_id,v_id);
           final int[] wnew = this.cache_w.get(k_temp);
+          if (DEBUG) {
+            System.out.printf("new route: %s\n",Arrays.toString(wnew));
+          }          
           final int[] bnew = this.cache_b.get(k_temp);
-          this.communicator.updateServerService(v_id, wnew, bnew, new int[] { r_id }, new int[] { });
+          if (DEBUG) {
+            System.out.printf("new schedule: %s\n",Arrays.toString(bnew));
+          }
+          try {
+            this.communicator.updateServerService(v_id, wnew, bnew, new int[] { r_id }, new int[] { });    
+          } catch (Exception e) {
+            System.err.println("ERROR occurred during insertion:");
+            System.err.println(e.toString());
+            e.printStackTrace();
+          }
+          
         }
       }
       if (DEBUG) {
@@ -354,7 +368,7 @@ public abstract class MLridesharing extends Client {
             weight_matrix[i][j]=getInsertionCost(rb[i], vehicle_id);
           } else {
             //if the vehicle cannot serve this customer, set the weight to infinity 
-            weight_matrix[i][j]=1000.0;
+            weight_matrix[i][j]=this.COST_INFEASIBLE;
           }
         }
       }

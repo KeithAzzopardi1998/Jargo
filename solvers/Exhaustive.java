@@ -42,7 +42,7 @@ public class Exhaustive extends MLridesharing {
       final int now = this.communicator.retrieveClock();
 
       if (DEBUG) {
-        System.out.printf("fetching routes and schedule for vehicle %d at time %d",sid,now);
+        System.out.printf("fetching routes and schedule for vehicle %d at time %d\n",sid,now);
       }
 
       //remaining schedule (i.e. pickups and dropoffs)
@@ -124,15 +124,15 @@ public class Exhaustive extends MLridesharing {
           if (DEBUG) {
             System.out.printf("set i=%d, j=%d\n", i, j);
           }
-          if (DEBUG) {
-            System.out.printf("set tbeg=%d, tend=%d\n", tbeg, tend);
-          }
+          //if (DEBUG) {
+          //  System.out.printf("set tbeg=%d, tend=%d\n", tbeg, tend);
+          //}
           
           //used to indicate feasibility of the current insertion point(s) being tested
           boolean ok = false;
 
           if (DEBUG) {
-            System.out.printf("check capacity\n");
+            System.out.printf("check capacity : ");
           }
           ok = (this.communicator.queryServerCapacityViolations(sid, rq, tbeg, tend)[0] == 0);
           if (DEBUG) {
@@ -154,9 +154,9 @@ public class Exhaustive extends MLridesharing {
           //  System.out.printf("set stop={ %d, %d, %d, %d }\n",
           //      stop[0], stop[1], stop[2], stop[3]);
           //}
-          if (DEBUG) {
-            System.out.printf("set ipos=%d\n", ipos);
-          }
+          //if (DEBUG) {
+          //  System.out.printf("set ipos=%d\n", ipos);
+          //}
           //the new schedule will have a length of the old one
           //plus one new entry (four array elements)
           bnew = new int[(brem.length + 4)];
@@ -181,9 +181,9 @@ public class Exhaustive extends MLridesharing {
           //  System.out.printf("set stop={ %d, %d, %d, %d }\n",
           //      stop[0], stop[1], stop[2], stop[3]);
           //}
-          if (DEBUG) {
-            System.out.printf("set ipos=%d\n", ipos);
-          }
+          //if (DEBUG) {
+          //  System.out.printf("set ipos=%d\n", ipos);
+          //}
           bnew = new int[(brem.length + 4)];
           System.arraycopy(stop, 0, bnew, 4*ipos, 4);
           System.arraycopy(brem, 0, bnew, 0, 4*ipos);
@@ -251,7 +251,7 @@ public class Exhaustive extends MLridesharing {
             //and abandon this configuration if one of them is 
             //violated
             if (DEBUG) {
-              System.out.printf("check time window\n");
+              System.out.printf("check time window : ");
             }
             for (int _i = 0; _i < (bnew.length - 3); _i += 4) {
               int _rid = bnew[(_i + 3)];
@@ -317,11 +317,6 @@ public class Exhaustive extends MLridesharing {
         }
         return this.COST_INFEASIBLE;
       }
-
-      
-      //Random rand = new Random();
-      //return 1 + (100 - 1) * rand.nextDouble();
-
 
     } catch (Exception e) {
       throw new ClientException(e);
