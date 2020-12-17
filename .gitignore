@@ -7,3 +7,5 @@ www/
 *.log
 export/
 test_log_*.txt
+solvers/*.class
+solvers/jar
