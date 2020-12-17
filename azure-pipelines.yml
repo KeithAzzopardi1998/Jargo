@@ -29,14 +29,18 @@ stages:
         tags: |
           $(tag)
 
-- stage: Test
+- stage: Simulation
   displayName: Run Simulation
   jobs:  
-  - job: Test
-    displayName: Test
+  - job: Simulate
+    displayName: Simulate
     pool:
       vmImage: 'ubuntu-18.04'
+    container: keithazzopardium/jargo:1.6
     steps:
     - task: Bash@3
       inputs:
-        filePath: 'run_example_ny.sh'
+        filePath: '/jargo/run_example_ny.sh'
+
+
+
