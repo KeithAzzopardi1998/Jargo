@@ -1,0 +1,11 @@
+com/
+dep/
+jar/
+pdf/
+release/
+www/
+*.log
+export/
+test_log_*.txt
+solvers/*.class
+solvers/jar
