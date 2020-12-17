@@ -41,9 +41,11 @@ stages:
     - task: CmdLine@2
       inputs:
         script: 'ls -R /jargo'
-    - task: Bash@3
+    - task: CmdLine@2
       inputs:
-        filePath: '/jargo/run_example_ny.sh'
+        script: |
+          cd /jargo
+          ./run_exemple_ny.sh
 
 
 
