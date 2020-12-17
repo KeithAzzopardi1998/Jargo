@@ -44,8 +44,7 @@ stages:
     - task: CmdLine@2
       inputs:
         script: |
-          cd /jargo
-          ./run_exemple_ny.sh
+          cd /jargo && ./run_exemple_ny.sh
 
 
 
