@@ -39,4 +39,4 @@ stages:
     steps:
     - task: Bash@3
       inputs:
-        filePath: '/jargo/run_example_ny.sh'
+        filePath: 'run_example_ny.sh'
