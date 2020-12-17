@@ -38,6 +38,9 @@ stages:
       vmImage: 'ubuntu-18.04'
     container: keithazzopardium/jargo:1.6
     steps:
+    - task: CmdLine@2
+      inputs:
+        script: 'ls -R /jargo'
     - task: Bash@3
       inputs:
         filePath: '/jargo/run_example_ny.sh'
