@@ -104,7 +104,7 @@ dep/gtree-2.0-linux : | dep/archive/gtree-2.0-linux.tar
 	@tar xvf dep/archive/gtree-2.0-linux.tar --one-top-level=dep/gtree-2.0-linux > /dev/null
 
 dep/archive/gtree-2.0-linux.tar :
-	@$(call get_tar,https://github.com/jamjpan/GTreeJNI/releases/download/2.0/gtree-2.0-linux.tar)
+	@$(call get_tar,https://dissertationws8191868266.blob.core.windows.net/jargo-gtree-jar/gtree-2.0-linux.tar)
 
 ####### Dependencies for Jargo Desktop #########################################
 
