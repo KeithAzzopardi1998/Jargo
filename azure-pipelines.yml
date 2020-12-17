@@ -8,12 +8,13 @@ trigger:
 resources:
 - repo: self
 
+
 variables:
   tag: '$(Build.BuildId)'
 
 stages:
 - stage: Build
-  displayName: Build image
+  displayName: Build Image
   jobs:  
   - job: Build
     displayName: Build
@@ -27,3 +28,15 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
           $(tag)
+
+- stage: Test
+  displayName: Run Simulation
+  jobs:  
+  - job: Test
+    displayName: Test
+    pool:
+      vmImage: 'ubuntu-18.04'
+    steps:
+    - task: Bash@3
+      inputs:
+        filePath: '/jargo/run_example_ny.sh'
