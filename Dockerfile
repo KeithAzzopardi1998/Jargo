@@ -24,9 +24,9 @@ RUN make dep
 #install Apache Derby
 RUN wget "https://archive.apache.org/dist/db/derby/db-derby-10.15.1.3/db-derby-10.15.1.3-bin.tar.gz" --output-document "/home/derby.tar.gz" \
     && mkdir "/home/derby" \
-    && tar xvf "/home/derby.tar.gz" -C "/home/derby" --strip-components 1 \
-    && export DERBY_HOME="/home/derby" \
-    && export PATH="${PATH}:${DERBY_HOME}/bin"
+    && tar xvf "/home/derby.tar.gz" -C "/home/derby" --strip-components 1
+ENV DERBY_HOME="/home/derby"
+ENV PATH="${PATH}:${DERBY_HOME}/bin"
 
 #build the jargo executable
 RUN make jar
