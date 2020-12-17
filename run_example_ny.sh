@@ -2,7 +2,8 @@
 
 MODE="real"
 
-data_dir="/data/dissertation_data/jargo_datasets/Manhattan"
+#data_dir="/data/dissertation_data/jargo_datasets/Manhattan"
+data_dir="${JARGO_DATA_DIR}/Manhattan"
 
 ROAD="${data_dir}/mny.rnet"
 
@@ -11,7 +12,8 @@ GTREE="${data_dir}/mny.gtree"
 PROB="${data_dir}/mny-9-5000.instance"
 
 #CLIENT="/home/keith/Dissertation/Jargo/jar/jargors-1.0.0.jar"
-CLIENT="/home/keith/Dissertation/github/jargo/solvers/jar/solvers.jar"
+#CLIENT="/home/keith/Dissertation/github/jargo/solvers/jar/solvers.jar"
+CLIENT="solvers/jar/solvers.jar"
 
 #CLASSNAME="com.github.jargors.sim.Client"
 #CLASSNAME="example.com.github.jargors.client.GreedyInsertion"
