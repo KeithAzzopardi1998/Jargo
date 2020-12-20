@@ -152,8 +152,9 @@ public abstract class MLridesharing extends Client {
         if ((v_index == -1) || (cost_matrix[i][v_index]==this.COST_INFEASIBLE)) {
           //add the request back to the queue so that we can try to insert it in the next epoch
           if (DEBUG) {
-            System.out.printf("Adding request %d (ID %d) to queue\n",i,r_id);
+            System.out.printf("Adding request %d (ID %d) back to the queue\n",i,r_id);
           }
+          this.queue.add(rb[i]);
           //TODO: this is where the reactive repositioning should probably come in too
         }
         else {
@@ -179,6 +180,8 @@ public abstract class MLridesharing extends Client {
             System.err.println("ERROR occurred during insertion:");
             System.err.println(e.toString());
             e.printStackTrace();
+            //add the request back to the queue
+            this.queue.add(rb[i]);
           }
           
         }
