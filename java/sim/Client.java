@@ -123,7 +123,7 @@ public abstract class Client {
               }
               this.dur_handle_request = System.currentTimeMillis() - A0;
               if (DEBUG) {
-                System.out.printf("----processed request batch----\n");
+                System.out.printf("----processed request batch ... %d requests left in the queue----\n",this.queue.size());
               }            
             } else {
               while (!this.queue.isEmpty()) {

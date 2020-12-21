@@ -177,7 +177,15 @@ public class Controller {
   };
   private Runnable RequestHandlingLoop = () -> {
     try {
+      //if (DEBUG) {
+      //  System.out.printf("~~[t=%d] request handling loop start\n",
+      //    this.simClock);
+      //}      
       this.client.notifyNew();  // blocks this thread until queue is empty
+      //if (DEBUG) {
+      //  System.out.printf("~~[t=%d] request handling loop end\n",
+      //    this.simClock);
+      //}
     } catch (ClientException e) {
       System.err.printf("[t=%d] Controller.RequestHandlingLoop caught a ClientException: %s\n",
           this.simClock, e.toString());
