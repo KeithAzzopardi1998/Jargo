@@ -59,11 +59,17 @@ public class Controller {
       Integer.parseInt(System.getProperty("jargors.controller.queue_timeout", "30"));
   private int REQUEST_COLLECTION_PERIOD = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_collection_period", "1"));
+  private int REQUEST_COLLECTION_DELAY = 0;
+      //Integer.parseInt(System.getProperty("jargors.controller.request_collection_delay", "1"));
   private int REQUEST_HANDLING_PERIOD = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_period", "1"));
+  private int REQUEST_HANDLING_DELAY = 2;
+      //Integer.parseInt(System.getProperty("jargors.controller.request_handling_delay", "1"));
   private int SERVER_COLLECTION_PERIOD =
       Integer.parseInt(System.getProperty("jargors.controller.server_collection_period", "1"));
-  private int loop_delay = 0;
+  private int SERVER_COLLECTION_DELAY =
+      Integer.parseInt(System.getProperty("jargors.controller.server_collection_delay", "1"));
+  // private int loop_delay = 0;
   // private int deviation_rate = 0.02;
   // private int breakdown_rate = 0.005;
   private final double CSHIFT = Storage.CSHIFT;
@@ -775,25 +781,25 @@ public class Controller {
 
            this.cb2 = exe.scheduleAtFixedRate(
              //this.RequestCollectionLoop, this.loop_delay, REQUEST_COLLECTION_PERIOD, TimeUnit.SECONDS);
-             this.RequestCollectionLoop, 10, REQUEST_COLLECTION_PERIOD, TimeUnit.SECONDS);
+             this.RequestCollectionLoop, REQUEST_COLLECTION_DELAY, REQUEST_COLLECTION_PERIOD, TimeUnit.SECONDS);
            if (DEBUG) {
              System.out.printf("exe RequestCollectionLoop, delay=%d, int=%d\n",
-                 this.loop_delay, REQUEST_COLLECTION_PERIOD);
+                 REQUEST_COLLECTION_DELAY, REQUEST_COLLECTION_PERIOD);
            }
 
            this.cb3 = exe.scheduleAtFixedRate(
              //this.RequestHandlingLoop, this.loop_delay, REQUEST_HANDLING_PERIOD, TimeUnit.MILLISECONDS);
-             this.RequestHandlingLoop, 10, REQUEST_HANDLING_PERIOD, TimeUnit.MILLISECONDS);
+             this.RequestHandlingLoop, REQUEST_HANDLING_DELAY, REQUEST_HANDLING_PERIOD, TimeUnit.MILLISECONDS);
            if (DEBUG) {
              System.out.printf("exe RequestHandlingLoop, delay=%d, int=%d\n",
-                 this.loop_delay, REQUEST_HANDLING_PERIOD);
+                 REQUEST_HANDLING_DELAY, REQUEST_HANDLING_PERIOD);
            }
 
            this.cb4 = exe.scheduleAtFixedRate(
-             this.ServerLoop, this.loop_delay, SERVER_COLLECTION_PERIOD, TimeUnit.SECONDS);
+             this.ServerLoop, SERVER_COLLECTION_DELAY, SERVER_COLLECTION_PERIOD, TimeUnit.SECONDS);
            if (DEBUG) {
              System.out.printf("exe ServerLoop, delay=%d, int=%d\n",
-                 this.loop_delay, SERVER_COLLECTION_PERIOD);
+                 SERVER_COLLECTION_DELAY, SERVER_COLLECTION_PERIOD);
            }
 
            this.exe.schedule(() -> {
