@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+#IMPORTANT: set this in the script
 #_CLASSPATH=.:jar/*:dep:dep/*
 #_CLASSPATH=.:jar/*:dep:dep/*:example:example/jar/*
-_CLASSPATH=.:jar/*:dep:dep/*:solvers:solvers/jar/*
+#_CLASSPATH=.:jar/*:dep:dep/*:solvers:solvers/jar/*
 java \
     -Xmx6g \
     -Djava.library.path=dep \
@@ -12,6 +13,7 @@ java \
     -Djargors.storage.debug=false \
     -Djargors.controller.debug=true \
     -Djargors.client.debug=true \
+    -Djargors.algorithm.debug=false \
     -Djargors.traffic.debug=false \
     -cp $_CLASSPATH:$DERBY_HOME/lib/derby.jar \
 com.github.jargors.ui.Command $@

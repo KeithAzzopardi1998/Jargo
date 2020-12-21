@@ -5,7 +5,7 @@ pdf/
 release/
 www/
 *.log
-export/
+export*/
 test_log_*.txt
 solvers/*.class
 solvers/jar

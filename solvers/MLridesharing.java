@@ -62,7 +62,8 @@ public abstract class MLridesharing extends Client {
   ConcurrentHashMap<Key,int[]> cache_b;
   ConcurrentHashMap<Key,int[]> cache_w;
 
-
+  protected final boolean DEBUG =
+      "true".equals(System.getProperty("jargors.algorithm.debug"));
 
 
   public void init() {
