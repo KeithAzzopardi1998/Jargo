@@ -28,7 +28,7 @@ stages:
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         tags: |
-          ${tag}
+          $(tag)
 
 - stage: Simulation
   displayName: Run Simulation
@@ -37,7 +37,7 @@ stages:
     displayName: Simulate
     pool:
       vmImage: 'ubuntu-18.04'
-    container: keithazzopardium/jargo:${tag}
+    container: keithazzopardium/jargo:$(tag)
     steps:
     - task: CmdLine@2
       inputs:
