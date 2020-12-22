@@ -11,7 +11,6 @@ resources:
 
 variables:
   tag: '$(Build.BuildId)'
-  instance_name: 'sim-6may-hr0_hr5-sample.instance'
 
 stages:
 - stage: Build
@@ -35,6 +34,22 @@ stages:
   displayName: Run Simulation
   jobs:  
   - job: Simulate
+    strategy:
+      matrix: 
+        'day1':
+          instance_name: 'sim-6may-hr0_hr5-sample.instance'
+        'day2':
+          instance_name: 'sim-6may-hr0_hr5-sample.instance'
+        'day3':
+          instance_name: 'sim-7may-hr0_hr5-sample.instance'
+        'day4':
+          instance_name: 'sim-8may-hr0_hr5-sample.instance'
+        'day5':
+          instance_name: 'sim-9may-hr0_hr5-sample.instance'
+        'day6':
+          instance_name: 'sim-10may-hr0_hr5-sample.instance'
+        'day7':
+          instance_name: 'sim-11may-hr0_hr5-sample.instance'                    
     displayName: Simulate
     pool:
       vmImage: 'ubuntu-18.04'
