@@ -11,6 +11,7 @@ resources:
 
 variables:
   tag: '$(Build.BuildId)'
+  instance_name: 'sim-6may-hr0_hr5-sample.instance'
 
 stages:
 - stage: Build
@@ -45,7 +46,7 @@ stages:
     - task: CmdLine@2
       inputs:
         script: |
-          cd /jargo && ./run_example_ny.sh
+          cd /jargo && ./run_example_simonetto.sh $(instance_name)
 
 
 
