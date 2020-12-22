@@ -79,6 +79,11 @@ stages:
         archiveFile: '$(Build.ArtifactStagingDirectory)/build$(Build.BuildId)_$(instance_name).zip'
         replaceExistingArchive: true
         verbose: true
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)' 
+        artifactName: 'artifacts_build$(Build.BuildId)_$(instance_name)' 
+        publishLocation: 'Container'
 
 
 
