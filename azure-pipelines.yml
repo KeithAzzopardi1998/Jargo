@@ -61,7 +61,25 @@ stages:
     - task: CmdLine@2
       inputs:
         script: |
+          cd /jargo && ./run_example_simonetto.sh $(instance_name) 2>&1 | tee /jargo/sim_log.txt
+    - task: CmdLine@2
+      inputs:
+        script: |
           cd /jargo && ./run_example_simonetto.sh $(instance_name)
+    - task: CmdLine@2
+      inputs:
+        script: |
+          cp -vf /jargo/sim_log.txt /jargo/export
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '/jargo/export'
+        includeRootFolder: true
+        archiveType: 'tar'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/build$(Build.BuildId)_$(instance_name).zip'
+        replaceExistingArchive: true
+        verbose: true
+
+
 
 
 
