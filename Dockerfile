@@ -1,6 +1,7 @@
 FROM ubuntu:18.04
 
-WORKDIR /jargo
+ENV JARGO_DIR="/jargo"
+WORKDIR ${JARGO_DIR}
 
 #get required ubuntu packages
 RUN apt-get update && apt-get install -y \
@@ -40,5 +41,8 @@ RUN git clone "https://github.com/KeithAzzopardi1998/Datasets.git" "${JARGO_DATA
 RUN wget "https://dissertationws8191868266.blob.core.windows.net/jargo-gtree-files/mny.gtree" --output-document "/home/mny.gtree" \
     && cp "/home/mny.gtree" "${JARGO_DATA_DIR}/Manhattan" \
     && cp "/home/mny.gtree" "${JARGO_DATA_DIR}/Simonetto"
+
+RUN chmod 777 ${JARGO_DIR}
+RUN chmod 777 ${JARGO_DATA_DIR}
 
 CMD ["bash"]
