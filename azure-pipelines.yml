@@ -57,7 +57,7 @@ stages:
     steps:
     - task: CmdLine@2
       inputs:
-        script: 'ls -R /jargo'
+        script: 'chmod 777 /jargo && ls -al /jargo'
     - task: CmdLine@2
       inputs:
         script: |
