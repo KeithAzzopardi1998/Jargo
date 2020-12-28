@@ -10,7 +10,7 @@ resources:
 
 
 variables:
-  tag: '$(Build.BuildId)'
+  tag: 'azureBuild$(Build.BuildId)'
 
 stages:
 - stage: Build
