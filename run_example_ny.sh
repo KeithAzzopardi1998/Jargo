@@ -9,7 +9,7 @@ ROAD="${data_dir}/mny.rnet"
 
 GTREE="${data_dir}/mny.gtree"
 
-PROB="${data_dir}/mny-1-5000.instance"
+PROB="${data_dir}/mny-9-5000.instance"
 
 CLIENT="solvers/jar/solvers.jar"
 CLASSNAME="Exhaustive"

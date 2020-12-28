@@ -66,7 +66,7 @@ public abstract class MLridesharing extends Client {
   ConcurrentHashMap<Key,int[]> cache_b;
   ConcurrentHashMap<Key,int[]> cache_w;
 
-  protected final boolean DEBUG =
+  private final boolean DEBUG =
       "true".equals(System.getProperty("jargors.algorithm.debug"));
 
 
@@ -199,7 +199,7 @@ public abstract class MLridesharing extends Client {
           
         }
       }
-      if (reactive_rebalancing_enabled) {
+      if (reactive_rebalancing_enabled && !this.rebalancing_queue.isEmpty()) {
         if (DEBUG) {
           System.out.printf("calling reactive rebalancing module\n");
         }
@@ -213,9 +213,6 @@ public abstract class MLridesharing extends Client {
       throw new ClientException(e);
     }
 
-    
-
-    
   }
 
   //performs the Context Mapping as described in Simonetto 2019
@@ -286,21 +283,7 @@ public abstract class MLridesharing extends Client {
         }
       
       }
-  
-      
-      //for now, we will just fill in the context mapping block with random values
-      /*
-      Integer[] random_values= new Integer[contextMapping[0].length + 5];
-      for (int i = 0; i < random_values.length; i++) {
-        random_values[i] = i;
-      }
-      List<Integer> random_values_list = Arrays.asList(random_values);
-      for (int r = 0; r < contextMapping.length; r++) {
-        Collections.shuffle(random_values_list);
-        random_values_list.toArray(random_values);
-        contextMapping[r] = Arrays.copyOfRange(random_values,0,contextMapping[0].length);
-      }
-      */
+
       return contextMapping;
       
     } catch (Exception e) {
@@ -309,8 +292,38 @@ public abstract class MLridesharing extends Client {
     
   }
 
-  protected void reactiveRebalancingModule(){
-    return;
+  protected void reactiveRebalancingModule() throws ClientException {
+    try{
+      //1. fetch list of unassigned requests
+      if (DEBUG) {
+        System.out.printf("Rebalancing idle vehicles to serve %d customers\n",this.rebalancing_queue.size());
+      }
+      int[][] rb = this.queue.toArray(new int[this.queue.size()][7]);
+      
+      //2. fetch list of idle vehicles
+      Map<Integer, Integer> candidate_vehicles = new HashMap<Integer, Integer>(lut);
+      List<Integer> idle_vehicles = new ArrayList<Integer>();
+      for (final int sid : candidate_vehicles.keySet()) {
+        //see comments inside GreedyInsertion.java for the reason why we are 
+        //checking if wact[3] is 0 to check whether the vehicle is idle or not
+        final int[] wact = this.communicator.queryServerRouteActive(sid);
+        if (wact[3] == 0) {
+          idle_vehicles.add(sid);
+        }
+      }
+      if (DEBUG) {
+        System.out.printf("Got %d idle vehicles to consider for rebalancing\n",idle_vehicles.size());
+      }
+
+      //3. calculate travel distance between each request-vehicle pair
+
+      //4. solve the assignment problem using the hungarian algorithm
+
+      //5. update vehicle routes
+
+    } catch (Exception e) {
+      throw new ClientException(e);
+    }
   }
 
   //TODO benchmark against something found online

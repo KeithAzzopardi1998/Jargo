@@ -13,7 +13,8 @@ java \
     -Djargors.storage.debug=false \
     -Djargors.controller.debug=true \
     -Djargors.client.debug=true \
-    -Djargors.algorithm.debug=false \
+    -Djargors.algorithm.debug=true \
+    -Djargors.costcalculation.debug=false \
     -Djargors.traffic.debug=false \
     -cp $_CLASSPATH:$DERBY_HOME/lib/derby.jar \
 com.github.jargors.ui.Command $@

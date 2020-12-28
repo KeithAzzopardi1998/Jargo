@@ -5,6 +5,9 @@ import java.util.Arrays;
 
 public class Exhaustive extends MLridesharing {
   
+  private final boolean DEBUG =
+    "true".equals(System.getProperty("jargors.costcalculation.debug"));
+  
   //takes a request and vehicle id and returns the insertion cost
   protected double getInsertionCost_random(final int[] r, final int sid){
     //IDEA: if we want to have different cost calculation techniques
@@ -154,9 +157,9 @@ public class Exhaustive extends MLridesharing {
           //  System.out.printf("set stop={ %d, %d, %d, %d }\n",
           //      stop[0], stop[1], stop[2], stop[3]);
           //}
-          //if (DEBUG) {
-          //  System.out.printf("set ipos=%d\n", ipos);
-          //}
+          if (DEBUG) {
+            System.out.printf("set ipos=%d\n", ipos);
+          }
           //the new schedule will have a length of the old one
           //plus one new entry (four array elements)
           bnew = new int[(brem.length + 4)];
@@ -181,9 +184,9 @@ public class Exhaustive extends MLridesharing {
           //  System.out.printf("set stop={ %d, %d, %d, %d }\n",
           //      stop[0], stop[1], stop[2], stop[3]);
           //}
-          //if (DEBUG) {
-          //  System.out.printf("set ipos=%d\n", ipos);
-          //}
+          if (DEBUG) {
+            System.out.printf("set ipos=%d\n", ipos);
+          }
           bnew = new int[(brem.length + 4)];
           System.arraycopy(stop, 0, bnew, 4*ipos, 4);
           System.arraycopy(brem, 0, bnew, 0, 4*ipos);
@@ -239,13 +242,13 @@ public class Exhaustive extends MLridesharing {
               wnew[0] = lut.get(sid);
             }
 
-            //if (DEBUG) {
-            //  System.out.printf("set wnew=\n");
-            //  for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
-            //    System.out.printf("  { %d, %d }\n",
-            //        wnew[__i], wnew[(__i + 1)]);
-            //  }
-            //}
+            if (DEBUG) {
+              System.out.printf("set wnew=\n");
+              for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
+                System.out.printf("  { %d, %d }\n",
+                    wnew[__i], wnew[(__i + 1)]);
+              }
+            }
 
             //once the route is calculated, we check the time windows
             //and abandon this configuration if one of them is 
