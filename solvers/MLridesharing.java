@@ -298,26 +298,43 @@ public abstract class MLridesharing extends Client {
       if (DEBUG) {
         System.out.printf("Rebalancing idle vehicles to serve %d customers\n",this.rebalancing_queue.size());
       }
-      int[][] rb = this.queue.toArray(new int[this.queue.size()][7]);
+      int[][] rb = this.rebalancing_queue.toArray(new int[this.rebalancing_queue.size()][7]);
       
       //2. fetch list of idle vehicles
       Map<Integer, Integer> candidate_vehicles = new HashMap<Integer, Integer>(lut);
-      List<Integer> idle_vehicles = new ArrayList<Integer>();
+      List<Integer> vehicles_list = new ArrayList<Integer>();
       for (final int sid : candidate_vehicles.keySet()) {
         //see comments inside GreedyInsertion.java for the reason why we are 
         //checking if wact[3] is 0 to check whether the vehicle is idle or not
         final int[] wact = this.communicator.queryServerRouteActive(sid);
         if (wact[3] == 0) {
-          idle_vehicles.add(sid);
+          vehicles_list.add(sid);
         }
       }
+      Integer[] vehicles = vehicles_list.toArray(new Integer[vehicles_list.size()]);
       if (DEBUG) {
-        System.out.printf("Got %d idle vehicles to consider for rebalancing\n",idle_vehicles.size());
+        System.out.printf("Got %d idle vehicles to consider for rebalancing\n",vehicles.length);
       }
 
       //3. calculate travel distance between each request-vehicle pair
+      double [][] cost_matrix = new double[rb.length][vehicles.length];
+      for (int r_index = 0; r_index < rb.length; r_index++)
+      {
+        final int r_origin = rb[r_index][4];
+        for (int v_index = 0; v_index < vehicles.length; v_index++) {
+          Integer v_id = vehicles[v_index];
+          cost_matrix[r_index][v_index] = this.tools.computeHaversine(luv.get(v_id), r_origin);
+        }
+      }
 
       //4. solve the assignment problem using the hungarian algorithm
+      HungarianAlgorithm optModule = new HungarianAlgorithm(cost_matrix);
+      int[] assignments = optModule.execute();
+      if (DEBUG) {
+        System.out.printf("Rebalancing Assignments: \n");
+        System.out.println(Arrays.toString(assignments));  
+        System.out.printf("\n-----------------------\n\n");
+      }
 
       //5. update vehicle routes
 
