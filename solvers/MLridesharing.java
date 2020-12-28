@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 import java.util.Random;
 import java.lang.Math;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 //import javafx.util.Pair;
 //import blogspot.software_and_algorithms.stern_library.optimization.HungarianAlgorithm;
 
@@ -51,11 +52,14 @@ class Key<K1, K2> {
 }
 
 public abstract class MLridesharing extends Client {
-  //final int MAX_PROXIMITY = 1800;
-  final int MAXN = 8;
+
+  protected final int MAXN = 8;
 
   //the constant used to indicate the cost of an infeasible insertion (arbitrarily high)
-  final double COST_INFEASIBLE=100000;
+  protected final double COST_INFEASIBLE=100000;
+
+  protected boolean reactive_rebalancing_enabled;
+  protected ConcurrentLinkedQueue<int[]> rebalancing_queue = new ConcurrentLinkedQueue<int[]>();
 
   //we keep a "cache" containing the new routes after insertion of each customer into the route of each vehicle
   //we use a concurrent hash map for easy retrieval and since we're not going to keep all possible customer-vehicle combinations
@@ -69,6 +73,7 @@ public abstract class MLridesharing extends Client {
   public void init() {
     System.out.printf("Set MAXN=%d\n", MAXN);
     this.batch_processing=true;
+    this.reactive_rebalancing_enabled=true;
     this.cache_w = new ConcurrentHashMap<Key,int[]>();
     this.cache_b = new ConcurrentHashMap<Key,int[]>();
   }
@@ -151,12 +156,19 @@ public abstract class MLridesharing extends Client {
         //      and if not, proceed to fetch the actual vehicle ID and insert it into the route
         int v_index = assignments[i];
         if ((v_index == -1) || (cost_matrix[i][v_index]==this.COST_INFEASIBLE)) {
-          //add the request back to the queue so that we can try to insert it in the next epoch
-          if (DEBUG) {
-            System.out.printf("Adding request %d (ID %d) back to the queue\n",i,r_id);
+          //cannot serve request ... rebalance or reject
+          if (reactive_rebalancing_enabled) {
+            if (DEBUG) {
+              System.out.printf("Adding request %d (ID %d) to the rebalancing queue\n",i,r_id);
+            }
+            this.rebalancing_queue.add(rb[i]);
           }
-          this.queue.add(rb[i]);
-          //TODO: this is where the reactive repositioning should probably come in too
+          else {
+            if (DEBUG) {
+              System.out.printf("Rejecting request %d (ID %d) since rebalancing is disabled\n",i,r_id);
+            }
+          }
+          
         }
         else {
           //insert the request into the vehicle's route by fetching the updated route
@@ -186,6 +198,12 @@ public abstract class MLridesharing extends Client {
           }
           
         }
+      }
+      if (reactive_rebalancing_enabled) {
+        if (DEBUG) {
+          System.out.printf("calling reactive rebalancing module\n");
+        }
+        this.reactiveRebalancingModule();
       }
       if (DEBUG) {
         System.out.printf("---------finished processing batch---------\n");
@@ -289,6 +307,10 @@ public abstract class MLridesharing extends Client {
       throw new ClientException(e);
     }
     
+  }
+
+  protected void reactiveRebalancingModule(){
+    return;
   }
 
   //TODO benchmark against something found online
