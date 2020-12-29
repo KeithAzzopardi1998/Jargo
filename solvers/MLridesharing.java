@@ -299,7 +299,10 @@ public abstract class MLridesharing extends Client {
         System.out.printf("Rebalancing idle vehicles to serve %d customers\n",this.rebalancing_queue.size());
       }
       int[][] rb = this.rebalancing_queue.toArray(new int[this.rebalancing_queue.size()][7]);
-      
+      //now that we have a copy of the request batch in rb, we can clear the queue
+      //any unserved requests are added back once we know that they cannot be served
+      this.rebalancing_queue.clear();
+
       //2. fetch list of idle vehicles
       Map<Integer, Integer> candidate_vehicles = new HashMap<Integer, Integer>(lut);
       List<Integer> vehicles_list = new ArrayList<Integer>();
@@ -337,7 +340,48 @@ public abstract class MLridesharing extends Client {
       }
 
       //5. update vehicle routes
+      final int now = this.communicator.retrieveClock();
+      for (int r_index = 0; r_index < rb.length; r_index++)
+      {
+        final int[] r = rb[r_index];
+        final int v_index = assignments[r_index];
+        final int v_id = vehicles[v_index];
+        
+        if (DEBUG) {
+          System.out.printf("rebalancing vehicle ID %d to location of request ID %d\n",v_id,r[0]);
+        }
 
+        //the remaining schedule will remain the same
+        int[] brem = this.communicator.queryServerScheduleRemaining(v_id, now);
+        if (DEBUG) {
+          System.out.printf("got brem=\n");
+          for (int __i = 0; __i < (brem.length - 3); __i += 4) {
+            System.out.printf("  { %d, %d, %d, %d }\n",
+                brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
+          }
+        }
+
+        //calculate the route from the vehicle's current location to the rebalancing location        
+        final int[] wnew = this.tools.computeRoute(luv.get(v_id),r[4],now);
+        if (DEBUG) {
+          System.out.printf("calculating route from %d to %d ... got route of length %d\n",luv.get(v_id),r[4],wnew.length);
+          System.out.printf("got wnew=\n");
+          for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
+            System.out.printf("  { %d, %d }\n",
+                wnew[__i], wnew[(__i + 1)]);
+          }
+        }        
+
+        try {
+          this.communicator.updateServerService(v_id, wnew, brem, new int[] { }, new int[] { });    
+        } catch (Exception e) {
+          System.err.println("ERROR occurred during rebalancing route modification:");
+          System.err.println(e.toString());
+          e.printStackTrace();
+          //add the request back to the queue
+          this.rebalancing_queue.add(r);
+        }
+      }
     } catch (Exception e) {
       throw new ClientException(e);
     }
