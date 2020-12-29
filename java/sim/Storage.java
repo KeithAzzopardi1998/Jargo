@@ -691,20 +691,20 @@ public class Storage {
          throws SQLException {
            int[] output = new int[] { };
            try (Connection conn = DriverManager.getConnection(CONNECTIONS_POOL_URL)) {
-             int[] temp = PSQuery(conn, "S144", 3, sid, t);
+             int[] temp = PSQuery(conn, "S144", 3, sid, t);//stops related to customer pickups/dropoffs
              output = new int[(4*temp.length/3 + 4)];
              int j = 0;
              for (int i = 0; i < (temp.length - 2); i += 3) {
-               output[(j + 0)] = temp[(i + 0)];
-               output[(j + 1)] = temp[(i + 1)];
+               output[(j + 0)] = temp[(i + 0)];//time
+               output[(j + 1)] = temp[(i + 1)];//vertex
                output[(j + 2)] = 0;
-               output[(j + 3)] = temp[(i + 2)];
+               output[(j + 3)] = temp[(i + 2)];//request ID
                j += 4;
              }
-             temp = PSQuery(conn, "S145", 2, sid);
-             output[(j + 0)] = temp[0];
-             output[(j + 1)] = temp[1];
-             output[(j + 2)] = sid;
+             temp = PSQuery(conn, "S145", 2, sid);//stop related to the server destination
+             output[(j + 0)] = temp[0];//end time
+             output[(j + 1)] = temp[1];//end vertex
+             output[(j + 2)] = sid;//server ID
              output[(j + 3)] = 0;
            } catch (SQLException e) {
              throw e;

@@ -157,18 +157,19 @@ public class Communicator {
            int[] mutroute = route.clone();
            int[] mutsched = sched.clone();
            if (this.traffic != null) {
+             //traversing the new route in pairs
              for (int k = 0; k < (mutroute.length - 3); k += 4) {
-               final int t1 = mutroute[k];
-               final int v1 = mutroute[(k + 1)];
-               final int t2 = mutroute[(k + 2)];
-               final int v2 = mutroute[(k + 3)];
-               int[] ddnu = this.storage.DBQueryEdge(v1, v2);
-               final int dd = ddnu[0];
-               final int nu_old = ddnu[1];
+               final int t1 = mutroute[k];//time at vertex 1
+               final int v1 = mutroute[(k + 1)];//vertex 1
+               final int t2 = mutroute[(k + 2)];//time at vertex 2
+               final int v2 = mutroute[(k + 3)];//vertex 2
+               int[] ddnu = this.storage.DBQueryEdge(v1, v2);//distance and speed to travel the edge?
+               final int dd = ddnu[0];//distance
+               final int nu_old = ddnu[1];//speed
                final int nu_new = Math.max(1, 
                    (int) Math.round(this.traffic.apply(
                        v1, v2, (1000*t1 + this.controller.getClockReferenceMs())
-                   )*nu_old));
+                   )*nu_old));//speed with traffic
                final int diff = ((dd/(t2 - t1)) > nu_new
                    ? ((int) Math.ceil((dd/(float) nu_new + t1))) - t2
                    : 0);
