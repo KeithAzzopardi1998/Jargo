@@ -303,7 +303,7 @@ public class Exhaustive extends MLridesharing {
 
       }
 
-      if (feasible && cmin>0) {
+      if (feasible && cmin>=0) {
         if (DEBUG) {
           System.out.println("~~~~~~~~~~feasible insertion point found~~~~~~~~~~");
         }

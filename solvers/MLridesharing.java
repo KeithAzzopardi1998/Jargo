@@ -73,7 +73,8 @@ public abstract class MLridesharing extends Client {
   public void init() {
     System.out.printf("Set MAXN=%d\n", MAXN);
     this.batch_processing=true;
-    this.reactive_rebalancing_enabled=true;
+    this.reactive_rebalancing_enabled=false;
+    System.out.printf("Set reactive_rebalancing_enabled=%b\n", reactive_rebalancing_enabled);
     this.cache_w = new ConcurrentHashMap<Key,int[]>();
     this.cache_b = new ConcurrentHashMap<Key,int[]>();
   }
