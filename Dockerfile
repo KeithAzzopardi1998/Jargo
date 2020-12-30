@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
   wget \
   vim \
   unzip \
+  screen \
   openjdk-11-jdk
 
 #set bash as the default shell
