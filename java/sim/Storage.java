@@ -1096,6 +1096,9 @@ public class Storage {
                final int se = lu_users.get(sid)[2];
                PreparedStatement pS76 = this.PSCreate(conn, "S76");
                this.PSAdd(pS76, sid, route[0]);
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> submitting PS76\n");
+               }
                this.PSSubmit(pS76);
                final int uid = sid;
                PreparedStatement pS10 = this.PSCreate(conn, "S10");
@@ -1118,13 +1121,26 @@ public class Storage {
                  final int nu = this.lu_edges.get(v1).get(v2)[1];
                  this.PSAdd(pS10, uid, se, t1, v1, t2, v2, dd, nu);
                }
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> submitting PS10\n");
+               }
                this.PSSubmit(pS10);
                PreparedStatement pS77 = this.PSCreate(conn, "S77");
                PreparedStatement pS139 = this.PSCreate(conn, "S139");
-               final int te = sched[(sched.length - 4)];
-               final int ve = sched[(sched.length - 3)];
+               
+               //getting the end time and vertex from the route
+               //instead of the schedule to account for rebalancing
+               //where the two might not match up
+               //final int te = sched[(sched.length - 4)];
+               //final int ve = sched[(sched.length - 3)];
+               final int te = route[(route.length - 2)];
+               final int ve = route[(route.length - 1)];
                this.PSAdd(pS77, te, ve, sid);
                this.PSAdd(pS139, te, sid);
+               if (DEBUG) {
+                System.out.printf("PS77: te=%d, ve=%d, sid=%d\n",te,ve,sid);
+                System.out.printf("DBUpdateServerService -> submitting PS77 and PS139\n");
+               }
                this.PSSubmit(pS77, pS139);
                PreparedStatement pS82 = this.PSCreate(conn, "S82");
                PreparedStatement pS83 = this.PSCreate(conn, "S83");
@@ -1138,6 +1154,9 @@ public class Storage {
                    this.PSAdd(pS83, tj, vj, Lj);
                    this.PSAdd(pS84, tj, vj, Lj);
                  }
+               }
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> submitting PS83, PS82 and PS84\n");
                }
                this.PSSubmit(pS83, pS82, pS84);
                PreparedStatement pS140 = this.PSCreate(conn, "S140");
@@ -1192,6 +1211,9 @@ public class Storage {
                    }
                  }
                }
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> submitting PS140\n");
+               }
                this.PSSubmit(pS140);
                final int[] output = (route[0] == 0 ? null : this.PSQuery(conn, "S87", 3, sid, route[0]));
                int t1 = (route[0] == 0 ?  0 : output[0]);
@@ -1199,6 +1221,9 @@ public class Storage {
                int o1 = (route[0] == 0 ?  1 : output[2]);
                PreparedStatement pS80 = this.PSCreate(conn, "S80");
                this.PSAdd(pS80, sid, route[0]);
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> submitting PS80\n");
+               }
                this.PSSubmit(pS80);
                PreparedStatement pS14 = PSCreate(conn, "S14");
                for (int j = 0; j < (sched.length - 3); j += 4) {
@@ -1222,6 +1247,9 @@ public class Storage {
                    }
                  }
                }
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> submitting PS14\n");
+               }
                this.PSSubmit(pS14);
                PreparedStatement pS12 = this.PSCreate(conn, "S12");
                PreparedStatement pS13 = this.PSCreate(conn, "S13");
@@ -1244,6 +1272,9 @@ public class Storage {
                    throw new UserNotFoundException("User "+r+" not found in schedule!");
                  }
                }
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> submitting PS12 and PS13\n");
+               }
                this.PSSubmit(pS12, pS13);
                PreparedStatement pS42 = this.PSCreate(conn, "S42");
                PreparedStatement pS43 = this.PSCreate(conn, "S43");
@@ -1251,7 +1282,13 @@ public class Storage {
                  this.PSAdd(pS42, r);
                  this.PSAdd(pS43, r);
                }
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> submitting PS42 and PS43\n");
+               }
                this.PSSubmit(pS42, pS43);
+               if (DEBUG) {
+                System.out.printf("DBUpdateServerService -> committing\n");
+               }
                conn.commit();
              } catch (SQLException e) {
                conn.rollback();
