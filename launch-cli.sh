@@ -12,6 +12,7 @@ java \
     -Dderby.storage.pageCacheSize=8000 \
     -Djargors.storage.debug=false \
     -Djargors.controller.debug=true \
+    -Djargors.communicator.debug=false \
     -Djargors.client.debug=true \
     -Djargors.algorithm.debug=true \
     -Djargors.costcalculation.debug=false \

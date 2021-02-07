@@ -6,6 +6,6 @@ release/
 www/
 *.log
 export*/
-test_log_*.txt
+*.log
 solvers/*.class
 solvers/jar
