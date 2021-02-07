@@ -109,22 +109,20 @@ public abstract class Client {
   public void init() { }
   public void notifyNew() throws ClientException, ClientFatalException {
             if (batch_processing==true) {
-              if (DEBUG) {
-                System.out.printf("----there are %d requests in the queue----\n",this.queue.size());
-              } 
-              long A0 = System.currentTimeMillis();
               if (!this.queue.isEmpty()){
-                //this.handleRequestBatch(this.queue.toArray(new int[this.queue.size()][this.queue.peek().length]));
                 int[][] rb = this.queue.toArray(new int[this.queue.size()][7]);
                 if (DEBUG) {
+                  int now = this.communicator.retrieveClock();
+                  System.out.printf("[t=%d] ---> there are %d requests in the queue\n",now,this.queue.size());
                   System.out.println(Arrays.deepToString(rb).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
                 }
+                long A0 = System.currentTimeMillis();
                 this.handleRequestBatch(rb);
+                this.dur_handle_request = System.currentTimeMillis() - A0;
+                if (DEBUG) {
+                  System.out.printf("----processed request batch in %d ms ... %d requests left in the queue----\n",this.dur_handle_request,this.queue.size());
+                }  
               }
-              this.dur_handle_request = System.currentTimeMillis() - A0;
-              if (DEBUG) {
-                System.out.printf("----processed request batch ... %d requests left in the queue----\n",this.queue.size());
-              }            
             } else {
               while (!this.queue.isEmpty()) {
                 long A0 = System.currentTimeMillis();
