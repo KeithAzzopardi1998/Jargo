@@ -73,7 +73,7 @@ public abstract class MLridesharing extends Client {
   public void init() {
     System.out.printf("Set MAXN=%d\n", MAXN);
     this.batch_processing=true;
-    this.reactive_rebalancing_enabled=false;
+    this.reactive_rebalancing_enabled=true;
     System.out.printf("Set reactive_rebalancing_enabled=%b\n", reactive_rebalancing_enabled);
     this.cache_w = new ConcurrentHashMap<Key,int[]>();
     this.cache_b = new ConcurrentHashMap<Key,int[]>();
@@ -182,6 +182,10 @@ public abstract class MLridesharing extends Client {
           Key<Integer,Integer> k_temp=new Key<Integer,Integer>(r_id,v_id);
           final int[] wnew = this.cache_w.get(k_temp);
           if (DEBUG) {
+            //TODO remove this part
+            final int[] wact = this.communicator.queryServerRouteActive(v_id);
+            System.out.printf("current route: %s\n",Arrays.toString(wact));
+            
             System.out.printf("new route: %s\n",Arrays.toString(wnew));
           }          
           final int[] bnew = this.cache_b.get(k_temp);
@@ -363,16 +367,49 @@ public abstract class MLridesharing extends Client {
         }
 
         //calculate the route from the vehicle's current location to the rebalancing location        
-        final int[] wnew = this.tools.computeRoute(luv.get(v_id),r[4],now);
+        final int[] wrebalance = this.tools.computeRoute(luv.get(v_id),r[4],now);
+        final int l_wrebalance = wrebalance.length;
         if (DEBUG) {
-          System.out.printf("calculating route from %d to %d ... got route of length %d\n",luv.get(v_id),r[4],wnew.length);
+          System.out.printf("calculating route from %d to %d ... got route of length %d\n",luv.get(v_id),r[4],wrebalance.length);
+          System.out.printf("got wrebalance=\n");
+          for (int __i = 0; __i < (wrebalance.length - 1); __i += 2) {
+            System.out.printf("  { %d, %d }\n",
+            wrebalance[__i], wrebalance[(__i + 1)]);
+          }
+        }
+        
+        //we get the vehicle's current route, so that we can merge it with the rebalancing route
+        final int[] wact = this.communicator.queryServerRouteActive(v_id);
+        //idle vehicles will always have an ACTIVE route at length 4, with the following elements:
+        //wact[0] -> the time at which the vehicle arrived at its location, "t"
+        //wact[1] -> the node ID of the vehicle's location
+        //wact[2] -> t+1
+        //wact[3] -> 0, the node ID of the dummy node
+        if (DEBUG) {
+          System.out.printf("got wact=\n");
+          for (int __i = 0; __i < (wact.length - 1); __i += 2) {
+            System.out.printf("  { %d, %d }\n",
+            wact[__i], wact[(__i + 1)]);
+          }
+        }
+
+        //we insert wrebalance "in between" wact, with some minor modifications:
+        // 1. the first entry in wrebalance is replaced by the first entry from wact
+        // 2. we append another entry at the very end, to represent the dummy node
+        final int[] wnew = new int[l_wrebalance+2];
+        final int l_wnew = wnew.length;
+        System.arraycopy(wact,0,wnew,0,2);
+        System.arraycopy(wrebalance,2,wnew,2,l_wrebalance-2);        
+        wnew[l_wnew-2] = wnew[l_wnew-4]+1;
+        wnew[l_wnew-1] = 0;
+        if (DEBUG) {
           System.out.printf("got wnew=\n");
           for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
             System.out.printf("  { %d, %d }\n",
-                wnew[__i], wnew[(__i + 1)]);
+            wnew[__i], wnew[(__i + 1)]);
           }
-        }        
-
+        }
+        
         try {
           this.communicator.updateServerService(v_id, wnew, brem, new int[] { }, new int[] { });    
         } catch (Exception e) {
