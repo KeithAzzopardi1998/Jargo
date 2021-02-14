@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
   bash \
   wget \
   vim \
+  zip \
   unzip \
   screen \
   openjdk-11-jdk
