@@ -64,6 +64,8 @@ public class Controller {
   private int REQUEST_HANDLING_PERIOD = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_period", "1"));
   private int REQUEST_HANDLING_DELAY = 2;
+  private int DEMAND_PREDICTION_PERIOD = 5; //should be 30
+  private int DEMAND_PREDICTION_DELAY = 0; //TODO figure out what to do with this
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_delay", "1"));
   private int SERVER_COLLECTION_PERIOD =
       Integer.parseInt(System.getProperty("jargors.controller.server_collection_period", "1"));
@@ -180,6 +182,25 @@ public class Controller {
         }
       }
     }
+  };
+  private Runnable DemandPredictionLoop = () -> {
+    try{   
+      this.client.updatePredictions();  // blocks this thread until queue is empty
+    } catch (ClientException e) {
+      System.err.printf("[t=%d] Controller.DemandPredictionLoop caught a ClientException: %s\n",
+          this.simClock, e.toString());
+      e.printStackTrace();
+    } catch (ClientFatalException e) {
+      System.err.printf("[t=%d] Controller.DemandPredictionLoop caught a ClientFatalException: %s\n",
+          this.simClock, e.toString());
+      e.printStackTrace();
+      System.exit(1);
+    } catch (Exception e) {
+      System.err.printf("[t=%d] Controller.DemandPredictionLoop caught a unspecified Exception: %s\n",
+          this.simClock, e.toString());
+      e.printStackTrace();
+      System.exit(1);
+    }    
   };
   private Runnable RequestHandlingLoop = () -> {
     try {
@@ -802,6 +823,13 @@ public class Controller {
                  SERVER_COLLECTION_DELAY, SERVER_COLLECTION_PERIOD);
            }
 
+          this.cb5 = exe.scheduleAtFixedRate(
+            this.DemandPredictionLoop, DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD, TimeUnit.MINUTES);
+          if (DEBUG) {
+            System.out.printf("exe DemandPredictionLoop, delay=%d, int=%d\n",
+            DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD);
+          }
+
            this.exe.schedule(() -> {
              this.stop(app_cb);
            }, simulation_duration, TimeUnit.SECONDS);
@@ -832,6 +860,7 @@ public class Controller {
            this.ServerLoop.run();
            this.RequestCollectionLoop.run();
            this.RequestHandlingLoop.run();
+           this.DemandPredictionLoop.run();
          }
   public void stop(final Consumer<Boolean> app_cb) {
            if (DEBUG) {
@@ -851,6 +880,7 @@ public class Controller {
              this.cb2.cancel(true);
              this.cb3.cancel(true);
              this.cb4.cancel(true);
+             this.cb5.cancel(true);
              this.exe.shutdown();
            }
            try {

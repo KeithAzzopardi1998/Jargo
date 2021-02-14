@@ -134,6 +134,9 @@ public abstract class Client {
               }
             }
          }
+  public void updatePredictions() throws ClientException, ClientFatalException {
+            return;
+         }  
   public int[] routeMinDistMinDur(int sid, int[] bnew, boolean strict) throws ClientException {
            int[] wnew = null;
            boolean ok = true;
