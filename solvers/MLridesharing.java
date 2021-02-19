@@ -58,6 +58,11 @@ public abstract class MLridesharing extends Client {
   //the constant used to indicate the cost of an infeasible insertion (arbitrarily high)
   protected final double COST_INFEASIBLE=100000;
 
+  //Constraints implemented by Simonetto
+  protected int MAX_WT = 0;//waiting time
+  protected int MAX_DT = 0;//detour time
+  protected int MAX_JL = 0;//journey length
+
   protected boolean reactive_rebalancing_enabled;
   protected ConcurrentLinkedQueue<int[]> rebalancing_queue = new ConcurrentLinkedQueue<int[]>();
 
