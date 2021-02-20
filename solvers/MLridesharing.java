@@ -59,9 +59,9 @@ public abstract class MLridesharing extends Client {
   protected final double COST_INFEASIBLE=100000;
 
   //Constraints implemented by Simonetto
-  protected int MAX_WT = 0;//waiting time
-  protected int MAX_DT = 0;//detour time
-  protected int MAX_JL = 0;//journey length
+  protected final int MAX_WT = 7;//waiting time (mins)
+  protected final int MAX_DT = 7;//detour time (mins)
+  protected int MAX_JL = 0;//journey length (twice the length of a vehicle's capacity)
 
   protected boolean reactive_rebalancing_enabled;
   protected ConcurrentLinkedQueue<int[]> rebalancing_queue = new ConcurrentLinkedQueue<int[]>();

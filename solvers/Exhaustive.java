@@ -35,6 +35,11 @@ public class Exhaustive extends MLridesharing {
     }
 
     try{
+      //fetch the server capacity
+      final int capacity = this.communicator.queryServerCapacity(sid);
+      if (DEBUG) {
+        System.out.printf("server capacity is %d\n",capacity);
+      }      
 
       // Remember best (minimum cost) schedule, route, cost
       int[] wmin = null;
@@ -50,23 +55,39 @@ public class Exhaustive extends MLridesharing {
 
       //remaining schedule (i.e. pickups and dropoffs)
       int[] brem = this.communicator.queryServerScheduleRemaining(sid, now);
-      //if (DEBUG) {
-      //  System.out.printf("got brem=\n");
-      //  for (int __i = 0; __i < (brem.length - 3); __i += 4) {
-      //    System.out.printf("  { %d, %d, %d, %d }\n",
-      //        brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
-      //  }
-      //}
+      /*
+      if (DEBUG) {
+        System.out.printf("got brem=\n");
+        for (int __i = 0; __i < (brem.length - 3); __i += 4) {
+          System.out.printf("  { %d, %d, %d, %d }\n",
+              brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
+        }
+      }
+      */
+
+      //the vehicle's schedule of pickups/dropoffs cannot exceed twice its capacity
+      //adding a request to the route always adds 2 entries in the schedule, so
+      //current_length + 2 <= 2 * capacity
+      //keep in mind that each entry in the schedule entails 4 array entries
+      if ((brem.length / 4) > ((2 * capacity) - 2)){
+        if (DEBUG) {
+          System.out.println("~~~~~~~~~~insertion would violate route length constraint~~~~~~~~~~");
+        }
+        return this.COST_INFEASIBLE;
+      }
+
 
       //active route (i.e. actual list of nodes left to traverse)
       final int[] wact = this.communicator.queryServerRouteActive(sid);
-      //if (DEBUG) {
-      //  System.out.printf("got wact=\n");
-      //  for (int __i = 0; __i < (wact.length - 1); __i += 2) {
-      //    System.out.printf("  { %d, %d }\n",
-      //        wact[__i], wact[(__i + 1)]);
-      //  }
-      //}
+      /*
+      if (DEBUG) {
+        System.out.printf("got wact=\n");
+        for (int __i = 0; __i < (wact.length - 1); __i += 2) {
+          System.out.printf("  { %d, %d }\n",
+              wact[__i], wact[(__i + 1)]);
+        }
+      }
+      */
       
       //if wact[3] is 0, it means that the vehicle is idle (because 0 is the index
       //of the dummy vertex), so we start the route ("wbeg" stands for "beginning waypoint")
@@ -90,13 +111,15 @@ public class Exhaustive extends MLridesharing {
           if (DEBUG) {
             System.out.printf("remove event\n");
           }
-          //if (DEBUG) {
-          //  System.out.printf("got brem=\n");
-          //  for (int __i = 0; __i < (brem.length - 3); __i += 4) {
-          //    System.out.printf("  { %d, %d, %d, %d }\n",
-          //        brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
-          //  }
-          //}
+          /*
+          if (DEBUG) {
+            System.out.printf("got brem=\n");
+            for (int __i = 0; __i < (brem.length - 3); __i += 4) {
+              System.out.printf("  { %d, %d, %d, %d }\n",
+                  brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
+            }
+          }
+          */
         }
       } 
 
@@ -242,6 +265,7 @@ public class Exhaustive extends MLridesharing {
               wnew[0] = lut.get(sid);
             }
 
+            /*
             if (DEBUG) {
               System.out.printf("set wnew=\n");
               for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
@@ -249,7 +273,8 @@ public class Exhaustive extends MLridesharing {
                     wnew[__i], wnew[(__i + 1)]);
               }
             }
-
+            */
+            
             //once the route is calculated, we check the time windows
             //and abandon this configuration if one of them is 
             //violated
