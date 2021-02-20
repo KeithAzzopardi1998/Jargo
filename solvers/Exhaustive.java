@@ -20,10 +20,13 @@ public class Exhaustive extends MLridesharing {
   }
 
   protected double getInsertionCost(final int[] r, final int sid) throws ClientException {
-    final int rid = r[0];
-    final int rq  = r[1];
-    final int ro  = r[4];
-    final int rd  = r[5];
+    final int rid = r[0];//id
+    final int rq  = r[1];//number of passengers
+    final int re  = r[2];//earliest pickup time
+    final int rl  = r[3];//latest dropoff time
+    final int ro  = r[4];//origin
+    final int rd  = r[5];//destination
+    final int rb  = r[6];//base cost
 
     if (DEBUG) {
       System.out.printf("calculating insertion cost for vehicle ID %d and request ID %d\n",sid,rid);
@@ -214,13 +217,15 @@ public class Exhaustive extends MLridesharing {
           System.arraycopy(stop, 0, bnew, 4*ipos, 4);
           System.arraycopy(brem, 0, bnew, 0, 4*ipos);
           System.arraycopy(brem, 4*ipos, bnew, 4*(ipos + 1), brem.length - 4*ipos);
-          //if (DEBUG) {
-          //  System.out.printf("got bnew=\n");
-          //  for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
-          //    System.out.printf("  { %d, %d, %d, %d }\n",
-          //        bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
-          //  }
-          //}
+          /*
+          if (DEBUG) {
+            System.out.printf("got bnew=\n");
+            for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
+              System.out.printf("  { %d, %d, %d, %d }\n",
+                  bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
+            }
+          }
+          */
 
           //once we have computed the schedule, we go through it
           //and calculate the actual route to follow
@@ -254,6 +259,8 @@ public class Exhaustive extends MLridesharing {
                 _k++;
               }
             }
+            //once we have the route, we can figure out the time at which each point
+            //in the schedule is visited
             for (int _i = 1; _i < _legs.length; _i++) {
               bnew[(4*_i - 4)] = _legs[_i][0];
             }
@@ -274,7 +281,7 @@ public class Exhaustive extends MLridesharing {
               }
             }
             */
-            
+
             //once the route is calculated, we check the time windows
             //and abandon this configuration if one of them is 
             //violated
@@ -284,10 +291,12 @@ public class Exhaustive extends MLridesharing {
             for (int _i = 0; _i < (bnew.length - 3); _i += 4) {
               int _rid = bnew[(_i + 3)];
               int _rt  = bnew[(_i)];
-              if (_rid != 0) {
+              if (_rid != 0) {//rid is only 0 at the end point of the route
                 int[] _u = this.communicator.queryUser(_rid);
                 int _ue = _u[2];
                 int _ul = _u[3];
+                //if the proposed pickup time is before the earliest
+                //or after the latest dropoff time, consider the route invalid
                 if (_rt < _ue || _rt > _ul) {
                   ok = false;
                   break;
@@ -301,6 +310,40 @@ public class Exhaustive extends MLridesharing {
 
           //proceed only if we do not violate time window constraints
           if (!ok) {
+            continue;
+          }
+
+          //since we have the route, we can check the pickup/delay constraints
+          //recall that in bnew, the "time column" is column 0,
+          //so we only really need to calculate the 
+          int pickup_time = bnew[4*i];
+          int dropoff_time = bnew[4*(j+1)];
+          if (DEBUG) {
+            System.out.printf("got bnew=\n");
+            for (int __i = 0; __i < (bnew.length - 3); __i += 4) {
+              System.out.printf("  { %d, %d, %d, %d }\n",
+                  bnew[__i], bnew[__i+1], bnew[__i+2], bnew[__i+3]);
+            }
+            System.out.printf("request ID %d : pickup at %d, dropoff at %d\n",rid,pickup_time,dropoff_time);
+          }
+          //waiting time constraint
+          if (pickup_time > re + this.MAX_WT) {
+            continue;
+          }
+
+          //detour time constraint
+          int proposed_trip_dur = dropoff_time - pickup_time;
+          int[] direct_route = this.tools.computeRoute(ro, rd, re);
+          int direct_route_dur = direct_route[direct_route.length-2] - direct_route[0];
+          if (DEBUG) {
+            System.out.printf("direct route=\n");
+            for (int __i = 0; __i < (direct_route.length - 2); __i += 2) {
+              System.out.printf("  { %d, %d }\n",
+              direct_route[__i], direct_route[__i+1]);
+            }
+            System.out.printf("durations: proposed %d, direct %d\n",proposed_trip_dur,direct_route_dur);
+          }
+          if (proposed_trip_dur > direct_route_dur + this.MAX_DT) {
             continue;
           }
 
