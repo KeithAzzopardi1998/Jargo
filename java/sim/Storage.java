@@ -563,6 +563,14 @@ public class Storage {
              throw e;
            }
          }
+  public int[] DBQueryUserCapacity(final int uid)
+          throws SQLException {
+           try (Connection conn = DriverManager.getConnection(CONNECTIONS_POOL_URL)) {
+             return PSQuery(conn, "S164", 1, uid);
+           } catch (SQLException e) {
+             throw e;
+           }
+         }
   public int[] DBQueryServerDistance(final int sid, boolean flag_usecache) throws SQLException {
            if (flag_usecache) {
              return new int[] { this.distance_servers.get(sid) };
@@ -2058,6 +2066,7 @@ public class Storage {
                 + "WHERE R.re <= ? AND ? < (R.re + ?) AND (? < CPD.tp OR CPD.tp IS NULL)");
             this.lu_pstr.put("S163", SEL+"COUNT (*) FROM CQ WHERE sid=? AND q1+? > 0"
                 + "AND ( (t1 < ? AND t2 > ?) OR (? < t2 AND t2 <= ?) )");
+            this.lu_pstr.put("S164", SEL+"UQ from UQ where UID=?");
           }
   private void PSAdd(PreparedStatement p, final Integer... values) throws SQLException {
             p.clearParameters();
