@@ -103,16 +103,19 @@ public abstract class MLridesharing extends Client {
       this.queue.clear();
 
       //1. call context mapping module
+      long time_start = System.currentTimeMillis();
       Integer[][] context_map = contextMappingModule(rb);
+      long time_end = System.currentTimeMillis();
       if (DEBUG) {
         System.out.printf("Context Map: \n");
-        for(Integer[] x: context_map)
-              System.out.println(Arrays.toString(x));  
-        System.out.printf("\n-----------------------\n\n");
+        //for(Integer[] x: context_map)
+        //      System.out.println(Arrays.toString(x));  
+        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
       }
 
       //getting a unique list of vehicles of interest by first flattening out the context map, and then
       //adding to an array of unique items
+      time_start = System.currentTimeMillis();
       int[] vehicle_list=new int[context_map.length*context_map[0].length];
       for (int i = 0; i < context_map.length; i++) {
           // tiny change 1: proper dimensions
@@ -121,34 +124,43 @@ public abstract class MLridesharing extends Client {
               vehicle_list[(i*context_map[0].length) + j] = context_map[i][j]; 
           }
       }
+      time_end = System.currentTimeMillis();
       int[] vehicles = IntStream.of(vehicle_list).distinct().toArray();
       if (DEBUG) {
         System.out.println("Unique list of vehicles\n");
-        System.out.println(Arrays.toString(vehicles));
-        System.out.printf("\n-----------------------\n\n");
+        //System.out.println(Arrays.toString(vehicles));
+        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
       }
 
       //2. ask vehicles for insertion costs and form the cost matrix
+      time_start = System.currentTimeMillis();
       double[][] cost_matrix = getCostMatrix(rb,vehicles,context_map);
+      time_end = System.currentTimeMillis();
       if (DEBUG) {
         System.out.printf("Insertion Costs: \n");
-        for(double[] x: cost_matrix)
-              System.out.println(Arrays.toString(x));  
-        System.out.printf("\n-----------------------\n\n");
+        //for(double[] x: cost_matrix)
+        //      System.out.println(Arrays.toString(x));  
+        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
       }
 
       //3. call optimization module
+      time_start = System.currentTimeMillis();
       HungarianAlgorithm optModule = new HungarianAlgorithm(cost_matrix);
       int[] assignments = optModule.execute();
+      time_end = System.currentTimeMillis();
       if (DEBUG) {
         System.out.printf("Assignments: \n");
-        System.out.println(Arrays.toString(assignments));  
-        System.out.printf("\n-----------------------\n\n");
+        //System.out.println(Arrays.toString(assignments));  
+        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
       }
       
       //4. update vehicle routes
       //TODO ensure that the length of the assignments array is equal to the number of requests
       //loop through the request
+      if (DEBUG) {
+        System.out.printf("Updating Vehicle Routes:\n");
+      }      
+      time_start = System.currentTimeMillis();
       for (int i = 0; i < assignments.length; i++ ){
         //the info about the request to be inserted
         //is obtained from rb (recall that the order of "assignments"
@@ -186,17 +198,17 @@ public abstract class MLridesharing extends Client {
           }
           Key<Integer,Integer> k_temp=new Key<Integer,Integer>(r_id,v_id);
           final int[] wnew = this.cache_w.get(k_temp);
-          if (DEBUG) {
-            //TODO remove this part
-            final int[] wact = this.communicator.queryServerRouteActive(v_id);
-            System.out.printf("current route: %s\n",Arrays.toString(wact));
-            
-            System.out.printf("new route: %s\n",Arrays.toString(wnew));
-          }          
+          //if (DEBUG) {
+          //  //TODO remove this part
+          //  final int[] wact = this.communicator.queryServerRouteActive(v_id);
+          //  System.out.printf("current route: %s\n",Arrays.toString(wact));
+          //  
+          //  System.out.printf("new route: %s\n",Arrays.toString(wnew));
+          //}          
           final int[] bnew = this.cache_b.get(k_temp);
-          if (DEBUG) {
-            System.out.printf("new schedule: %s\n",Arrays.toString(bnew));
-          }
+          //if (DEBUG) {
+          //  System.out.printf("new schedule: %s\n",Arrays.toString(bnew));
+          //}
           try {
             this.communicator.updateServerService(v_id, wnew, bnew, new int[] { r_id }, new int[] { });    
           } catch (Exception e) {
@@ -209,15 +221,25 @@ public abstract class MLridesharing extends Client {
           
         }
       }
+      time_end = System.currentTimeMillis();
+      if (DEBUG) {
+        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
+      }
+
       if (reactive_rebalancing_enabled && !this.rebalancing_queue.isEmpty()) {
         if (DEBUG) {
           System.out.printf("calling reactive rebalancing module\n");
         }
+        time_start = System.currentTimeMillis();
         this.reactiveRebalancingModule();
+        time_end = System.currentTimeMillis();
+        if (DEBUG) {
+          System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
+        }
       }
-      if (DEBUG) {
-        System.out.printf("---------finished processing batch---------\n");
-      }
+      //if (DEBUG) {
+      //  System.out.printf("---------finished processing batch---------\n");
+      //}
 
     } catch (Exception e) {
       throw new ClientException(e);
@@ -343,11 +365,11 @@ public abstract class MLridesharing extends Client {
       //4. solve the assignment problem using the hungarian algorithm
       HungarianAlgorithm optModule = new HungarianAlgorithm(cost_matrix);
       int[] assignments = optModule.execute();
-      if (DEBUG) {
-        System.out.printf("Rebalancing Assignments: \n");
-        System.out.println(Arrays.toString(assignments));  
-        System.out.printf("\n-----------------------\n\n");
-      }
+      //if (DEBUG) {
+      //  System.out.printf("Rebalancing Assignments: \n");
+      //  System.out.println(Arrays.toString(assignments));  
+      //  System.out.printf("\n-----------------------\n\n");
+      //}
 
       //5. update vehicle routes
       final int now = this.communicator.retrieveClock();
@@ -363,40 +385,40 @@ public abstract class MLridesharing extends Client {
 
         //the remaining schedule will remain the same
         int[] brem = this.communicator.queryServerScheduleRemaining(v_id, now);
-        if (DEBUG) {
-          System.out.printf("got brem=\n");
-          for (int __i = 0; __i < (brem.length - 3); __i += 4) {
-            System.out.printf("  { %d, %d, %d, %d }\n",
-                brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
-          }
-        }
+        //if (DEBUG) {
+        //  System.out.printf("got brem=\n");
+        //  for (int __i = 0; __i < (brem.length - 3); __i += 4) {
+        //    System.out.printf("  { %d, %d, %d, %d }\n",
+        //        brem[__i], brem[__i+1], brem[__i+2], brem[__i+3]);
+        //  }
+        //}
 
         //calculate the route from the vehicle's current location to the rebalancing location        
         final int[] wrebalance = this.tools.computeRoute(luv.get(v_id),r[4],now);
         final int l_wrebalance = wrebalance.length;
-        if (DEBUG) {
-          System.out.printf("calculating route from %d to %d ... got route of length %d\n",luv.get(v_id),r[4],wrebalance.length);
-          System.out.printf("got wrebalance=\n");
-          for (int __i = 0; __i < (wrebalance.length - 1); __i += 2) {
-            System.out.printf("  { %d, %d }\n",
-            wrebalance[__i], wrebalance[(__i + 1)]);
-          }
-        }
+        //if (DEBUG) {
+        //  System.out.printf("calculating route from %d to %d ... got route of length %d\n",luv.get(v_id),r[4],wrebalance.length);
+        //  System.out.printf("got wrebalance=\n");
+        //  for (int __i = 0; __i < (wrebalance.length - 1); __i += 2) {
+        //    System.out.printf("  { %d, %d }\n",
+        //    wrebalance[__i], wrebalance[(__i + 1)]);
+        //  }
+        //}
         
         //we get the vehicle's current route, so that we can merge it with the rebalancing route
-        final int[] wact = this.communicator.queryServerRouteActive(v_id);
         //idle vehicles will always have an ACTIVE route at length 4, with the following elements:
         //wact[0] -> the time at which the vehicle arrived at its location, "t"
         //wact[1] -> the node ID of the vehicle's location
         //wact[2] -> t+1
         //wact[3] -> 0, the node ID of the dummy node
-        if (DEBUG) {
-          System.out.printf("got wact=\n");
-          for (int __i = 0; __i < (wact.length - 1); __i += 2) {
-            System.out.printf("  { %d, %d }\n",
-            wact[__i], wact[(__i + 1)]);
-          }
-        }
+        final int[] wact = this.communicator.queryServerRouteActive(v_id);
+        //if (DEBUG) {
+        //  System.out.printf("got wact=\n");
+        //  for (int __i = 0; __i < (wact.length - 1); __i += 2) {
+        //    System.out.printf("  { %d, %d }\n",
+        //    wact[__i], wact[(__i + 1)]);
+        //  }
+        //}
 
         //we insert wrebalance "in between" wact, with some minor modifications:
         // 1. the first entry in wrebalance is replaced by the first entry from wact
@@ -407,13 +429,13 @@ public abstract class MLridesharing extends Client {
         System.arraycopy(wrebalance,2,wnew,2,l_wrebalance-2);        
         wnew[l_wnew-2] = wnew[l_wnew-4]+1;
         wnew[l_wnew-1] = 0;
-        if (DEBUG) {
-          System.out.printf("got wnew=\n");
-          for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
-            System.out.printf("  { %d, %d }\n",
-            wnew[__i], wnew[(__i + 1)]);
-          }
-        }
+        //if (DEBUG) {
+        //  System.out.printf("got wnew=\n");
+        //  for (int __i = 0; __i < (wnew.length - 1); __i += 2) {
+        //    System.out.printf("  { %d, %d }\n",
+        //    wnew[__i], wnew[(__i + 1)]);
+        //  }
+        //}
         
         try {
           this.communicator.updateServerService(v_id, wnew, brem, new int[] { }, new int[] { });    
