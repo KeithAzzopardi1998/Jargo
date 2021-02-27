@@ -107,10 +107,10 @@ public abstract class MLridesharing extends Client {
       Integer[][] context_map = contextMappingModule(rb);
       long time_end = System.currentTimeMillis();
       if (DEBUG) {
-        System.out.printf("Context Map: \n");
+        //System.out.printf("Context Map: \n");
         //for(Integer[] x: context_map)
         //      System.out.println(Arrays.toString(x));  
-        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
+        System.out.printf("\n--------Context Map - took %d ms--------\n\n",(time_end-time_start));
       }
 
       //getting a unique list of vehicles of interest by first flattening out the context map, and then
@@ -126,21 +126,20 @@ public abstract class MLridesharing extends Client {
       }
       time_end = System.currentTimeMillis();
       int[] vehicles = IntStream.of(vehicle_list).distinct().toArray();
-      if (DEBUG) {
-        System.out.println("Unique list of vehicles\n");
-        //System.out.println(Arrays.toString(vehicles));
-        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
-      }
+      //if (DEBUG) {
+      //  System.out.println("Unique list of vehicles\n");
+      //  System.out.println(Arrays.toString(vehicles));
+      //}
 
       //2. ask vehicles for insertion costs and form the cost matrix
       time_start = System.currentTimeMillis();
       double[][] cost_matrix = getCostMatrix(rb,vehicles,context_map);
       time_end = System.currentTimeMillis();
       if (DEBUG) {
-        System.out.printf("Insertion Costs: \n");
+        //System.out.printf("Insertion Costs: \n");
         //for(double[] x: cost_matrix)
         //      System.out.println(Arrays.toString(x));  
-        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
+        System.out.printf("\n--------Insertion Costs - took %d ms--------\n\n",(time_end-time_start));
       }
 
       //3. call optimization module
@@ -149,17 +148,17 @@ public abstract class MLridesharing extends Client {
       int[] assignments = optModule.execute();
       time_end = System.currentTimeMillis();
       if (DEBUG) {
-        System.out.printf("Assignments: \n");
+        //System.out.printf("Assignments: \n");
         //System.out.println(Arrays.toString(assignments));  
-        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
+        System.out.printf("\n--------Hungarian Algorithm - took %d ms--------\n\n",(time_end-time_start));
       }
       
       //4. update vehicle routes
       //TODO ensure that the length of the assignments array is equal to the number of requests
       //loop through the request
-      if (DEBUG) {
-        System.out.printf("Updating Vehicle Routes:\n");
-      }      
+      //if (DEBUG) {
+      //  System.out.printf("Updating Vehicle Routes:\n");
+      //}      
       time_start = System.currentTimeMillis();
       for (int i = 0; i < assignments.length; i++ ){
         //the info about the request to be inserted
@@ -176,15 +175,15 @@ public abstract class MLridesharing extends Client {
         if ((v_index == -1) || (cost_matrix[i][v_index]==this.COST_INFEASIBLE)) {
           //cannot serve request ... rebalance or reject
           if (reactive_rebalancing_enabled) {
-            if (DEBUG) {
-              System.out.printf("Adding request %d (ID %d) to the rebalancing queue\n",i,r_id);
-            }
+            //if (DEBUG) {
+            //  System.out.printf("Adding request %d (ID %d) to the rebalancing queue\n",i,r_id);
+            //}
             this.rebalancing_queue.add(rb[i]);
           }
           else {
-            if (DEBUG) {
-              System.out.printf("Rejecting request %d (ID %d) since rebalancing is disabled\n",i,r_id);
-            }
+            //if (DEBUG) {
+            //  System.out.printf("Rejecting request %d (ID %d) since rebalancing is disabled\n",i,r_id);
+            //}
           }
           
         }
@@ -192,10 +191,10 @@ public abstract class MLridesharing extends Client {
           //insert the request into the vehicle's route by fetching the updated route
           //with the new request from the cache
           int v_id = vehicles[v_index];
-          if (DEBUG) {
-            System.out.printf("Adding request %d (ID %d) to vehicle with ID %d\n",i,r_id,v_id);
-            System.out.printf("Insertion cost is %f\n",cost_matrix[i][v_index]);
-          }
+          //if (DEBUG) {
+          //  System.out.printf("Adding request %d (ID %d) to vehicle with ID %d\n",i,r_id,v_id);
+          //  System.out.printf("Insertion cost is %f\n",cost_matrix[i][v_index]);
+          //}
           Key<Integer,Integer> k_temp=new Key<Integer,Integer>(r_id,v_id);
           final int[] wnew = this.cache_w.get(k_temp);
           //if (DEBUG) {
@@ -223,18 +222,18 @@ public abstract class MLridesharing extends Client {
       }
       time_end = System.currentTimeMillis();
       if (DEBUG) {
-        System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
+        System.out.printf("\n--------Vehicle Route Updates - took %d ms--------\n\n",(time_end-time_start));
       }
 
       if (reactive_rebalancing_enabled && !this.rebalancing_queue.isEmpty()) {
-        if (DEBUG) {
-          System.out.printf("calling reactive rebalancing module\n");
-        }
+        //if (DEBUG) {
+        //  System.out.printf("calling reactive rebalancing module\n");
+        //}
         time_start = System.currentTimeMillis();
         this.reactiveRebalancingModule();
         time_end = System.currentTimeMillis();
         if (DEBUG) {
-          System.out.printf("\n--------took %d ms--------\n\n",(time_end-time_start));
+          System.out.printf("\n--------Reactive Rebalancing - took %d ms--------\n\n",(time_end-time_start));
         }
       }
       //if (DEBUG) {
@@ -274,9 +273,9 @@ public abstract class MLridesharing extends Client {
           candidates_enroute.add(sid);
         }
       }
-      if (DEBUG) {
-        System.out.printf("Got %d idle vehicles and %d enroute vehicles\n",candidates_idle.size(),candidates_enroute.size());
-      }
+      //if (DEBUG) {
+      //  System.out.printf("Got %d idle vehicles and %d enroute vehicles\n",candidates_idle.size(),candidates_enroute.size());
+      //}
   
       //TODO: check what happens if the length of candidates_idle
       //      or candidates_enroute is less than MAXN
@@ -327,9 +326,9 @@ public abstract class MLridesharing extends Client {
   protected void reactiveRebalancingModule() throws ClientException {
     try{
       //1. fetch list of unassigned requests
-      if (DEBUG) {
-        System.out.printf("Rebalancing idle vehicles to serve %d customers\n",this.rebalancing_queue.size());
-      }
+      //if (DEBUG) {
+      //  System.out.printf("Rebalancing idle vehicles to serve %d customers\n",this.rebalancing_queue.size());
+      //}
       int[][] rb = this.rebalancing_queue.toArray(new int[this.rebalancing_queue.size()][7]);
       //now that we have a copy of the request batch in rb, we can clear the queue
       //any unserved requests are added back once we know that they cannot be served
@@ -347,9 +346,9 @@ public abstract class MLridesharing extends Client {
         }
       }
       Integer[] vehicles = vehicles_list.toArray(new Integer[vehicles_list.size()]);
-      if (DEBUG) {
-        System.out.printf("Got %d idle vehicles to consider for rebalancing\n",vehicles.length);
-      }
+      //if (DEBUG) {
+      //  System.out.printf("Got %d idle vehicles to consider for rebalancing\n",vehicles.length);
+      //}
 
       //3. calculate travel distance between each request-vehicle pair
       double [][] cost_matrix = new double[rb.length][vehicles.length];
@@ -379,9 +378,9 @@ public abstract class MLridesharing extends Client {
         final int v_index = assignments[r_index];
         final int v_id = vehicles[v_index];
         
-        if (DEBUG) {
-          System.out.printf("rebalancing vehicle ID %d to location of request ID %d\n",v_id,r[0]);
-        }
+        //if (DEBUG) {
+        //  System.out.printf("rebalancing vehicle ID %d to location of request ID %d\n",v_id,r[0]);
+        //}
 
         //the remaining schedule will remain the same
         int[] brem = this.communicator.queryServerScheduleRemaining(v_id, now);

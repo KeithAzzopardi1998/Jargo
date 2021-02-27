@@ -114,7 +114,7 @@ public abstract class Client {
                 if (DEBUG) {
                   int now = this.communicator.retrieveClock();
                   System.out.printf("[t=%d] ---> there are %d requests in the queue\n",now,this.queue.size());
-                  System.out.println(Arrays.deepToString(rb).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
+                  //System.out.println(Arrays.deepToString(rb).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
                 }
                 long A0 = System.currentTimeMillis();
                 this.handleRequestBatch(rb);
