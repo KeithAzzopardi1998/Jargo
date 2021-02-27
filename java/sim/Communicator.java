@@ -53,6 +53,10 @@ public class Communicator {
              final int rq, final int tp, final int td) throws SQLException {
            return this.storage.DBQueryServerCapacityViolations(sid, rq, tp, td);
          }
+  public int queryServerCapacity(final int sid)
+             throws SQLException {
+           return -1 * this.storage.DBQueryUserCapacity(sid)[0];
+         }         
   public int[] queryServerDistanceRemaining(final int sid, final int t) throws SQLException {
            int[] output = this.storage.DBQueryServerDistanceRemaining(sid, t);
            return output;
