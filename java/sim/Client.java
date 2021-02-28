@@ -134,9 +134,58 @@ public abstract class Client {
               }
             }
          }
-  public void updatePredictions() throws ClientException, ClientFatalException {
-            return;
+  public void updatePredictions() throws ClientException, ClientFatalException {          
+            //we need to check the time so that we don't try to load
+            //requests from before the simulation started
+            final int now = this.communicator.retrieveClock();
+            if (DEBUG) {
+              System.out.printf("Updating Predictions at Time %d\n",now);
+            }
+
+            //interval length in seconds
+            final int interval_length = 30 * 60;
+            
+            //number of intervals used to predict the next interval
+            final int num_intervals = 5;
+
+            //1. updating the text files with the requests from previous intervals
+            int interval_start;//start time of the time interval we're interested int
+            int interval_end;//end time of the time interval we're interested int
+            String interval_filename;//where to store the data for this interval
+            for (int i = 0; i < num_intervals; i++) {
+              interval_end = now - (i * interval_length);
+              interval_start = interval_end - interval_length;
+              
+              if (DEBUG) {
+                System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
+              }    
+              if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
+                interval_filename= String.format("./interval_%d.txt", (num_intervals - 1));
+                this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
+              }
+              else {
+                System.out.printf("interval skipped\n",interval_start,interval_end);
+              }
+            }
+
+            //2. calling the python script to predict the next interval 
+            //IMP: wait for the script to finish before reading the predictions
+
+            //3. reading the predictions
+            importFutureRequests();
+         }
+  public void exportPastRequestInterval(int t_start, int t_end, String filename) {
+            // 1. query requests between t_start and t_end
+
+            // 2. map requests from jargo OD nodes to model OD nodes
+
+            // 3. build the array in the same format as the OD model
+
+            // 4. export the array to a text file
          }  
+  public void importFutureRequests() {
+            return;
+         }
   public int[] routeMinDistMinDur(int sid, int[] bnew, boolean strict) throws ClientException {
            int[] wnew = null;
            boolean ok = true;
