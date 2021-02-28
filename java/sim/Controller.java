@@ -64,8 +64,8 @@ public class Controller {
   private int REQUEST_HANDLING_PERIOD = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_period", "1"));
   private int REQUEST_HANDLING_DELAY = 2;
-  private int DEMAND_PREDICTION_PERIOD = 5; //should be 30
-  private int DEMAND_PREDICTION_DELAY = 0; //TODO figure out what to do with this
+  private int DEMAND_PREDICTION_PERIOD = 60; //should be 30
+  private int DEMAND_PREDICTION_DELAY = 9000; //TODO figure out what to do with this
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_delay", "1"));
   private int SERVER_COLLECTION_PERIOD =
       Integer.parseInt(System.getProperty("jargors.controller.server_collection_period", "1"));
@@ -824,7 +824,7 @@ public class Controller {
            }
 
           this.cb5 = exe.scheduleAtFixedRate(
-            this.DemandPredictionLoop, DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD, TimeUnit.MINUTES);
+            this.DemandPredictionLoop, DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD, TimeUnit.SECONDS);
           if (DEBUG) {
             System.out.printf("exe DemandPredictionLoop, delay=%d, int=%d\n",
             DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD);
