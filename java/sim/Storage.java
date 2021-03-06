@@ -819,6 +819,13 @@ public class Storage {
              throw e;
            }
          }
+  public int[] DBQueryRequestsInInterval(final int t_start, final int t_end) throws SQLException {
+           try (Connection conn = DriverManager.getConnection(CONNECTIONS_POOL_URL)){
+             return this.PSQuery(conn, "S165", 3,t_start, t_end);
+           } catch (SQLException e) {
+             throw e;
+           }
+         }
   public int[] DBQueryVertex(final int v) throws VertexNotFoundException {
            if (!this.lu_vertices.containsKey(v)) {
              throw new VertexNotFoundException("Vertex "+v+" not found.");
@@ -2067,6 +2074,7 @@ public class Storage {
             this.lu_pstr.put("S163", SEL+"COUNT (*) FROM CQ WHERE sid=? AND q1+? > 0"
                 + "AND ( (t1 < ? AND t2 > ?) OR (? < t2 AND t2 <= ?) )");
             this.lu_pstr.put("S164", SEL+"UQ from UQ where UID=?");
+            this.lu_pstr.put("S165", SEL+"sid, ro, rd FROM R WHERE re >= ? AND re < ?");
           }
   private void PSAdd(PreparedStatement p, final Integer... values) throws SQLException {
             p.clearParameters();
