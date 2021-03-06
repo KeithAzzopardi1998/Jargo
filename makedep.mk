@@ -128,7 +128,7 @@ dep/org-openide-util-lookup-RELEASE139.jar :
 	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/org-openide-util-lookup-RELEASE139.jar)
 
 dep/npy-0.3.5.jar :
-	@$(call get_jar,https://repo1.maven.org/maven2/org/jetbrains/bio/npy/0.3.5/npy-0.3.5.jar)
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/npy-0.3.5.jar)
 
 $(JFX) : | dep/javafx-sdk-13.0.1
 	@printf "symlink $(@F)\n"
