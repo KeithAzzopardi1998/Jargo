@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.lang.Math;
+import java.nio.file.Paths;
 import org.jetbrains.bio.npy.NpyFile;
 
 public abstract class Client {
@@ -340,13 +341,13 @@ public abstract class Client {
       }
     }
 
-    //2. calling the python script to predict the next interval 
+    //2. calling the python script to predict the next interval
     //IMP: wait for the script to finish before reading the predictions
 
     //3. reading the predictions
     importFutureRequests();
   }
-  public void exportPastRequestInterval(final int t_start, final int t_end, final String filename) {
+  public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) {
 
       //the OD matrix which will be exported to the text file
       //(initialized to 0s by default, so we just increment later on)
@@ -388,10 +389,15 @@ public abstract class Client {
         return;//TODO should we re-throw?
       }
 
-
-
-      // 4. export the array to a file
-
+      //export the array to a .npy file
+      //(but NpyFile only works with 1D arrays so we flatten the OD matrix first)
+      //https://stackoverflow.com/a/38204711
+      int[] od_flattened = Arrays.stream(od_matrix)
+                            .flatMap(Arrays::stream)
+                            .flatMapToInt(Arrays::stream)
+                            .toArray();
+      int[] od_shape = { this.dm_height*dm_width, this.dm_height, this.dm_width };
+      NpyFile.write(Paths.get(filepath), od_flattened, od_shape);
   }
   public void importFutureRequests() {
      return;
