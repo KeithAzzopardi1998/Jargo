@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
+import java.lang.Math;
+import org.jetbrains.bio.npy.NpyFile;
+
 public abstract class Client {
   //by default, we use the Jargo request processing method of loading new customers from the queue and inserting them 
   //one by one. However, inheriting classes may set this flag to TRUE to overwrite this functiinality
@@ -20,8 +23,8 @@ public abstract class Client {
   protected Tools tools = new Tools();
   protected final boolean DEBUG =
       "true".equals(System.getProperty("jargors.client.debug"));
-  protected final boolean PREDICTION_MODEL =
-      "true".equals(System.getProperty("jargors.client.prediction_model"));
+  protected final boolean DEMAND_MODEL_ENABLED =
+      "true".equals(System.getProperty("jargors.client.dm_enable"));
   //map containing the ID of each server and the time at which it was at the last vertex 
   protected ConcurrentHashMap<Integer, Integer> lut = new ConcurrentHashMap<Integer, Integer>();
   //map containing the ID of each server and the last visited vertex
@@ -29,18 +32,22 @@ public abstract class Client {
   protected long dur_handle_request = 0;
   //a map listing each jargo node and the corresponding grid space to which it is mapped in
   //the demand prediction model
-  protected ConcurrentHashMap<Integer, Integer> node_region_map = new ConcurrentHashMap<Integer, Integer>();
+  protected ConcurrentHashMap<Integer, Integer> jargo_to_dm = new ConcurrentHashMap<Integer, Integer>();
+  //height and width of the demand model grid
+  //TODO: store these in the mapping file?
+  protected final int dm_height = 20;
+  protected final int dm_width = 5;
   public Client() {
     if (DEBUG) {
       System.out.printf("create Client\n");
     }
 
-    if (PREDICTION_MODEL) {
-      this.node_region_map = this.loadNodeMapping("/home/keith/Dissertation/github/jargo/node_grid_map_5x20.csv");
+    if (DEMAND_MODEL_ENABLED) {
+      this.jargo_to_dm = this.loadNodeMapping("/home/keith/Dissertation/github/jargo/node_grid_map_5x20.csv");
     }
   }
-  public boolean isPredictionModelEnabled(){
-           return PREDICTION_MODEL;
+  public boolean isDemandModelEnabled(){
+           return DEMAND_MODEL_ENABLED;
          }
   public void forwardRefCacheEdges(final ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, int[]>> lu_edges) {
            this.tools.setRefCacheEdges(lu_edges);
@@ -133,7 +140,7 @@ public abstract class Client {
                 this.dur_handle_request = System.currentTimeMillis() - A0;
                 if (DEBUG) {
                   System.out.printf("----processed request batch in %d ms ... %d requests left in the queue----\n",this.dur_handle_request,this.queue.size());
-                }  
+                }
               }
             } else {
               while (!this.queue.isEmpty()) {
@@ -297,9 +304,9 @@ public abstract class Client {
          }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Functions related to prediction model ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   public ConcurrentHashMap<Integer,Integer> loadNodeMapping(String filepath) {
-    
+    return new ConcurrentHashMap<Integer, Integer>();
   }
-  public void updatePredictions() throws ClientException, ClientFatalException {          
+  public void updatePredictions() throws ClientException, ClientFatalException {
     //we need to check the time so that we don't try to load
     //requests from before the simulation started
     final int now = this.communicator.retrieveClock();
@@ -309,7 +316,7 @@ public abstract class Client {
 
     //interval length in seconds
     final int interval_length = 30 * 60;
-    
+
     //number of intervals used to predict the next interval
     final int num_intervals = 5;
 
@@ -320,10 +327,10 @@ public abstract class Client {
     for (int i = 0; i < num_intervals; i++) {
       interval_end = now - (i * interval_length);
       interval_start = interval_end - interval_length;
-      
+
       if (DEBUG) {
         System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
-      }    
+      }
       if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
         interval_filename= String.format("./interval_%d.txt", (num_intervals - 1));
         this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
@@ -339,17 +346,55 @@ public abstract class Client {
     //3. reading the predictions
     importFutureRequests();
   }
-  public void exportPastRequestInterval(int t_start, int t_end, String filename) {
-      // 1. query requests between t_start and t_end
+  public void exportPastRequestInterval(final int t_start, final int t_end, final String filename) {
 
-      // 2. map requests from jargo OD nodes to model OD nodes
+      //the OD matrix which will be exported to the text file
+      //(initialized to 0s by default, so we just increment later on)
+      int[][][] od_matrix = new int[this.dm_height*dm_width][this.dm_height][this.dm_width];
 
-      // 3. build the array in the same format as the OD model
+      //query requests between t_start and t_end
+      //returns the ID, origin node and destination node for each request in the interval [t_start, t_end)
+      //note that the origin and destination nodes correspond to Jargo nodes,
+      //and need to be mapped to demand model region
+      try {
+        int[] r_jargo = this.communicator.queryRequestsInInterval(t_start,t_end);
 
-      // 4. export the array to a text file
-  }  
+        for(int i = 0; i < (r_jargo.length-2); i+=3 )//loop through the requests
+        {
+          //convert from jargo node index to demand model region index
+          Integer o_dm = jargo_to_dm.get(r_jargo[i+1]);
+          Integer d_dm = jargo_to_dm.get(r_jargo[i+2]);
+          if ((o_dm==null) || (d_dm==null)) {
+            if (DEBUG) {
+              System.out.printf("exportPastRequestInterval -> could not map request with ID %d to demand model",r_jargo[i]);
+            }
+            continue;
+          }
+          else {
+            //we choose the "slice" based on the destination
+            //each slice is a grid representing the origins of requests
+            //as a grid, so we have to calculate the row/column ID
+            //from the origin ID
+            int row = Math.floorDiv(o_dm,dm_width);
+            int column = o_dm % dm_width;
+            od_matrix[d_dm][row][column] += 1;
+          }
+        }
+
+      } catch (SQLException e) {
+        System.err.printf("Error occurred when trying to query requests in interval [%d,%d)",
+                            t_start,t_end);
+        e.printStackTrace();
+        return;//TODO should we re-throw?
+      }
+
+
+
+      // 4. export the array to a file
+
+  }
   public void importFutureRequests() {
-      return;
+     return;
   }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   protected void end() { }

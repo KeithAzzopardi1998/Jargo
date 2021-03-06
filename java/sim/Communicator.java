@@ -101,8 +101,6 @@ public class Communicator {
            return output;
          }
   public int[] queryRequestsInInterval(final int t_start, final int t_end) throws SQLException {
-           //returns the ID, origin node and destination node
-           //for each request in the interval [t_start, t_end)
            int[] output = this.storage.DBQueryRequestsInInterval(t_start,t_end);
            return output;
          }

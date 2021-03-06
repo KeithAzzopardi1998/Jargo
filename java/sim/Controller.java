@@ -823,7 +823,7 @@ public class Controller {
                  SERVER_COLLECTION_DELAY, SERVER_COLLECTION_PERIOD);
            }
            
-           if(this.client.isPredictionModelEnabled()) {
+           if(this.client.isDemandModelEnabled()) {
             this.cb5 = exe.scheduleAtFixedRate(
               this.DemandPredictionLoop, DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD, TimeUnit.SECONDS);
             if (DEBUG) {
