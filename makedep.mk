@@ -74,6 +74,7 @@ dep/org-netbeans-lib-profiler-ui-RELEASE139.jar \
 dep/org-netbeans-lib-profiler-charts-RELEASE139.jar \
 dep/org-netbeans-modules-profiler-api-RELEASE139.jar \
 dep/org-openide-util-lookup-RELEASE139.jar \
+dep/npy-0.3.5.jar \
 $(JFX)
 
 _prep :
@@ -109,22 +110,25 @@ dep/archive/gtree-2.0-linux.tar :
 ####### Dependencies for Jargo Desktop #########################################
 
 dep/com-sun-tools-visualvm-charts-RELEASE139.jar :
-	@$(call get_jar,http://bits.netbeans.org/nexus/content/repositories/visualvm/com/sun/tools/visualvm/api/com-sun-tools-visualvm-charts/RELEASE139/com-sun-tools-visualvm-charts-RELEASE139.jar)
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/com-sun-tools-visualvm-charts-RELEASE139.jar)
 
 dep/com-sun-tools-visualvm-uisupport-RELEASE139.jar :
-	@$(call get_jar,http://bits.netbeans.org/nexus/content/repositories/visualvm/com/sun/tools/visualvm/modules/com-sun-tools-visualvm-uisupport/RELEASE139/com-sun-tools-visualvm-uisupport-RELEASE139.jar)
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/com-sun-tools-visualvm-uisupport-RELEASE139.jar)
 
 dep/org-netbeans-lib-profiler-ui-RELEASE139.jar :
-	@$(call get_jar,http://bits.netbeans.org/nexus/content/repositories/visualvm/com/sun/tools/visualvm/modules/org-netbeans-lib-profiler-ui/RELEASE139/org-netbeans-lib-profiler-ui-RELEASE139.jar)
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/org-netbeans-lib-profiler-ui-RELEASE139.jar)
 
 dep/org-netbeans-lib-profiler-charts-RELEASE139.jar :
-	@$(call get_jar,http://bits.netbeans.org/nexus/content/repositories/visualvm/com/sun/tools/visualvm/modules/org-netbeans-lib-profiler-charts/RELEASE139/org-netbeans-lib-profiler-charts-RELEASE139.jar)
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/org-netbeans-lib-profiler-charts-RELEASE139.jar)
 
 dep/org-netbeans-modules-profiler-api-RELEASE139.jar :
-	@$(call get_jar,http://bits.netbeans.org/nexus/content/repositories/visualvm/com/sun/tools/visualvm/modules/org-netbeans-modules-profiler-api/RELEASE139/org-netbeans-modules-profiler-api-RELEASE139.jar)
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/org-netbeans-modules-profiler-api-RELEASE139.jar)
 
 dep/org-openide-util-lookup-RELEASE139.jar :
-	@$(call get_jar,http://bits.netbeans.org/nexus/content/repositories/visualvm/com/sun/tools/visualvm/api/org-openide-util-lookup/RELEASE139/org-openide-util-lookup-RELEASE139.jar)
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/org-openide-util-lookup-RELEASE139.jar)
+
+dep/npy-0.3.5.jar :
+	@$(call get_jar,https://repo1.maven.org/maven2/org/jetbrains/bio/npy/0.3.5/npy-0.3.5.jar)
 
 $(JFX) : | dep/javafx-sdk-13.0.1
 	@printf "symlink $(@F)\n"
