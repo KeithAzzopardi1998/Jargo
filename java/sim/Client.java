@@ -20,16 +20,28 @@ public abstract class Client {
   protected Tools tools = new Tools();
   protected final boolean DEBUG =
       "true".equals(System.getProperty("jargors.client.debug"));
+  protected final boolean PREDICTION_MODEL =
+      "true".equals(System.getProperty("jargors.client.prediction_model"));
   //map containing the ID of each server and the time at which it was at the last vertex 
   protected ConcurrentHashMap<Integer, Integer> lut = new ConcurrentHashMap<Integer, Integer>();
   //map containing the ID of each server and the last visited vertex
   protected ConcurrentHashMap<Integer, Integer> luv = new ConcurrentHashMap<Integer, Integer>();
   protected long dur_handle_request = 0;
+  //a map listing each jargo node and the corresponding grid space to which it is mapped in
+  //the demand prediction model
+  protected ConcurrentHashMap<Integer, Integer> node_region_map = new ConcurrentHashMap<Integer, Integer>();
   public Client() {
     if (DEBUG) {
       System.out.printf("create Client\n");
     }
+
+    if (PREDICTION_MODEL) {
+      this.node_region_map = this.loadNodeMapping("/home/keith/Dissertation/github/jargo/node_grid_map_5x20.csv");
+    }
   }
+  public boolean isPredictionModelEnabled(){
+           return PREDICTION_MODEL;
+         }
   public void forwardRefCacheEdges(final ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, int[]>> lu_edges) {
            this.tools.setRefCacheEdges(lu_edges);
          }
@@ -133,58 +145,6 @@ public abstract class Client {
                 }
               }
             }
-         }
-  public void updatePredictions() throws ClientException, ClientFatalException {          
-            //we need to check the time so that we don't try to load
-            //requests from before the simulation started
-            final int now = this.communicator.retrieveClock();
-            if (DEBUG) {
-              System.out.printf("Updating Predictions at Time %d\n",now);
-            }
-
-            //interval length in seconds
-            final int interval_length = 30 * 60;
-            
-            //number of intervals used to predict the next interval
-            final int num_intervals = 5;
-
-            //1. updating the text files with the requests from previous intervals
-            int interval_start;//start time of the time interval we're interested int
-            int interval_end;//end time of the time interval we're interested int
-            String interval_filename;//where to store the data for this interval
-            for (int i = 0; i < num_intervals; i++) {
-              interval_end = now - (i * interval_length);
-              interval_start = interval_end - interval_length;
-              
-              if (DEBUG) {
-                System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
-              }    
-              if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
-                interval_filename= String.format("./interval_%d.txt", (num_intervals - 1));
-                this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
-              }
-              else {
-                System.out.printf("interval skipped\n",interval_start,interval_end);
-              }
-            }
-
-            //2. calling the python script to predict the next interval 
-            //IMP: wait for the script to finish before reading the predictions
-
-            //3. reading the predictions
-            importFutureRequests();
-         }
-  public void exportPastRequestInterval(int t_start, int t_end, String filename) {
-            // 1. query requests between t_start and t_end
-
-            // 2. map requests from jargo OD nodes to model OD nodes
-
-            // 3. build the array in the same format as the OD model
-
-            // 4. export the array to a text file
-         }  
-  public void importFutureRequests() {
-            return;
          }
   public int[] routeMinDistMinDur(int sid, int[] bnew, boolean strict) throws ClientException {
            int[] wnew = null;
@@ -335,6 +295,63 @@ public abstract class Client {
            }
            return bmin;
          }
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Functions related to prediction model ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  public ConcurrentHashMap<Integer,Integer> loadNodeMapping(String filepath) {
+    
+  }
+  public void updatePredictions() throws ClientException, ClientFatalException {          
+    //we need to check the time so that we don't try to load
+    //requests from before the simulation started
+    final int now = this.communicator.retrieveClock();
+    if (DEBUG) {
+      System.out.printf("Updating Predictions at Time %d\n",now);
+    }
+
+    //interval length in seconds
+    final int interval_length = 30 * 60;
+    
+    //number of intervals used to predict the next interval
+    final int num_intervals = 5;
+
+    //1. updating the text files with the requests from previous intervals
+    int interval_start;//start time of the time interval we're interested int
+    int interval_end;//end time of the time interval we're interested int
+    String interval_filename;//where to store the data for this interval
+    for (int i = 0; i < num_intervals; i++) {
+      interval_end = now - (i * interval_length);
+      interval_start = interval_end - interval_length;
+      
+      if (DEBUG) {
+        System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
+      }    
+      if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
+        interval_filename= String.format("./interval_%d.txt", (num_intervals - 1));
+        this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
+      }
+      else {
+        System.out.printf("interval skipped\n",interval_start,interval_end);
+      }
+    }
+
+    //2. calling the python script to predict the next interval 
+    //IMP: wait for the script to finish before reading the predictions
+
+    //3. reading the predictions
+    importFutureRequests();
+  }
+  public void exportPastRequestInterval(int t_start, int t_end, String filename) {
+      // 1. query requests between t_start and t_end
+
+      // 2. map requests from jargo OD nodes to model OD nodes
+
+      // 3. build the array in the same format as the OD model
+
+      // 4. export the array to a text file
+  }  
+  public void importFutureRequests() {
+      return;
+  }
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   protected void end() { }
   protected void handleRequest(final int[] r) throws ClientException, ClientFatalException { }
   protected void handleRequestBatch(final int[][] rb) throws ClientException, ClientFatalException { }

@@ -185,7 +185,7 @@ public class Controller {
   };
   private Runnable DemandPredictionLoop = () -> {
     try{   
-      this.client.updatePredictions();  // blocks this thread until queue is empty
+      this.client.updatePredictions();
     } catch (ClientException e) {
       System.err.printf("[t=%d] Controller.DemandPredictionLoop caught a ClientException: %s\n",
           this.simClock, e.toString());
@@ -822,14 +822,16 @@ public class Controller {
              System.out.printf("exe ServerLoop, delay=%d, int=%d\n",
                  SERVER_COLLECTION_DELAY, SERVER_COLLECTION_PERIOD);
            }
-
-          this.cb5 = exe.scheduleAtFixedRate(
-            this.DemandPredictionLoop, DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD, TimeUnit.SECONDS);
-          if (DEBUG) {
-            System.out.printf("exe DemandPredictionLoop, delay=%d, int=%d\n",
-            DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD);
-          }
-
+           
+           if(this.client.isPredictionModelEnabled()) {
+            this.cb5 = exe.scheduleAtFixedRate(
+              this.DemandPredictionLoop, DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD, TimeUnit.SECONDS);
+            if (DEBUG) {
+              System.out.printf("exe DemandPredictionLoop, delay=%d, int=%d\n",
+              DEMAND_PREDICTION_DELAY, DEMAND_PREDICTION_PERIOD);
+            }
+           }
+           
            this.exe.schedule(() -> {
              this.stop(app_cb);
            }, simulation_duration, TimeUnit.SECONDS);
