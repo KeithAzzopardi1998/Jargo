@@ -13,6 +13,10 @@ import java.sql.SQLException;
 import java.lang.Math;
 import java.nio.file.Paths;
 import org.jetbrains.bio.npy.NpyFile;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 
 public abstract class Client {
   //by default, we use the Jargo request processing method of loading new customers from the queue and inserting them 
@@ -305,7 +309,34 @@ public abstract class Client {
          }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Functions related to prediction model ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   public ConcurrentHashMap<Integer,Integer> loadNodeMapping(String filepath) {
-    return new ConcurrentHashMap<Integer, Integer>();
+    ConcurrentHashMap<Integer, Integer> node_map =  new ConcurrentHashMap<Integer, Integer>();
+    boolean header = true;//the first line is a header and we don't want to read it
+    BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(filepath));
+			String line = reader.readLine().trim();
+			while (line != null) {
+				if (header==false) {
+          String[] values = line.split(",");
+          //each line contains two values:
+          //0 -> Jargo node ID
+          //1 -> corresponding Demand Model region ID
+          node_map.put(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+        } else {
+          //the header is only 1 line, so we invert
+          //the bool once we have found it once
+          header = false;
+        }
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e) {
+			System.out.printf("Could not read mapping file:\n");
+      e.printStackTrace();
+      System.exit(1);
+		}
+
+    return node_map;
   }
   public void updatePredictions() throws ClientException, ClientFatalException {
     //we need to check the time so that we don't try to load
