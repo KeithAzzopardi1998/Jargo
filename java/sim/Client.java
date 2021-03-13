@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.lang.Math;
 import java.nio.file.Paths;
 import org.jetbrains.bio.npy.NpyFile;
+import org.jetbrains.bio.npy.NpyArray;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -42,13 +43,32 @@ public abstract class Client {
   //TODO: store these in the mapping file?
   protected final int dm_height = 20;
   protected final int dm_width = 5;
+  //the current predictions (explanation on how to use in importFutureRequests)
+  /*
+  * "dm_predictions_raw" holds the predictions for the current period.
+  * Even though this array represents a 3D volume with the predictions, we choose to work with the 1D
+  * array directly, for computational efficiency reasons (and the npy library works with ID arrays only)
+  * To read the predicted demand from region with ID "dm_origin" to region with ID "dm_destination", use:
+  *
+  *   demand_od = dm_predictions_raw[ (dm_destination * (dm_height*dm_width)) + dm_origin]
+  *
+  * NOTE: dm_origin and dm_destination are IDs corresponding to demand model regions, not Jargo nodes
+  */
+  protected int[] dm_predictions_raw = new int[(this.dm_height*dm_width) * this.dm_height * this.dm_width];
+  //old code using a 3D array
+  //protected int[][][] dm_predictions_raw = new int[this.dm_height*dm_width][this.dm_height][this.dm_width];
+  
+  //TODO: separate arrays for the probability distributions, and maybe actual requests?
   public Client() {
     if (DEBUG) {
       System.out.printf("create Client\n");
     }
 
     if (DEMAND_MODEL_ENABLED) {
-      this.jargo_to_dm = this.loadNodeMapping("/home/keith/Dissertation/github/jargo/node_grid_map_5x20.csv");
+      this.jargo_to_dm = this.loadNodeMapping("./node_grid_map_5x20.csv");
+      if (DEBUG) {
+        System.out.printf("loaded Jargo-to-DemandModel node map\n");
+      }
     }
   }
   public boolean isDemandModelEnabled(){
@@ -339,38 +359,14 @@ public abstract class Client {
     return node_map;
   }
   public void updatePredictions() throws ClientException, ClientFatalException {
-    //we need to check the time so that we don't try to load
-    //requests from before the simulation started
+
     final int now = this.communicator.retrieveClock();
+
+    //1. updating the numpy files with the requests from previous intervals
     if (DEBUG) {
       System.out.printf("Updating Predictions at Time %d\n",now);
     }
-
-    //interval length in seconds
-    final int interval_length = 30 * 60;
-
-    //number of intervals used to predict the next interval
-    final int num_intervals = 5;
-
-    //1. updating the text files with the requests from previous intervals
-    int interval_start;//start time of the time interval we're interested int
-    int interval_end;//end time of the time interval we're interested int
-    String interval_filename;//where to store the data for this interval
-    for (int i = 0; i < num_intervals; i++) {
-      interval_end = now - (i * interval_length);
-      interval_start = interval_end - interval_length;
-
-      if (DEBUG) {
-        System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
-      }
-      if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
-        interval_filename= String.format("./interval_%d.txt", (num_intervals - 1));
-        this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
-      }
-      else {
-        System.out.printf("interval skipped\n",interval_start,interval_end);
-      }
-    }
+    exportPastRequests(5, 30*60,now);
 
     //2. calling the python script to predict the next interval
     //IMP: wait for the script to finish before reading the predictions
@@ -378,11 +374,36 @@ public abstract class Client {
     //3. reading the predictions
     importFutureRequests();
   }
+  //used to export the past "num_intervals" intervals of
+  //length "interval_length" seconds to a .npy file, by calling
+  //exportPastRequestInterval on each interval
+  //"time_end" refers to the latest time we want to consider
+  //(i.e. from where to start working backwards in time)
+  public void exportPastRequests(final int num_intervals, final int interval_length, final int time_end) {
+        for (int i = 0; i < num_intervals; i++) {
+          int interval_end = time_end - (i * interval_length);
+          int interval_start = interval_end - interval_length;
+
+          if (DEBUG) {
+            System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
+          }
+          //we need to check the time so that we don't try to load
+          //requests from before the simulation started
+          if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
+            String interval_filename= String.format("./predicted_demand/interval_%d.npy", (num_intervals - 1));
+            this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
+          }
+          else {
+            System.out.printf("interval skipped\n",interval_start,interval_end);
+          }
+        }
+  }
   public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) {
 
-      //the OD matrix which will be exported to the text file
+      //the OD matrix which will be exported to the npy file
       //(initialized to 0s by default, so we just increment later on)
-      int[][][] od_matrix = new int[this.dm_height*dm_width][this.dm_height][this.dm_width];
+      //we use the same logic as in dm_predictions_raw to read/write
+      int[] od_matrix = new int[this.dm_predictions_raw.length];
 
       //query requests between t_start and t_end
       //returns the ID, origin node and destination node for each request in the interval [t_start, t_end)
@@ -403,13 +424,12 @@ public abstract class Client {
             continue;
           }
           else {
-            //we choose the "slice" based on the destination
-            //each slice is a grid representing the origins of requests
-            //as a grid, so we have to calculate the row/column ID
-            //from the origin ID
-            int row = Math.floorDiv(o_dm,dm_width);
-            int column = o_dm % dm_width;
-            od_matrix[d_dm][row][column] += 1;
+            dm_predictions_raw[ (d_dm * (this.dm_height*this.dm_width)) + o_dm] += 1;
+
+            //old code using a 3D array
+            //int row = Math.floorDiv(o_dm,dm_width);
+            //int column = o_dm % dm_width;
+            //od_matrix[d_dm][row][column] += 1;
           }
         }
 
@@ -420,18 +440,24 @@ public abstract class Client {
         return;//TODO should we re-throw?
       }
 
-      //export the array to a .npy file
-      //(but NpyFile only works with 1D arrays so we flatten the OD matrix first)
-      //https://stackoverflow.com/a/38204711
-      int[] od_flattened = Arrays.stream(od_matrix)
-                            .flatMap(Arrays::stream)
-                            .flatMapToInt(Arrays::stream)
-                            .toArray();
+      //old code using a 3D array
+      //int[] od_flattened = Arrays.stream(od_matrix)
+      //                      .flatMap(Arrays::stream)
+      //                      .flatMapToInt(Arrays::stream)
+      //                      .toArray();
+      //int[] od_shape = { this.dm_height*dm_width, this.dm_height, this.dm_width };
+      //NpyFile.write(Paths.get(filepath), od_flattened, od_shape);
+
       int[] od_shape = { this.dm_height*dm_width, this.dm_height, this.dm_width };
-      NpyFile.write(Paths.get(filepath), od_flattened, od_shape);
+      NpyFile.write(Paths.get(filepath), od_matrix, od_shape);
   }
+  // reads a .npy file and returns a (flattened) Numpy array
   public void importFutureRequests() {
-     return;
+      //1. reading the file with the raw predictions
+      NpyArray pred_raw_npy = NpyFile.read(Paths.get("./predicted_demand/predicted_raw.npy"),Integer.MAX_VALUE);
+      dm_predictions_raw = pred_raw_npy.asIntArray();
+
+      //TODO: probability distributions, and sampled requests?
   }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   protected void end() { }
