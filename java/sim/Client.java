@@ -359,20 +359,20 @@ public abstract class Client {
     return node_map;
   }
   public void updatePredictions() throws ClientException, ClientFatalException {
+      final int now = this.communicator.retrieveClock();
+      if (DEBUG) {
+        System.out.printf("Updating Predictions at Time %d\n",now);
+      }
 
-    final int now = this.communicator.retrieveClock();
+      //1. updating the numpy files with the requests from previous intervals
+      exportPastRequests(5, 30*60,now);
 
-    //1. updating the numpy files with the requests from previous intervals
-    if (DEBUG) {
-      System.out.printf("Updating Predictions at Time %d\n",now);
-    }
-    exportPastRequests(5, 30*60,now);
+      //2. calling the python script to predict the next interval
+      //IMP: wait for the script to finish before reading the predictions
+      runDemandModel();
 
-    //2. calling the python script to predict the next interval
-    //IMP: wait for the script to finish before reading the predictions
-
-    //3. reading the predictions
-    importFutureRequests();
+      //3. reading the predictions
+      importFutureRequests();
   }
   //used to export the past "num_intervals" intervals of
   //length "interval_length" seconds to a .npy file, by calling
@@ -380,26 +380,25 @@ public abstract class Client {
   //"time_end" refers to the latest time we want to consider
   //(i.e. from where to start working backwards in time)
   public void exportPastRequests(final int num_intervals, final int interval_length, final int time_end) {
-        for (int i = 0; i < num_intervals; i++) {
-          int interval_end = time_end - (i * interval_length);
-          int interval_start = interval_end - interval_length;
+      for (int i = 0; i < num_intervals; i++) {
+        int interval_end = time_end - (i * interval_length);
+        int interval_start = interval_end - interval_length;
 
-          if (DEBUG) {
-            System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
-          }
-          //we need to check the time so that we don't try to load
-          //requests from before the simulation started
-          if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
-            String interval_filename= String.format("./predicted_demand/interval_%d.npy", (num_intervals - 1));
-            this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
-          }
-          else {
-            System.out.printf("interval skipped\n",interval_start,interval_end);
-          }
+        if (DEBUG) {
+          System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
         }
+        //we need to check the time so that we don't try to load
+        //requests from before the simulation started
+        if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
+          String interval_filename= String.format("./demand_model_data/input_intervals/interval_%d.npy", (num_intervals - 1));
+          this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
+        }
+        else {
+          System.out.printf("interval skipped\n",interval_start,interval_end);
+        }
+      }
   }
   public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) {
-
       //the OD matrix which will be exported to the npy file
       //(initialized to 0s by default, so we just increment later on)
       //we use the same logic as in dm_predictions_raw to read/write
@@ -454,10 +453,41 @@ public abstract class Client {
   // reads a .npy file and returns a (flattened) Numpy array
   public void importFutureRequests() {
       //1. reading the file with the raw predictions
-      NpyArray pred_raw_npy = NpyFile.read(Paths.get("./predicted_demand/predicted_raw.npy"),Integer.MAX_VALUE);
+      NpyArray pred_raw_npy = NpyFile.read(Paths.get("./demand_model_data/predicted_interval/raw.npy"),Integer.MAX_VALUE);
       dm_predictions_raw = pred_raw_npy.asIntArray();
 
       //TODO: probability distributions, and sampled requests?
+  }
+  // runs the demand prediction model script
+  public void runDemandModel() {
+      try{
+        String command = "/home/keith/Dissertation/github/liu_2019/predict_npy.py"
+                        + " --in1 ./demand_model_data/input_intervals/interval_1.npy"
+                        + " --in2 ./demand_model_data/input_intervals/interval_2.npy"
+                        + " --in3 ./demand_model_data/input_intervals/interval_3.npy"
+                        + " --in4 ./demand_model_data/input_intervals/interval_4.npy"
+                        + " --in5 ./demand_model_data/input_intervals/interval_5.npy"
+                        + " --model_file ./demand_model_data/model_files/odonly_20x5_cont.h5"
+                        + " --out_raw ./demand_model_data/predicted_interval/raw.npy";
+        Process process = Runtime.getRuntime().exec(command);
+        process.waitFor();
+        if (DEBUG) {
+          InputStream stdout = process.getErrorStream();
+          BufferedReader reader_out = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
+          InputStream stderr = process.getErrorStream();
+          BufferedReader reader_err = new BufferedReader(new InputStreamReader(stderr,StandardCharsets.UTF_8));
+          String line;
+          while((line = reader_out.readLine()) != null){
+            System.out.println("stdout: "+ line);
+          }
+          while((line = reader_err.readLine()) != null){
+              System.out.println("stderr: "+ line);
+          }
+        }
+      } catch (Exception e) {
+        System.out.println("Exception raised when running demand model" + e.toString());
+        return;//TODO should we re-throw?
+      }
   }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   protected void end() { }
