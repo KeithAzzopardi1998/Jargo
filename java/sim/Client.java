@@ -17,6 +17,8 @@ import org.jetbrains.bio.npy.NpyArray;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 
 public abstract class Client {
@@ -65,7 +67,7 @@ public abstract class Client {
     }
 
     if (DEMAND_MODEL_ENABLED) {
-      this.jargo_to_dm = this.loadNodeMapping("./node_grid_map_5x20.csv");
+      this.jargo_to_dm = this.loadNodeMapping("./demand_model_data/mapping_nodes/node_grid_map_5x20.csv");
       if (DEBUG) {
         System.out.printf("loaded Jargo-to-DemandModel node map\n");
       }
@@ -359,33 +361,54 @@ public abstract class Client {
     return node_map;
   }
   public void updatePredictions() throws ClientException, ClientFatalException {
-      final int now = this.communicator.retrieveClock();
-      if (DEBUG) {
-        System.out.printf("Updating Predictions at Time %d\n",now);
+
+      try {
+        final int now = this.communicator.retrieveClock();
+        if (DEBUG) {
+          System.out.printf("updatePredictions: called at time %d\n",now);
+        }
+        //1. updating the numpy files with the requests from previous intervals
+        //exportPastRequests(5, 30*60,now);
+        exportPastRequests(5, 1*60,now);
+        if (DEBUG) {
+          System.out.printf("updatePredictions: finished exportPastRequests\n",now);
+        }
+
+        //2. calling the python script to predict the next interval
+        //IMP: wait for the script to finish before reading the predictions
+        runDemandModel();
+        if (DEBUG) {
+          System.out.printf("updatePredictions: finished runDemandModel\n",now);
+        }
+
+        //3. reading the predictions
+        importFutureRequests();
+        if (DEBUG) {
+          System.out.printf("updatePredictions: finished importFutureRequests\n",now);
+        }
+
+      } catch (Exception e) {
+        System.out.printf("Error occurred when updating predictions:\n");
+        e.printStackTrace();
+        //TODO throw a ClientException?
       }
 
-      //1. updating the numpy files with the requests from previous intervals
-      exportPastRequests(5, 30*60,now);
-
-      //2. calling the python script to predict the next interval
-      //IMP: wait for the script to finish before reading the predictions
-      runDemandModel();
-
-      //3. reading the predictions
-      importFutureRequests();
   }
   //used to export the past "num_intervals" intervals of
   //length "interval_length" seconds to a .npy file, by calling
   //exportPastRequestInterval on each interval
   //"time_end" refers to the latest time we want to consider
   //(i.e. from where to start working backwards in time)
-  public void exportPastRequests(final int num_intervals, final int interval_length, final int time_end) {
+  public void exportPastRequests(final int num_intervals, final int interval_length, final int time_end) throws SQLException{
+      if (DEBUG) {
+        System.out.printf("exportPastRequests: num_intervals=%d, interval_length=%d, time_end=%d\n",num_intervals,interval_length,time_end);
+      }
       for (int i = 0; i < num_intervals; i++) {
         int interval_end = time_end - (i * interval_length);
         int interval_start = interval_end - interval_length;
 
         if (DEBUG) {
-          System.out.printf("~~Exporting interval between %d and %d\n",interval_start,interval_end);
+          System.out.printf("exportPastRequests: handling interval between t=%d and t=%d\n",interval_start,interval_end);
         }
         //we need to check the time so that we don't try to load
         //requests from before the simulation started
@@ -394,11 +417,19 @@ public abstract class Client {
           this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
         }
         else {
-          System.out.printf("interval skipped\n",interval_start,interval_end);
+          if (DEBUG) {
+            System.out.printf("exportPastRequests: interval skipped (out of time range)\n",interval_start,interval_end);
+          }
+        }
+        if (DEBUG) {
+          System.out.printf("exportPastRequests: finished handling interval\n",interval_start,interval_end);
         }
       }
   }
-  public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) {
+  public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) throws SQLException {
+      if (DEBUG) {
+        System.out.printf("exportPastRequestInterval: t_start=%d, t_end=%d, filepath=%s\n",t_start,t_end,filepath);
+      }
       //the OD matrix which will be exported to the npy file
       //(initialized to 0s by default, so we just increment later on)
       //we use the same logic as in dm_predictions_raw to read/write
@@ -410,15 +441,22 @@ public abstract class Client {
       //and need to be mapped to demand model region
       try {
         int[] r_jargo = this.communicator.queryRequestsInInterval(t_start,t_end);
+        if (DEBUG) {
+          System.out.printf("exportPastRequestInterval: got request array of length %d\n",r_jargo.length);
+        }
 
         for(int i = 0; i < (r_jargo.length-2); i+=3 )//loop through the requests
         {
           //convert from jargo node index to demand model region index
           Integer o_dm = jargo_to_dm.get(r_jargo[i+1]);
           Integer d_dm = jargo_to_dm.get(r_jargo[i+2]);
+          if (DEBUG) {
+            System.out.printf("exportPastRequestInterval: finished mapping jargo nodes to demand model regions\n");
+          }
+
           if ((o_dm==null) || (d_dm==null)) {
             if (DEBUG) {
-              System.out.printf("exportPastRequestInterval -> could not map request with ID %d to demand model",r_jargo[i]);
+              System.out.printf("exportPastRequestInterval -> could not map request with ID %d to demand model\n",r_jargo[i]);
             }
             continue;
           }
@@ -431,12 +469,21 @@ public abstract class Client {
             //od_matrix[d_dm][row][column] += 1;
           }
         }
-
+        if (DEBUG) {
+          System.out.printf("exportPastRequestInterval: finished building OD array\n");
+        }
+        /*
+        int[] od_shape = { this.dm_height*dm_width, this.dm_height, this.dm_width };
+        NpyFile.write(Paths.get(filepath), od_matrix, od_shape);
+        if (DEBUG) {
+          System.out.printf("exportPastRequestInterval: finished exporting OD array\n");
+        }
+        */
       } catch (SQLException e) {
-        System.err.printf("Error occurred when trying to query requests in interval [%d,%d)",
+        System.err.printf("Error occurred when trying to query requests in interval [%d,%d)\n",
                             t_start,t_end);
         e.printStackTrace();
-        return;//TODO should we re-throw?
+        throw e;
       }
 
       //old code using a 3D array
@@ -446,20 +493,23 @@ public abstract class Client {
       //                      .toArray();
       //int[] od_shape = { this.dm_height*dm_width, this.dm_height, this.dm_width };
       //NpyFile.write(Paths.get(filepath), od_flattened, od_shape);
-
-      int[] od_shape = { this.dm_height*dm_width, this.dm_height, this.dm_width };
-      NpyFile.write(Paths.get(filepath), od_matrix, od_shape);
   }
   // reads a .npy file and returns a (flattened) Numpy array
   public void importFutureRequests() {
       //1. reading the file with the raw predictions
-      NpyArray pred_raw_npy = NpyFile.read(Paths.get("./demand_model_data/predicted_interval/raw.npy"),Integer.MAX_VALUE);
+      String raw_filename = "./demand_model_data/predicted_interval/raw.npy";
+      if (DEBUG) {
+        System.out.printf("importFutureRequests: going to import raw predictions from %s\n",raw_filename);
+      }
+      NpyArray pred_raw_npy = NpyFile.read(Paths.get(raw_filename),Integer.MAX_VALUE);
       dm_predictions_raw = pred_raw_npy.asIntArray();
-
+      if (DEBUG) {
+        System.out.printf("importFutureRequests: loaded raw prediction array of length %d\n",dm_predictions_raw.length);
+      }
       //TODO: probability distributions, and sampled requests?
   }
   // runs the demand prediction model script
-  public void runDemandModel() {
+  public void runDemandModel() throws IOException, InterruptedException{
       try{
         String command = "/home/keith/Dissertation/github/liu_2019/predict_npy.py"
                         + " --in1 ./demand_model_data/input_intervals/interval_1.npy"
@@ -469,24 +519,32 @@ public abstract class Client {
                         + " --in5 ./demand_model_data/input_intervals/interval_5.npy"
                         + " --model_file ./demand_model_data/model_files/odonly_20x5_cont.h5"
                         + " --out_raw ./demand_model_data/predicted_interval/raw.npy";
+        if (DEBUG) {
+          System.out.printf("runDemandModel: going to run script\n");
+        }
         Process process = Runtime.getRuntime().exec(command);
         process.waitFor();
+        if (DEBUG) {
+          System.out.printf("runDemandModel: script finished executing\n");
+        }
         if (DEBUG) {
           InputStream stdout = process.getErrorStream();
           BufferedReader reader_out = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
           InputStream stderr = process.getErrorStream();
           BufferedReader reader_err = new BufferedReader(new InputStreamReader(stderr,StandardCharsets.UTF_8));
           String line;
+          System.out.printf("runDemandModel: printing standard output:\n");
           while((line = reader_out.readLine()) != null){
             System.out.println("stdout: "+ line);
           }
+          System.out.printf("runDemandModel: printing standard error:\n");
           while((line = reader_err.readLine()) != null){
               System.out.println("stderr: "+ line);
           }
         }
       } catch (Exception e) {
         System.out.println("Exception raised when running demand model" + e.toString());
-        return;//TODO should we re-throw?
+        throw e;
       }
   }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
