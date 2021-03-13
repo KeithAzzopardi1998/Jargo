@@ -2074,7 +2074,7 @@ public class Storage {
             this.lu_pstr.put("S163", SEL+"COUNT (*) FROM CQ WHERE sid=? AND q1+? > 0"
                 + "AND ( (t1 < ? AND t2 > ?) OR (? < t2 AND t2 <= ?) )");
             this.lu_pstr.put("S164", SEL+"UQ from UQ where UID=?");
-            this.lu_pstr.put("S165", SEL+"sid, ro, rd FROM R WHERE re >= ? AND re < ?");
+            this.lu_pstr.put("S165", SEL+"rid, ro, rd FROM R WHERE re >= ? AND re < ?");
           }
   private void PSAdd(PreparedStatement p, final Integer... values) throws SQLException {
             p.clearParameters();
