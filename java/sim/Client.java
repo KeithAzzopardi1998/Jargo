@@ -19,6 +19,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 
 public abstract class Client {
@@ -399,7 +403,7 @@ public abstract class Client {
   //exportPastRequestInterval on each interval
   //"time_end" refers to the latest time we want to consider
   //(i.e. from where to start working backwards in time)
-  public void exportPastRequests(final int num_intervals, final int interval_length, final int time_end) throws SQLException{
+  public void exportPastRequests(final int num_intervals, final int interval_length, final int time_end) throws SQLException, IOException{
       if (DEBUG) {
         System.out.printf("exportPastRequests: num_intervals=%d, interval_length=%d, time_end=%d\n",num_intervals,interval_length,time_end);
       }
@@ -426,7 +430,7 @@ public abstract class Client {
         }
       }
   }
-  public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) throws SQLException {
+  public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) throws SQLException. IOException {
       if (DEBUG) {
         System.out.printf("exportPastRequestInterval: t_start=%d, t_end=%d, filepath=%s\n",t_start,t_end,filepath);
       }
@@ -465,8 +469,20 @@ public abstract class Client {
           System.out.printf("exportPastRequestInterval: finished building OD array\n");
         }
 
-      } catch (SQLException e) {
-        System.err.printf("Error occurred when trying to query requests in interval [%d,%d)\n",
+        //writing to the file
+        FileWriter file = new FileWriter(filepath);
+        BufferedWriter output = new BufferedWriter(file);
+        String data = Arrays.toString(od_matrix);
+        data = data.substring(1,data.length() - 1);//removing the square brackets
+        output.write(data);
+        output.close();
+
+        if (DEBUG) {
+          System.out.printf("exportPastRequestInterval: finished exporting OD array\n");
+        }
+
+      } catch (Exception e) {
+        System.err.printf("Error occurred when trying to export requests in interval [%d,%d)\n",
                             t_start,t_end);
         e.printStackTrace();
         throw e;
