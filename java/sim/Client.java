@@ -23,6 +23,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.lang.System;
 
 
 public abstract class Client {
@@ -490,17 +491,41 @@ public abstract class Client {
 
   }
   // reads a .npy file and returns a (flattened) Numpy array
-  public void importFutureRequests() {
+  public void importFutureRequests() throws IOException {
       //1. reading the file with the raw predictions
-      String raw_filename = "./demand_model_data/predicted_interval/raw.npy";
-      if (DEBUG) {
-        System.out.printf("importFutureRequests: going to import raw predictions from %s\n",raw_filename);
+      try {
+        String raw_filename = "./demand_model_data/predicted_interval/raw.npy";
+        if (DEBUG) {
+          System.out.printf("importFutureRequests: going to import raw predictions from %s\n",raw_filename);
+        }
+
+        FileReader file = new FileReader("./test_arr.txt");
+        BufferedReader input = new BufferedReader(file);
+        String od_string = input.readLine();
+        int[] od_arr = Arrays.stream(od_string.split(","))
+                        .map(String::trim)
+                        .mapToInt(Integer::parseInt)
+                        .toArray();
+        input.close();
+
+        if (DEBUG) {
+          System.out.printf("importFutureRequests: loaded raw prediction array of length %d\n",od_arr.length);
+        }      
+
+        if (od_arr.length = this.dm_predictions_raw.length)
+        {
+          System.arraycopy(od_arr, 0, this.dm_predictions_raw, 0, od_arr.length);
+          if (DEBUG) {
+            System.out.printf("importFutureRequests: updated raw predictions\n");
+          }
+        }
+
+      } catch (Exception e) {
+        System.err.printf("Error occurred when trying to import raw predictions\n");
+        e.printStackTrace();
+        throw e;        
       }
-      NpyArray pred_raw_npy = NpyFile.read(Paths.get(raw_filename),Integer.MAX_VALUE);
-      dm_predictions_raw = pred_raw_npy.asIntArray();
-      if (DEBUG) {
-        System.out.printf("importFutureRequests: loaded raw prediction array of length %d\n",dm_predictions_raw.length);
-      }
+
       //TODO: probability distributions, and sampled requests?
   }
   // runs the demand prediction model script
