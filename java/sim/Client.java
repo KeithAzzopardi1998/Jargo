@@ -12,8 +12,6 @@ import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.lang.Math;
 import java.nio.file.Paths;
-import org.jetbrains.bio.npy.NpyFile;
-import org.jetbrains.bio.npy.NpyArray;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -431,7 +429,7 @@ public abstract class Client {
         }
       }
   }
-  public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) throws SQLException. IOException {
+  public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) throws SQLException, IOException {
       if (DEBUG) {
         System.out.printf("exportPastRequestInterval: t_start=%d, t_end=%d, filepath=%s\n",t_start,t_end,filepath);
       }
@@ -512,7 +510,7 @@ public abstract class Client {
           System.out.printf("importFutureRequests: loaded raw prediction array of length %d\n",od_arr.length);
         }      
 
-        if (od_arr.length = this.dm_predictions_raw.length)
+        if (od_arr.length == this.dm_predictions_raw.length)
         {
           System.arraycopy(od_arr, 0, this.dm_predictions_raw, 0, od_arr.length);
           if (DEBUG) {
