@@ -418,7 +418,7 @@ public abstract class Client {
         //we need to check the time so that we don't try to load
         //requests from before the simulation started
         if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
-          String interval_filename= String.format("./demand_model_data/input_intervals/interval_%d.npy", (i+1));
+          String interval_filename= String.format("./demand_model_data/input_intervals/interval_%d.txt", (i+1));
           this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
         }
         else {
@@ -494,7 +494,7 @@ public abstract class Client {
   public void importFutureRequests() throws IOException {
       //1. reading the file with the raw predictions
       try {
-        String raw_filename = "./demand_model_data/predicted_interval/raw.npy";
+        String raw_filename = "./demand_model_data/predicted_interval/raw.txt";
         if (DEBUG) {
           System.out.printf("importFutureRequests: going to import raw predictions from %s\n",raw_filename);
         }
@@ -531,14 +531,14 @@ public abstract class Client {
   // runs the demand prediction model script
   public void runDemandModel() throws IOException, InterruptedException{
       try{
-        String command = "/home/keith/Dissertation/github/liu_2019/predict_npy.py"
-                        + " --in1 ./demand_model_data/input_intervals/interval_1.npy"
-                        + " --in2 ./demand_model_data/input_intervals/interval_2.npy"
-                        + " --in3 ./demand_model_data/input_intervals/interval_3.npy"
-                        + " --in4 ./demand_model_data/input_intervals/interval_4.npy"
-                        + " --in5 ./demand_model_data/input_intervals/interval_5.npy"
+        String command = "/home/keith/Dissertation/github/liu_2019/predict_1Darray.py"
+                        + " --in1 ./demand_model_data/input_intervals/interval_1.txt"
+                        + " --in2 ./demand_model_data/input_intervals/interval_2.txt"
+                        + " --in3 ./demand_model_data/input_intervals/interval_3.txt"
+                        + " --in4 ./demand_model_data/input_intervals/interval_4.txt"
+                        + " --in5 ./demand_model_data/input_intervals/interval_5.txt"
                         + " --model_file ./demand_model_data/model_files/odonly_20x5_cont.h5"
-                        + " --out_raw ./demand_model_data/predicted_interval/raw.npy";
+                        + " --out_raw ./demand_model_data/predicted_interval/raw.txt";
         if (DEBUG) {
           System.out.printf("runDemandModel: going to run script\n");
         }
