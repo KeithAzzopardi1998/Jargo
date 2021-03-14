@@ -413,7 +413,7 @@ public abstract class Client {
         //we need to check the time so that we don't try to load
         //requests from before the simulation started
         if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
-          String interval_filename= String.format("./demand_model_data/input_intervals/interval_%d.npy", (num_intervals - 1));
+          String interval_filename= String.format("./demand_model_data/input_intervals/interval_%d.npy", (i+1));
           this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
         }
         else {
