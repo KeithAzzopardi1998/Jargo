@@ -117,6 +117,7 @@ public class Communicator {
                break;
              }
            }
+           long time_start = System.currentTimeMillis();//TODO remove this
            int i = 0;
            while (i < current.length && current[i] != route[0]) {
              i += 2;
@@ -155,6 +156,10 @@ public class Communicator {
              i += 2;
              j += 2;
            }
+           long time_end = System.currentTimeMillis();//TODO remove this
+           if (DEBUG) {
+             System.out.printf("updateServerService -> checking for exceptions took %d ms\n",(time_end-time_start));
+           }
            /*for (int k = 0; k < (sched.length - 2); k += 3) {
                final int tl = this.storage.DBQueryUser(sched[(k + 2)])[3];
                if (sched[k] > tl) {
@@ -162,6 +167,8 @@ public class Communicator {
                      +"after late window (t="+tl+", uid="+sched[(k + 2)]+")");
                }
              }*/
+           time_start = System.currentTimeMillis();//TODO remove this
+           
            int[] mutroute = route.clone();
            int[] mutsched = sched.clone();
            if (this.traffic != null) {
@@ -193,7 +200,17 @@ public class Communicator {
                }
              }
            }
+           time_end = System.currentTimeMillis();//TODO remove this
+           if (DEBUG) {
+             System.out.printf("updateServerService -> updating route with traffic took %d ms\n",(time_end-time_start));
+           }
+
+           time_start = System.currentTimeMillis();//TODO remove this
            this.storage.DBUpdateServerService(sid, mutroute, mutsched, ridpos, ridneg);
+           time_end = System.currentTimeMillis();//TODO remove this
+           if (DEBUG) {
+             System.out.printf("updateServerService -> call to DBUpdateServerService took %d ms\n",(time_end-time_start));
+           }
          }
   public int retrieveClock() {
            return this.controller.getClock();
