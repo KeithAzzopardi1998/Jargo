@@ -463,22 +463,13 @@ public abstract class Client {
           else {
             dm_predictions_raw[ (d_dm * (this.dm_height*this.dm_width)) + o_dm] += 1;
 
-            //old code using a 3D array
-            //int row = Math.floorDiv(o_dm,dm_width);
-            //int column = o_dm % dm_width;
-            //od_matrix[d_dm][row][column] += 1;
+
           }
         }
         if (DEBUG) {
           System.out.printf("exportPastRequestInterval: finished building OD array\n");
         }
-        /*
-        int[] od_shape = { this.dm_height*dm_width, this.dm_height, this.dm_width };
-        NpyFile.write(Paths.get(filepath), od_matrix, od_shape);
-        if (DEBUG) {
-          System.out.printf("exportPastRequestInterval: finished exporting OD array\n");
-        }
-        */
+
       } catch (SQLException e) {
         System.err.printf("Error occurred when trying to query requests in interval [%d,%d)\n",
                             t_start,t_end);
@@ -486,13 +477,6 @@ public abstract class Client {
         throw e;
       }
 
-      //old code using a 3D array
-      //int[] od_flattened = Arrays.stream(od_matrix)
-      //                      .flatMap(Arrays::stream)
-      //                      .flatMapToInt(Arrays::stream)
-      //                      .toArray();
-      //int[] od_shape = { this.dm_height*dm_width, this.dm_height, this.dm_width };
-      //NpyFile.write(Paths.get(filepath), od_flattened, od_shape);
   }
   // reads a .npy file and returns a (flattened) Numpy array
   public void importFutureRequests() {
