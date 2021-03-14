@@ -14,7 +14,7 @@ java \
     -Djargors.controller.debug=true \
     -Djargors.communicator.debug=false \
     -Djargors.client.debug=true \
-    -Djargors.client.dm_enable=true \
+    -Djargors.client.dm_enable=false \
     -Djargors.algorithm.debug=true \
     -Djargors.costcalculation.debug=false \
     -Djargors.traffic.debug=false \
