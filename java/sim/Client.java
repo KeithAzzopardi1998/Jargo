@@ -450,9 +450,6 @@ public abstract class Client {
           //convert from jargo node index to demand model region index
           Integer o_dm = jargo_to_dm.get(r_jargo[i+1]);
           Integer d_dm = jargo_to_dm.get(r_jargo[i+2]);
-          if (DEBUG) {
-            System.out.printf("exportPastRequestInterval: finished mapping jargo nodes to demand model regions\n");
-          }
 
           if ((o_dm==null) || (d_dm==null)) {
             if (DEBUG) {
@@ -461,9 +458,7 @@ public abstract class Client {
             continue;
           }
           else {
-            dm_predictions_raw[ (d_dm * (this.dm_height*this.dm_width)) + o_dm] += 1;
-
-
+            od_matrix[ (d_dm * (this.dm_height*this.dm_width)) + o_dm] += 1;
           }
         }
         if (DEBUG) {
