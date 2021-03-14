@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.lang.System;
+import java.util.stream.Collectors;
 
 
 public abstract class Client {
@@ -497,9 +498,9 @@ public abstract class Client {
           System.out.printf("importFutureRequests: going to import raw predictions from %s\n",raw_filename);
         }
 
-        FileReader file = new FileReader("./test_arr.txt");
+        FileReader file = new FileReader(raw_filename);
         BufferedReader input = new BufferedReader(file);
-        String od_string = input.readLine();
+        String od_string = input.lines().collect(Collectors.joining());
         int[] od_arr = Arrays.stream(od_string.split(","))
                         .map(String::trim)
                         .mapToInt(Integer::parseInt)
