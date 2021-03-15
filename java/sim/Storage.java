@@ -1441,7 +1441,13 @@ public class Storage {
             System.out.printf("DBUpdateServerService -> block 14 took %d ms\n",(time_end-time_start));
             time_start = time_end;
            }
-
+          
+           //TODO: check if we want to re-enable this
+           //this section seems to be updating the caches for the server durations,
+           //but ends up taking over 80% of this function's exectution time,
+           //therefore it might be worth skipping since we can get this 
+           //from the DB anyway
+           /*
            try (Connection conn = DriverManager.getConnection(CONNECTIONS_POOL_URL)) {
              int sum = 0;
              int dur = 0;
@@ -1472,6 +1478,7 @@ public class Storage {
            } catch (SQLException e) {
              throw e;
            }
+           */
 
            if (DEBUG) {//TODO remove this
             time_end = System.currentTimeMillis();
