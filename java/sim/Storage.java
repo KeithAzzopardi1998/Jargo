@@ -1122,7 +1122,7 @@ public class Storage {
                PreparedStatement pS76 = this.PSCreate(conn, "S76");
                this.PSAdd(pS76, sid, route[0]);
                if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> submitting PS76\n");
+                //System.out.printf("DBUpdateServerService -> submitting PS76\n");
                 time_start = System.currentTimeMillis();
                }
                this.PSSubmit(pS76);
@@ -1155,7 +1155,7 @@ public class Storage {
                  this.PSAdd(pS10, uid, se, t1, v1, t2, v2, dd, nu);
                }
                if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> submitting PS10\n");
+                //System.out.printf("DBUpdateServerService -> submitting PS10\n");
                }
                this.PSSubmit(pS10);
 
@@ -1177,10 +1177,10 @@ public class Storage {
                final int ve = route[(route.length - 1)];
                this.PSAdd(pS77, te, ve, sid);
                this.PSAdd(pS139, te, sid);
-               if (DEBUG) {
-                System.out.printf("PS77: te=%d, ve=%d, sid=%d\n",te,ve,sid);
-                System.out.printf("DBUpdateServerService -> submitting PS77 and PS139\n");
-               }
+               //if (DEBUG) {
+               // System.out.printf("PS77: te=%d, ve=%d, sid=%d\n",te,ve,sid);
+               // System.out.printf("DBUpdateServerService -> submitting PS77 and PS139\n");
+               //}
                this.PSSubmit(pS77, pS139);
 
                if (DEBUG) {//TODO remove this
@@ -1202,9 +1202,9 @@ public class Storage {
                    this.PSAdd(pS84, tj, vj, Lj);
                  }
                }
-               if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> submitting PS83, PS82 and PS84\n");
-               }
+               //if (DEBUG) {
+               // System.out.printf("DBUpdateServerService -> submitting PS83, PS82 and PS84\n");
+               //}
                this.PSSubmit(pS83, pS82, pS84);
 
                if (DEBUG) {//TODO remove this
@@ -1265,9 +1265,9 @@ public class Storage {
                    }
                  }
                }
-               if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> submitting PS140\n");
-               }
+               //if (DEBUG) {
+               // System.out.printf("DBUpdateServerService -> submitting PS140\n");
+               //}
                this.PSSubmit(pS140);
 
                if (DEBUG) {//TODO remove this
@@ -1282,9 +1282,9 @@ public class Storage {
                int o1 = (route[0] == 0 ?  1 : output[2]);
                PreparedStatement pS80 = this.PSCreate(conn, "S80");
                this.PSAdd(pS80, sid, route[0]);
-               if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> submitting PS80\n");
-               }
+               //if (DEBUG) {
+               // System.out.printf("DBUpdateServerService -> submitting PS80\n");
+               //}
                this.PSSubmit(pS80);
 
                if (DEBUG) {//TODO remove this
@@ -1315,9 +1315,9 @@ public class Storage {
                    }
                  }
                }
-               if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> submitting PS14\n");
-               }
+               //if (DEBUG) {
+               // System.out.printf("DBUpdateServerService -> submitting PS14\n");
+               //}
                this.PSSubmit(pS14);
 
                if (DEBUG) {//TODO remove this
@@ -1347,9 +1347,9 @@ public class Storage {
                    throw new UserNotFoundException("User "+r+" not found in schedule!");
                  }
                }
-               if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> submitting PS12 and PS13\n");
-               }
+               //if (DEBUG) {
+               // System.out.printf("DBUpdateServerService -> submitting PS12 and PS13\n");
+               //}
                this.PSSubmit(pS12, pS13);
 
                if (DEBUG) {//TODO remove this
@@ -1364,9 +1364,9 @@ public class Storage {
                  this.PSAdd(pS42, r);
                  this.PSAdd(pS43, r);
                }
-               if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> submitting PS42 and PS43\n");
-               }
+               //if (DEBUG) {
+               // System.out.printf("DBUpdateServerService -> submitting PS42 and PS43\n");
+               //}
                this.PSSubmit(pS42, pS43);
 
                if (DEBUG) {//TODO remove this
@@ -1375,9 +1375,9 @@ public class Storage {
                 time_start = time_end;
                }
 
-               if (DEBUG) {
-                System.out.printf("DBUpdateServerService -> committing\n");
-               }
+               //if (DEBUG) {
+               // System.out.printf("DBUpdateServerService -> committing\n");
+               //}
                conn.commit();
 
                if (DEBUG) {//TODO remove this
