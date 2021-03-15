@@ -1393,6 +1393,8 @@ public class Storage {
            } catch (SQLException e) {
              throw e;
            }
+           //TODO: check if we want to re-enable this
+           /*
            for (int i = 0; i < (sched.length - 3); i += 4) {
              final int r = sched[(i + 3)];
              if (r != 0) {
@@ -1406,6 +1408,7 @@ public class Storage {
                }
              }
            }
+           */
            if (DEBUG) {//TODO remove this
             time_end = System.currentTimeMillis();
             System.out.printf("DBUpdateServerService -> block 12 took %d ms\n",(time_end-time_start));
@@ -1430,12 +1433,15 @@ public class Storage {
             time_start = time_end;
            }
 
+           //TODO: check if we want to re-enable this
+           /*
            try (Connection conn = DriverManager.getConnection(CONNECTIONS_POOL_URL)) {
              this.distance_servers.put(sid, this.PSQuery(conn, "S104", 1, sid)[0]);
            } catch (SQLException e) {
              throw e;
            }
-
+           */
+          
            if (DEBUG) {//TODO remove this
             time_end = System.currentTimeMillis();
             System.out.printf("DBUpdateServerService -> block 14 took %d ms\n",(time_end-time_start));
