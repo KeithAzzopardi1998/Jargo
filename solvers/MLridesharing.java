@@ -90,7 +90,7 @@ public abstract class MLridesharing extends Client {
   //      for each request in rb
   protected void handleRequestBatch(final int[][] rb) throws ClientException, ClientFatalException {
     if (DEBUG) {
-      System.out.printf("processing batch of size %d\n", rb.length);
+      System.out.printf("handleRequestBatch --> Processing batch of size %d\n", rb.length);
     }
 
     if (rb.length < 1) { 
@@ -110,7 +110,7 @@ public abstract class MLridesharing extends Client {
         //System.out.printf("Context Map: \n");
         //for(Integer[] x: context_map)
         //      System.out.println(Arrays.toString(x));  
-        System.out.printf("\n--------Context Map - took %d ms--------\n\n",(time_end-time_start));
+        System.out.printf("handleRequestBatch --> Context Map (%d ms)\n",(time_end-time_start));
       }
 
       //getting a unique list of vehicles of interest by first flattening out the context map, and then
@@ -139,7 +139,7 @@ public abstract class MLridesharing extends Client {
         //System.out.printf("Insertion Costs: \n");
         //for(double[] x: cost_matrix)
         //      System.out.println(Arrays.toString(x));  
-        System.out.printf("\n--------Insertion Costs - took %d ms--------\n\n",(time_end-time_start));
+        System.out.printf("handleRequestBatch --> Insertion Costs (%d ms)\n",(time_end-time_start));
       }
 
       //3. call optimization module
@@ -150,7 +150,7 @@ public abstract class MLridesharing extends Client {
       if (DEBUG) {
         //System.out.printf("Assignments: \n");
         //System.out.println(Arrays.toString(assignments));  
-        System.out.printf("\n--------Hungarian Algorithm - took %d ms--------\n\n",(time_end-time_start));
+        System.out.printf("handleRequestBatch --> Hungarian Algorithm (%d ms)\n",(time_end-time_start));
       }
       
       //4. update vehicle routes
@@ -222,7 +222,7 @@ public abstract class MLridesharing extends Client {
       }
       time_end = System.currentTimeMillis();
       if (DEBUG) {
-        System.out.printf("\n--------Vehicle Route Updates - took %d ms--------\n\n",(time_end-time_start));
+        System.out.printf("handleRequestBatch --> Vehicle Route Updates (%d ms)\n",(time_end-time_start));
       }
 
       if (reactive_rebalancing_enabled && !this.rebalancing_queue.isEmpty()) {
@@ -233,7 +233,7 @@ public abstract class MLridesharing extends Client {
         this.reactiveRebalancingModule();
         time_end = System.currentTimeMillis();
         if (DEBUG) {
-          System.out.printf("\n--------Reactive Rebalancing - took %d ms--------\n\n",(time_end-time_start));
+          System.out.printf("handleRequestBatch --> Reactive Rebalancing (%d ms)\n",(time_end-time_start));
         }
       }
       //if (DEBUG) {
