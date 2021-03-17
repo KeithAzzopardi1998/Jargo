@@ -1068,9 +1068,6 @@ public class Storage {
   public void DBUpdateServerService(final int sid, final int[] route, final int[] sched,
              final int[] ridpos, final int[] ridneg)
          throws UserNotFoundException, EdgeNotFoundException, SQLException {
-           //TODO remove these
-           long time_start = System.currentTimeMillis();
-           long time_end = time_start;
            if (DEBUG) {
              System.out.printf("DBUpdateServerService(5), sid=%d, route=[#=%d], sched=[#=%d], ridpos=[#=%d], ridneg=[#=%d]\n",
                  sid, route.length, sched.length, ridpos.length, ridneg.length);
@@ -1100,12 +1097,6 @@ public class Storage {
              }
            }
 
-           if (DEBUG) {//TODO remove this
-            time_end = System.currentTimeMillis();
-            System.out.printf("DBUpdateServerService -> block 1 took %d ms\n",(time_end-time_start));
-            time_start = time_end;
-           }
-
            Map<Integer, int[]> cache  = new HashMap<>();
            Map<Integer, int[]> cache2 = new HashMap<>();
            try (Connection conn = DriverManager.getConnection(CONNECTIONS_POOL_URL)) {
@@ -1126,12 +1117,6 @@ public class Storage {
                 time_start = System.currentTimeMillis();
                }
                this.PSSubmit(pS76);
-               
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 2 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
 
                final int uid = sid;
                PreparedStatement pS10 = this.PSCreate(conn, "S10");
@@ -1159,12 +1144,6 @@ public class Storage {
                }
                this.PSSubmit(pS10);
 
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 3 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
-
                PreparedStatement pS77 = this.PSCreate(conn, "S77");
                PreparedStatement pS139 = this.PSCreate(conn, "S139");
                
@@ -1183,12 +1162,6 @@ public class Storage {
                //}
                this.PSSubmit(pS77, pS139);
 
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 4 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
-
                PreparedStatement pS82 = this.PSCreate(conn, "S82");
                PreparedStatement pS83 = this.PSCreate(conn, "S83");
                PreparedStatement pS84 = this.PSCreate(conn, "S84");
@@ -1206,12 +1179,6 @@ public class Storage {
                // System.out.printf("DBUpdateServerService -> submitting PS83, PS82 and PS84\n");
                //}
                this.PSSubmit(pS83, pS82, pS84);
-
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 5 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
 
                PreparedStatement pS140 = this.PSCreate(conn, "S140");
                for (int j = 0; j < (sched.length - 3); j += 4) {
@@ -1270,12 +1237,6 @@ public class Storage {
                //}
                this.PSSubmit(pS140);
 
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 6 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
-
                final int[] output = (route[0] == 0 ? null : this.PSQuery(conn, "S87", 3, sid, route[0]));
                int t1 = (route[0] == 0 ?  0 : output[0]);
                int q1 = (route[0] == 0 ? sq : output[1]);
@@ -1286,12 +1247,6 @@ public class Storage {
                // System.out.printf("DBUpdateServerService -> submitting PS80\n");
                //}
                this.PSSubmit(pS80);
-
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 7 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
 
                PreparedStatement pS14 = PSCreate(conn, "S14");
                for (int j = 0; j < (sched.length - 3); j += 4) {
@@ -1320,12 +1275,6 @@ public class Storage {
                //}
                this.PSSubmit(pS14);
 
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 8 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
-
                PreparedStatement pS12 = this.PSCreate(conn, "S12");
                PreparedStatement pS13 = this.PSCreate(conn, "S13");
                for (final int r : ridpos) {
@@ -1352,12 +1301,6 @@ public class Storage {
                //}
                this.PSSubmit(pS12, pS13);
 
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 9 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
-
                PreparedStatement pS42 = this.PSCreate(conn, "S42");
                PreparedStatement pS43 = this.PSCreate(conn, "S43");
                for (final int r : ridneg) {
@@ -1369,22 +1312,11 @@ public class Storage {
                //}
                this.PSSubmit(pS42, pS43);
 
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 10 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
-
                //if (DEBUG) {
                // System.out.printf("DBUpdateServerService -> committing\n");
                //}
                conn.commit();
 
-               if (DEBUG) {//TODO remove this
-                time_end = System.currentTimeMillis();
-                System.out.printf("DBUpdateServerService -> block 11 took %d ms\n",(time_end-time_start));
-                time_start = time_end;
-               }
 
              } catch (SQLException e) {
                conn.rollback();
@@ -1409,11 +1341,6 @@ public class Storage {
              }
            }
            */
-           if (DEBUG) {//TODO remove this
-            time_end = System.currentTimeMillis();
-            System.out.printf("DBUpdateServerService -> block 12 took %d ms\n",(time_end-time_start));
-            time_start = time_end;
-           }
 
            for (final int r : ridpos) {
              this.lu_rstatus.put(r, true);
@@ -1427,11 +1354,6 @@ public class Storage {
              this.distance_requests_transit.put(r, 0);
              this.duration_requests_transit.put(r, 0);
            }
-           if (DEBUG) {//TODO remove this
-            time_end = System.currentTimeMillis();
-            System.out.printf("DBUpdateServerService -> block 13 took %d ms\n",(time_end-time_start));
-            time_start = time_end;
-           }
 
            //TODO: check if we want to re-enable this
            /*
@@ -1441,12 +1363,6 @@ public class Storage {
              throw e;
            }
            */
-          
-           if (DEBUG) {//TODO remove this
-            time_end = System.currentTimeMillis();
-            System.out.printf("DBUpdateServerService -> block 14 took %d ms\n",(time_end-time_start));
-            time_start = time_end;
-           }
           
            //TODO: check if we want to re-enable this
            //this section seems to be updating the caches for the server durations,
@@ -1486,11 +1402,6 @@ public class Storage {
            }
            */
 
-           if (DEBUG) {//TODO remove this
-            time_end = System.currentTimeMillis();
-            System.out.printf("DBUpdateServerService -> block 15 took %d ms\n",(time_end-time_start));
-            time_start = time_end;
-           }
          }
   public void JargoCacheRoadNetworkFromDB() throws SQLException {
            ConcurrentHashMap<Integer, int[]>    lu1 =
