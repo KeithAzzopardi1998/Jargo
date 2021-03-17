@@ -883,12 +883,23 @@ public class Controller {
                }
              }
            } else {  // realtime mode
+             if (DEBUG) {
+               System.out.printf("cancelling callbacks\n");
+             }
              this.cb1.cancel(true);
              this.cb2.cancel(true);
              this.cb3.cancel(true);
              this.cb4.cancel(true);
-             this.cb5.cancel(true);
+             if(this.client.isDemandModelEnabled()) {
+              this.cb5.cancel(true);
+             }
+             if (DEBUG) {
+              System.out.printf("shutting down\n");
+             }
              this.exe.shutdown();
+             if (DEBUG) {
+              System.out.printf("shutdown complete\n");
+             }
            }
            try {
              if (this.client != null) {
