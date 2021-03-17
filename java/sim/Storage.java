@@ -1112,10 +1112,9 @@ public class Storage {
                final int se = lu_users.get(sid)[2];
                PreparedStatement pS76 = this.PSCreate(conn, "S76");
                this.PSAdd(pS76, sid, route[0]);
-               if (DEBUG) {
-                //System.out.printf("DBUpdateServerService -> submitting PS76\n");
-                time_start = System.currentTimeMillis();
-               }
+               //if (DEBUG) {
+               // System.out.printf("DBUpdateServerService -> submitting PS76\n");
+               //}
                this.PSSubmit(pS76);
 
                final int uid = sid;
@@ -1139,9 +1138,9 @@ public class Storage {
                  final int nu = this.lu_edges.get(v1).get(v2)[1];
                  this.PSAdd(pS10, uid, se, t1, v1, t2, v2, dd, nu);
                }
-               if (DEBUG) {
+               //if (DEBUG) {
                 //System.out.printf("DBUpdateServerService -> submitting PS10\n");
-               }
+               //}
                this.PSSubmit(pS10);
 
                PreparedStatement pS77 = this.PSCreate(conn, "S77");
