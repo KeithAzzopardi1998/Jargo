@@ -126,6 +126,11 @@ public class Exhaustive extends MLridesharing {
         }
       } 
 
+      //calculating the direct route duration so that we can later
+      //use it to check the maximum delay constraint
+      int[] direct_route = this.tools.computeRoute(ro, rd, re);
+      int direct_route_dur = direct_route[direct_route.length-2] - direct_route[0];
+
       int imax = (brem.length/4);
       int jmax = imax;
       int cost = brem[(brem.length - 4)];
@@ -139,6 +144,8 @@ public class Exhaustive extends MLridesharing {
 
       //will be set to true if at least one set of feasible insertion points is found
       boolean feasible =false;
+
+
 
       //i is used to check where the pickup of this request should be inserted,
       //and j is used for the dropoff point
@@ -333,14 +340,7 @@ public class Exhaustive extends MLridesharing {
 
           //detour time constraint
           int proposed_trip_dur = dropoff_time - pickup_time;
-          int[] direct_route = this.tools.computeRoute(ro, rd, re);
-          int direct_route_dur = direct_route[direct_route.length-2] - direct_route[0];
           if (DEBUG) {
-            System.out.printf("direct route=\n");
-            for (int __i = 0; __i < (direct_route.length - 2); __i += 2) {
-              System.out.printf("  { %d, %d }\n",
-              direct_route[__i], direct_route[__i+1]);
-            }
             System.out.printf("durations: proposed %d, direct %d\n",proposed_trip_dur,direct_route_dur);
           }
           if (proposed_trip_dur > direct_route_dur + this.MAX_DT) {

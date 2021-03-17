@@ -49,6 +49,8 @@ public class Controller {
       Integer.parseInt(System.getProperty("jargors.controller.mean_delay", "5"));
   private int STD_DELAY =   // in minutes
       Integer.parseInt(System.getProperty("jargors.controller.std_delay", "2"));
+  private int MAX_DELAY =   // in minutes
+      Integer.parseInt(System.getProperty("jargors.controller.max_delay", "7"));      
   private int CLOCK_START =
       Integer.parseInt(System.getProperty("jargors.controller.clock_start", "0"));
   private int CLOCK_END =
@@ -697,17 +699,20 @@ public class Controller {
              final int  uq = Integer.parseInt(user_info[3]);
              final int  ue = Integer.parseInt(user_info[4]);
              final int  ub = this.tools.computeShortestPathDistance(uo, ud);
+             //calculating the late time
              int temp_ul;
              if (user_info.length == 6){
+              //parse it if provided int the instance file
               temp_ul = Integer.parseInt(user_info[5]);
              }
-             else{
+             else{ //calculate if not provided
               temp_ul = (ud == 0)
-                ? Integer.MAX_VALUE
+                //for vehicles with no destination
+                ? Integer.MAX_VALUE 
+                //for requests/ vehicles with destination, use the length
+                //of the trip and the maximum delay
                 : ue + (int) Math.round((float) ub/10)  // TODO: 10 speed
-                  + ( (int) Math.round(Math.abs
-                      ( this.random.nextGaussian()*this.STD_DELAY + this.MEAN_DELAY ))
-                        * 60 );
+                  + ( this.MAX_DELAY );
              }
              final int ul=temp_ul;
              final int[] user = new int[] { uid, uq, ue, ul, uo, ud, ub };
