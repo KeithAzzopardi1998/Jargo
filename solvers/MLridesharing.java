@@ -63,7 +63,9 @@ public abstract class MLridesharing extends Client {
   protected final int MAX_DT = 60 * 7;//detour time (seconds)
   protected int MAX_JL = 0;//journey length (twice the length of a vehicle's capacity)
 
-  protected boolean reactive_rebalancing_enabled;
+  protected final boolean REBALANCING_ENABLED =
+      "true".equals(System.getProperty("jargors.algorithm.rebalance_enable"));
+
   protected ConcurrentLinkedQueue<int[]> rebalancing_queue = new ConcurrentLinkedQueue<int[]>();
 
   //we keep a "cache" containing the new routes after insertion of each customer into the route of each vehicle
@@ -78,8 +80,7 @@ public abstract class MLridesharing extends Client {
   public void init() {
     System.out.printf("Set MAXN=%d\n", MAXN);
     this.batch_processing=true;
-    this.reactive_rebalancing_enabled=true;
-    System.out.printf("Set reactive_rebalancing_enabled=%b\n", reactive_rebalancing_enabled);
+    System.out.printf("Set REBALANCING_ENABLED=%b\n", REBALANCING_ENABLED);
     this.cache_w = new ConcurrentHashMap<Key,int[]>();
     this.cache_b = new ConcurrentHashMap<Key,int[]>();
   }
@@ -174,7 +175,7 @@ public abstract class MLridesharing extends Client {
         int v_index = assignments[i];
         if ((v_index == -1) || (cost_matrix[i][v_index]==this.COST_INFEASIBLE)) {
           //cannot serve request ... rebalance or reject
-          if (reactive_rebalancing_enabled) {
+          if (REBALANCING_ENABLED) {
             //if (DEBUG) {
             //  System.out.printf("Adding request %d (ID %d) to the rebalancing queue\n",i,r_id);
             //}
@@ -225,7 +226,7 @@ public abstract class MLridesharing extends Client {
         System.out.printf("handleRequestBatch --> Vehicle Route Updates (%d ms)\n",(time_end-time_start));
       }
 
-      if (reactive_rebalancing_enabled && !this.rebalancing_queue.isEmpty()) {
+      if (REBALANCING_ENABLED && !this.rebalancing_queue.isEmpty()) {
         //if (DEBUG) {
         //  System.out.printf("calling reactive rebalancing module\n");
         //}
