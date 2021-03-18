@@ -368,13 +368,14 @@ public abstract class Client {
   public void updatePredictions() throws ClientException, ClientFatalException {
 
       try {
+        long A0 = System.currentTimeMillis();
         final int now = this.communicator.retrieveClock();
         if (DEBUG) {
           System.out.printf("updatePredictions: called at time %d\n",now);
         }
         //1. updating the numpy files with the requests from previous intervals
         //exportPastRequests(5, 30*60,now);
-        exportPastRequests(5, 1*60,now);
+        exportPastRequests(5, 5*60,now);
         if (DEBUG) {
           System.out.printf("updatePredictions: finished exportPastRequests\n",now);
         }
@@ -390,6 +391,9 @@ public abstract class Client {
         importFutureRequests();
         if (DEBUG) {
           System.out.printf("updatePredictions: finished importFutureRequests\n",now);
+        }
+        if (DEBUG) {
+          System.out.printf("updatePredictions: took %d ms in total\n",System.currentTimeMillis() - A0);
         }
 
       } catch (Exception e) {
@@ -420,21 +424,19 @@ public abstract class Client {
         if (interval_start > 0) { //ensuring that we don't try to query outside the simulation
           String interval_filename= String.format("./demand_model_data/input_intervals/interval_%d.txt", (i+1));
           this.exportPastRequestInterval(interval_start, interval_end, interval_filename);
+          if (DEBUG) {
+            System.out.printf("exportPastRequests: finished handling interval\n",interval_start,interval_end);
+          }
         }
         else {
           if (DEBUG) {
             System.out.printf("exportPastRequests: interval skipped (out of time range)\n",interval_start,interval_end);
           }
         }
-        if (DEBUG) {
-          System.out.printf("exportPastRequests: finished handling interval\n",interval_start,interval_end);
-        }
+
       }
   }
   public void exportPastRequestInterval(final int t_start, final int t_end, final String filepath) throws SQLException, IOException {
-      if (DEBUG) {
-        System.out.printf("exportPastRequestInterval: t_start=%d, t_end=%d, filepath=%s\n",t_start,t_end,filepath);
-      }
       //the OD matrix which will be exported to the npy file
       //(initialized to 0s by default, so we just increment later on)
       //we use the same logic as in dm_predictions_raw to read/write
@@ -466,9 +468,6 @@ public abstract class Client {
             od_matrix[ (d_dm * (this.dm_height*this.dm_width)) + o_dm] += 1;
           }
         }
-        if (DEBUG) {
-          System.out.printf("exportPastRequestInterval: finished building OD array\n");
-        }
 
         //writing to the file
         FileWriter file = new FileWriter(filepath);
@@ -495,9 +494,9 @@ public abstract class Client {
       //1. reading the file with the raw predictions
       try {
         String raw_filename = "./demand_model_data/predicted_interval/raw.txt";
-        if (DEBUG) {
-          System.out.printf("importFutureRequests: going to import raw predictions from %s\n",raw_filename);
-        }
+        //if (DEBUG) {
+        //  System.out.printf("importFutureRequests: going to import raw predictions from %s\n",raw_filename);
+        //}
 
         FileReader file = new FileReader(raw_filename);
         BufferedReader input = new BufferedReader(file);
