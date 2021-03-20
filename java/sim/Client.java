@@ -530,7 +530,7 @@ public abstract class Client {
   // runs the demand prediction model script
   public void runDemandModel() throws IOException, InterruptedException{
       try{
-        String command = "/home/keith/Dissertation/github/liu_2019/predict_1Darray.py"
+        String command = " ./demand_model_data/scripts/predict_1Darray.py"
                         + " --in1 ./demand_model_data/input_intervals/interval_1.txt"
                         + " --in2 ./demand_model_data/input_intervals/interval_2.txt"
                         + " --in3 ./demand_model_data/input_intervals/interval_3.txt"
