@@ -7,14 +7,15 @@ java \
     -Xmx6g \
     -Djava.library.path=dep \
     -Dderby.language.statementCacheSize=200 \
-    -Dderby.locks.deadlockTrace=false \
-    -Dderby.locks.monitor=false \
+    -Dderby.locks.deadlockTrace=true \
+    -Dderby.locks.monitor=true \
     -Dderby.storage.pageCacheSize=8000 \
     -Djargors.storage.debug=false \
     -Djargors.controller.debug=true \
     -Djargors.communicator.debug=false \
     -Djargors.client.debug=true \
-    -Djargors.client.dm_enable=false \
+    -Djargors.client.dm_enable=true \
+    -Djargors.algorithm.rebalance_enable=true \
     -Djargors.algorithm.debug=true \
     -Djargors.costcalculation.debug=false \
     -Djargors.traffic.debug=false \
