@@ -13,10 +13,29 @@ RUN apt-get update && apt-get install -y \
   zip \
   unzip \
   screen \
-  openjdk-11-jdk
+  openjdk-11-jdk \
+  gnupg2 \
+  apt-transport-https
 
 #set bash as the default shell
 RUN usermod --shell /bin/bash root
+
+# #get UM packages
+# RUN echo "deb https://guinevere-ict.research.um.edu.mt/packages-um/ bionic main" |  tee /etc/apt/sources.list.d/jb.list
+# RUN wget -q -O - http://guinevere-ict.research.um.edu.mt/keys/jabriffa-C44F0EA9.pub | apt-key add -
+# ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBCONF_NONINTERACTIVE_SEEN=true
+# 
+# RUN echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections
+# RUN echo "postfix postfix/mailname string keith.azzopardi.16@um.edu.mt" | debconf-set-selections
+# RUN echo "postfix postfix/main_mailer_type string 'No configuration'" | debconf-set-selections
+# RUN echo "tzdata tzdata/Areas select Europe" | debconf-set-selections
+# RUN echo "tzdata tzdata/Zones/Europe select Amsterdam" | debconf-set-selections
+# RUN apt-get update && apt-get install -y um-repositories
+# RUN apt-get update && apt-get upgrade -f -y --force-yes
+# RUN dpkg --configure -a && apt-get install -f
+# RUN apt-get install -y um-dsrp-desktop
+
 
 #copy the source files over to the image
 COPY . .
