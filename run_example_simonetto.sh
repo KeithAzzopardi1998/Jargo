@@ -3,13 +3,13 @@
 MODE="real"
 
 #data_dir="/data/dissertation_data/jargo_datasets/Manhattan"
-data_dir="${JARGO_DATA_DIR}/Simonetto"
+data_dir="data/manhattan"
 
 ROAD="${data_dir}/mny.rnet"
 
 GTREE="${data_dir}/mny.gtree"
 
-PROB="${data_dir}/${1}"
+PROB="${data_dir}/simonetto/${1}"
 
 
 CLIENT="solvers/jar/solvers.jar"
