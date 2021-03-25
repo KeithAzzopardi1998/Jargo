@@ -374,8 +374,7 @@ public abstract class Client {
           System.out.printf("updatePredictions: called at time %d\n",now);
         }
         //1. updating the numpy files with the requests from previous intervals
-        //exportPastRequests(5, 30*60,now);
-        exportPastRequests(5, 5*60,now);
+        exportPastRequests(5, 30*60,now);
         if (DEBUG) {
           System.out.printf("updatePredictions: finished exportPastRequests\n",now);
         }
@@ -530,7 +529,8 @@ public abstract class Client {
   // runs the demand prediction model script
   public void runDemandModel() throws IOException, InterruptedException{
       try{
-        String command = " ./demand_model_data/scripts/predict_1Darray.py"
+        String command = "./demand_model_data/environment/venv/bin/python3"
+                        + " ./demand_model_data/scripts/predict_1Darray.py"
                         + " --in1 ./demand_model_data/input_intervals/interval_1.txt"
                         + " --in2 ./demand_model_data/input_intervals/interval_2.txt"
                         + " --in3 ./demand_model_data/input_intervals/interval_3.txt"
