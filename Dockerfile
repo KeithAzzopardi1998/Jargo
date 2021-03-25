@@ -15,7 +15,17 @@ RUN apt-get update && apt-get install -y \
   screen \
   openjdk-11-jdk \
   gnupg2 \
-  apt-transport-https
+  apt-transport-https \
+  build-essential \
+  gcc \
+  libpq-dev \
+  python3 \
+  python3-venv \
+  python-dev python3-dev \
+  python-pip python3-pip \
+  python-wheel python3-wheel
+
+RUN pip3 install --upgrade pip wheel setuptools
 
 #set bash as the default shell
 RUN usermod --shell /bin/bash root
@@ -49,6 +59,13 @@ RUN wget "https://archive.apache.org/dist/db/derby/db-derby-10.15.1.3/db-derby-1
     && tar xvf "/home/derby.tar.gz" -C "/home/derby" --strip-components 1
 ENV DERBY_HOME="/home/derby"
 ENV PATH="${PATH}:${DERBY_HOME}/bin"
+
+#create the python environment used to run the demand model
+ENV VIRTUAL_ENV=${JARGO_DIR}/demand_model_data/environment/venv
+RUN python3 -m venv ${VIRTUAL_ENV}
+ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
+RUN pip install wheel && pip3 install wheel 
+RUN pip3 install -r ./demand_model_data/environment/requirements.txt
 
 #build the jargo executable
 RUN make jar
