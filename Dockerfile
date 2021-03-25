@@ -73,14 +73,10 @@ RUN make jar
 #build the executables for the solving algorithms
 RUN cd solvers && make
 
-#get the files requires to run the simulations
-ENV JARGO_DATA_DIR=/jargo_datasets
-RUN git clone "https://github.com/KeithAzzopardi1998/Datasets.git" "${JARGO_DATA_DIR}"
-RUN wget "https://dissertationws8191868266.blob.core.windows.net/jargo-gtree-files/mny.gtree" --output-document "/home/mny.gtree" \
-    && cp "/home/mny.gtree" "${JARGO_DATA_DIR}/Manhattan" \
-    && cp "/home/mny.gtree" "${JARGO_DATA_DIR}/Simonetto"
+#get the files required to run the simulations
+RUN wget "https://dissertationws8191868266.blob.core.windows.net/jargo-sim-data/manhattan.zip" --output-document "jargo_instances.zip" \
+    && unzip "jargo_instances.zip" -d "${JARGO_DIR}/data/manhattan"
 
 RUN chmod 777 ${JARGO_DIR}
-RUN chmod 777 ${JARGO_DATA_DIR}
 
 CMD ["bash"]
