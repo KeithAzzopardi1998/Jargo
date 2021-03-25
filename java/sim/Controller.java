@@ -712,7 +712,7 @@ public class Controller {
                 //for requests/ vehicles with destination, use the length
                 //of the trip and the maximum delay
                 : ue + (int) Math.round((float) ub/10)  // TODO: 10 speed
-                  + ( this.MAX_DELAY );
+                  + ( this.MAX_DELAY * 60  );
              }
              final int ul=temp_ul;
              final int[] user = new int[] { uid, uq, ue, ul, uo, ud, ub };
