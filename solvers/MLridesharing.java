@@ -65,7 +65,11 @@ public abstract class MLridesharing extends Client {
 
   protected final boolean REBALANCING_ENABLED =
       "true".equals(System.getProperty("jargors.algorithm.rebalance_enable"));
-
+  protected final boolean SAMPLING_ENABLED =
+      "true".equals(System.getProperty("jargors.algorithm.sampling_enable"));
+  private final boolean DEBUG =
+      "true".equals(System.getProperty("jargors.algorithm.debug"));
+  
   protected ConcurrentLinkedQueue<int[]> rebalancing_queue = new ConcurrentLinkedQueue<int[]>();
 
   //we keep a "cache" containing the new routes after insertion of each customer into the route of each vehicle
@@ -73,14 +77,11 @@ public abstract class MLridesharing extends Client {
   ConcurrentHashMap<Key,int[]> cache_b;
   ConcurrentHashMap<Key,int[]> cache_w;
 
-  private final boolean DEBUG =
-      "true".equals(System.getProperty("jargors.algorithm.debug"));
-
-
   public void init() {
     System.out.printf("Set MAXN=%d\n", MAXN);
     this.batch_processing=true;
     System.out.printf("Set REBALANCING_ENABLED=%b\n", REBALANCING_ENABLED);
+    System.out.printf("Set SAMPLING_ENABLED=%b\n", SAMPLING_ENABLED);
     this.cache_w = new ConcurrentHashMap<Key,int[]>();
     this.cache_b = new ConcurrentHashMap<Key,int[]>();
   }
@@ -92,6 +93,17 @@ public abstract class MLridesharing extends Client {
   protected void handleRequestBatch(final int[][] rb) throws ClientException, ClientFatalException {
     if (DEBUG) {
       System.out.printf("handleRequestBatch --> Processing batch of size %d\n", rb.length);
+    }
+
+    if (SAMPLING_ENABLED) {
+      //get the sampled requests
+      int[][] rb_sampled = getSampledRequests();
+      int rb_length_old = rb.length;
+      rb = Arrays.copyOf(rb, rb.length + rb_sampled.length);
+      System.arraycopy(rb_sampled,0,rb,rb_length_old,rb_sampled.length);
+      if (DEBUG) {
+        System.out.printf("handleRequestBatch --> Added sampled requests (new batch length = %d)\n", rb.length);
+      }
     }
 
     if (rb.length < 1) { 
@@ -568,6 +580,21 @@ public abstract class MLridesharing extends Client {
     return weight_matrix;
   }
 
+  protected int[][] getSampledRequests() {
+    
+    int num_samples = 3;
+    //each request is expected to have 7 elements:
+    // 0 -> id
+    // 1 -> quantity
+    // 2 -> early time
+    // 3 -> late time
+    // 4 -> origin
+    // 5 -> destination
+    // 6 -> base cost
+    int[][] s_rb = new int[num_samples][7];
+
+    
+  }
   //takes a request and vehicle id and returns the insertion cost
   protected abstract double getInsertionCost(final int[] r, final int sid) throws ClientException;
 
