@@ -53,7 +53,10 @@ class Key<K1, K2> {
 
 public abstract class MLridesharing extends Client {
 
-  protected final int MAXN = 8;
+  //max number of vehicles to be considered by the context mapping
+  //module (per request), as defined by Simonetto
+  protected final int MAXN =   // in minutes
+      Integer.parseInt(System.getProperty("jargors.algorithm.maxn", "8"));
 
   //the constant used to indicate the cost of an infeasible insertion (arbitrarily high)
   protected final double COST_INFEASIBLE=100000;
