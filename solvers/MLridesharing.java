@@ -55,7 +55,7 @@ public abstract class MLridesharing extends Client {
 
   //max number of vehicles to be considered by the context mapping
   //module (per request), as defined by Simonetto
-  protected final int MAXN =   // in minutes
+  protected final int MAXN =
       Integer.parseInt(System.getProperty("jargors.algorithm.maxn", "8"));
 
   //the constant used to indicate the cost of an infeasible insertion (arbitrarily high)
