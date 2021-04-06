@@ -63,11 +63,11 @@ public class Controller {
       Integer.parseInt(System.getProperty("jargors.controller.queue_timeout", "30"));
   private int REQUEST_COLLECTION_PERIOD = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_collection_period", "1"));
-  private int REQUEST_COLLECTION_DELAY = 0;
+  private int REQUEST_COLLECTION_DELAY = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_collection_delay", "1"));
   private int REQUEST_HANDLING_PERIOD = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_period", "1"));
-  private int REQUEST_HANDLING_DELAY = 2;
+  private int REQUEST_HANDLING_DELAY = 10;
   private int DEMAND_PREDICTION_PERIOD = 30;
   private int DEMAND_PREDICTION_DELAY = (5*30*60)+5;
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_delay", "1"));
