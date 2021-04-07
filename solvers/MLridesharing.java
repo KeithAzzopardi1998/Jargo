@@ -97,23 +97,29 @@ public abstract class MLridesharing extends Client {
   }
 
   //used to process a batch of requests rb
+  //rb_in is the set of actual requests, and sampled requests are appended
   //NOTE: the order of rb must be preserved at all times
   //      example: in the cost matrix and context map, there is one row
   //      for each request in rb
-  protected void handleRequestBatch(final int[][] rb) throws ClientException, ClientFatalException {
+  protected void handleRequestBatch(final int[][]rb_in) throws ClientException, ClientFatalException {
     if (DEBUG) {
-      System.out.printf("handleRequestBatch --> Processing batch of size %d\n", rb.length);
+      System.out.printf("handleRequestBatch --> Processing batch of size %d\n", rb_in.length);
     }
+
+    int[][] rb;
 
     if (SAMPLING_ENABLED) {
       //get the sampled requests
       int[][] rb_sampled = getSampledRequests();
-      int rb_length_old = rb.length;
-      rb = Arrays.copyOf(rb, rb.length + rb_sampled.length);
+      int rb_length_old = rb_in.length;
+      rb = Arrays.copyOf(rb_in, rb_in.length + rb_sampled.length);
       System.arraycopy(rb_sampled,0,rb,rb_length_old,rb_sampled.length);
       if (DEBUG) {
         System.out.printf("handleRequestBatch --> Added sampled requests (new batch length = %d)\n", rb.length);
       }
+    }
+    else {
+      rb = rb_in;
     }
 
     if (rb.length < 1) { 
@@ -611,7 +617,7 @@ public abstract class MLridesharing extends Client {
 
     for (int i=0; i<num_samples; i++) {
       //generate a random number within the cumulative distribution
-      float r = Math.random() * s;
+      float r = (float)Math.random() * s;
 
       //start a counter, and count up until we reach the random number
       //we've just generated. Where we stop indicates the region from
