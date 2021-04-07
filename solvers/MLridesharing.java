@@ -1,4 +1,5 @@
 import com.github.jargors.sim.*;
+import java.util.stream.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.List;
@@ -63,9 +64,9 @@ public abstract class MLridesharing extends Client {
 
   //Constraints implemented by Simonetto
   //use the same arguments as is used in the controller
-  protected int MAX_DT =   // in minutes
+  protected final int MAX_DT =   // in minutes
       Integer.parseInt(System.getProperty("jargors.controller.max_delay", "7"));
-  protected int MAX_WT =   // in minutes
+  protected final int MAX_WT =   // in minutes
       Integer.parseInt(System.getProperty("jargors.controller.max_wait", "7")); 
   //additional constraint: journey length = twice the length of a vehicle's capacity)
 
@@ -73,6 +74,9 @@ public abstract class MLridesharing extends Client {
       "true".equals(System.getProperty("jargors.algorithm.rebalance_enable"));
   protected final boolean SAMPLING_ENABLED =
       "true".equals(System.getProperty("jargors.algorithm.sampling_enable"));
+  //the number of requests to sample
+  protected final int SAMPLING_N =
+      Integer.parseInt(System.getProperty("jargors.algorithm.sampling_n", "10"));
   private final boolean DEBUG =
       "true".equals(System.getProperty("jargors.algorithm.debug"));
   
@@ -588,7 +592,13 @@ public abstract class MLridesharing extends Client {
 
   protected int[][] getSampledRequests() {
     
-    int num_samples = 3;
+    //calculate the sum of predicted requests
+    int s = IntStream.of(this.dm_predictions_raw).sum();
+
+    //the actual number of sampled requests should
+    //be capped by S, as to not oversample the distribution
+    int num_samples = Math.min(SAMPLING_N,s);
+
     //each request is expected to have 7 elements:
     // 0 -> id
     // 1 -> quantity
@@ -599,7 +609,49 @@ public abstract class MLridesharing extends Client {
     // 6 -> base cost
     int[][] s_rb = new int[num_samples][7];
 
-    
+    for (int i=0; i<num_samples; i++) {
+      //generate a random number within the cumulative distribution
+      float r = Math.random() * s;
+
+      //start a counter, and count up until we reach the random number
+      //we've just generated. Where we stop indicates the region from
+      //which the request is sampled
+      int counter = 0;
+      for(int index=0; index<this.dm_predictions_raw.length; index++) {
+        counter += this.dm_predictions_raw[index];
+        if (counter >= r) {
+          break;
+        }
+      }
+
+      //from "index", calculate the origin and destination regions
+
+      //pick a random Jargo node from the origin region as the request origin
+      s_rb[i][4] = 0;
+      
+      //pick a random Jargo node from the destination region as the request destination
+      s_rb[i][5] = 0;
+
+      //the request ID should not overlap with any other ID in the database
+      s_rb[i][0] = 0; 
+
+      //the quantity is always 1 passenger, as per previous work
+      s_rb[i][1] = 1;
+
+      //the request early (arrival) time should be picked in a manner which
+      //simulates the request arriving in the time interval [now, now + prediction_length)
+      //where prediction_length is the time duration of the demand model blocks
+      s_rb[i][2] = 0;
+
+      //calculating and setting the base cost
+      s_rb[i][6] = 0;
+
+      //the late time is calaculated by considering the
+      //early time, minimum travel time, max wait time and max delay
+      s_rb[i][3] = 0;
+    }
+
+    return s_rb;
   }
   //takes a request and vehicle id and returns the insertion cost
   protected abstract double getInsertionCost(final int[] r, final int sid) throws ClientException;
