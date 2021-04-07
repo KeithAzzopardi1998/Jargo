@@ -1,6 +1,6 @@
 Docker build:
 
-docker build -t keithazzopardium/jargo:3.0 .
+docker build -t keithazzopardium/jargo:3.2 .
 
 Docker run simulation:
 
@@ -9,7 +9,7 @@ docker run \
     --name jargo_sim \
     --memory 12g \
     --cpus 6 \
-    keithazzopardium/jargo:3.0 \
+    keithazzopardium/jargo:3.2 \
     bash
 
 Running a simulation:
