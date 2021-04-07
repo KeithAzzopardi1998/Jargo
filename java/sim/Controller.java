@@ -50,7 +50,9 @@ public class Controller {
   private int STD_DELAY =   // in minutes
       Integer.parseInt(System.getProperty("jargors.controller.std_delay", "2"));
   private int MAX_DELAY =   // in minutes
-      Integer.parseInt(System.getProperty("jargors.controller.max_delay", "7"));      
+      Integer.parseInt(System.getProperty("jargors.controller.max_delay", "7"));
+  private int MAX_WAIT =   // in minutes
+      Integer.parseInt(System.getProperty("jargors.controller.max_wait", "7"));        
   private int CLOCK_START =
       Integer.parseInt(System.getProperty("jargors.controller.clock_start", "0"));
   private int CLOCK_END =
@@ -61,11 +63,11 @@ public class Controller {
       Integer.parseInt(System.getProperty("jargors.controller.queue_timeout", "30"));
   private int REQUEST_COLLECTION_PERIOD = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_collection_period", "1"));
-  private int REQUEST_COLLECTION_DELAY = 0;
+  private int REQUEST_COLLECTION_DELAY = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_collection_delay", "1"));
   private int REQUEST_HANDLING_PERIOD = 10;
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_period", "1"));
-  private int REQUEST_HANDLING_DELAY = 2;
+  private int REQUEST_HANDLING_DELAY = 10;
   private int DEMAND_PREDICTION_PERIOD = 30;
   private int DEMAND_PREDICTION_DELAY = (5*30*60)+5;
       //Integer.parseInt(System.getProperty("jargors.controller.request_handling_delay", "1"));
@@ -710,9 +712,11 @@ public class Controller {
                 //for vehicles with no destination
                 ? Integer.MAX_VALUE 
                 //for requests/ vehicles with destination, use the length
-                //of the trip and the maximum delay
-                : ue + (int) Math.round((float) ub/10)  // TODO: 10 speed
-                  + ( this.MAX_DELAY * 60  );
+                //of the trip and the maximum delay and waiting time
+                : ue 
+                  + ( this.MAX_WAIT * 60 ) //max waiting time
+                  + (int) Math.round((float) ub/10)  // (travel time) TODO: 10 speed
+                  + ( this.MAX_DELAY * 60  ); //max delay
              }
              final int ul=temp_ul;
              final int[] user = new int[] { uid, uq, ue, ul, uo, ud, ub };

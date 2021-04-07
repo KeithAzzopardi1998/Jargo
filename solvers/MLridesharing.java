@@ -53,15 +53,21 @@ class Key<K1, K2> {
 
 public abstract class MLridesharing extends Client {
 
-  protected final int MAXN = 8;
+  //max number of vehicles to be considered by the context mapping
+  //module (per request), as defined by Simonetto
+  protected final int MAXN =
+      Integer.parseInt(System.getProperty("jargors.algorithm.maxn", "8"));
 
   //the constant used to indicate the cost of an infeasible insertion (arbitrarily high)
   protected final double COST_INFEASIBLE=100000;
 
   //Constraints implemented by Simonetto
-  protected final int MAX_WT = 60 * 7;//waiting time (seconds)
-  protected final int MAX_DT = 60 * 7;//detour time (seconds)
-  protected int MAX_JL = 0;//journey length (twice the length of a vehicle's capacity)
+  //use the same arguments as is used in the controller
+  protected int MAX_DT =   // in minutes
+      Integer.parseInt(System.getProperty("jargors.controller.max_delay", "7"));
+  protected int MAX_WT =   // in minutes
+      Integer.parseInt(System.getProperty("jargors.controller.max_wait", "7")); 
+  //additional constraint: journey length = twice the length of a vehicle's capacity)
 
   protected final boolean REBALANCING_ENABLED =
       "true".equals(System.getProperty("jargors.algorithm.rebalance_enable"));
