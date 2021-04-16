@@ -23,8 +23,10 @@ RUN apt-get update && apt-get install -y \
   python3-venv \
   python-dev python3-dev \
   python-pip python3-pip \
-  python-wheel python3-wheel
-
+  python-wheel python3-wheel \
+  libderby-java \
+  libderbyclient-java
+  
 RUN pip3 install --upgrade pip wheel setuptools
 
 #set bash as the default shell
@@ -54,11 +56,11 @@ COPY . .
 RUN make dep
 
 #install Apache Derby
-RUN wget "https://archive.apache.org/dist/db/derby/db-derby-10.15.1.3/db-derby-10.15.1.3-bin.tar.gz" --output-document "/home/derby.tar.gz" \
-    && mkdir "/home/derby" \
-    && tar xvf "/home/derby.tar.gz" -C "/home/derby" --strip-components 1
-ENV DERBY_HOME="/home/derby"
-ENV PATH="${PATH}:${DERBY_HOME}/bin"
+# RUN wget "https://archive.apache.org/dist/db/derby/db-derby-10.15.1.3/db-derby-10.15.1.3-bin.tar.gz" --output-document "/home/derby.tar.gz" \
+#     && mkdir "/home/derby" \
+#     && tar xvf "/home/derby.tar.gz" -C "/home/derby" --strip-components 1
+# ENV DERBY_HOME="/home/derby"
+# ENV PATH="${PATH}:${DERBY_HOME}/bin"
 
 #create the python environment used to run the demand model
 ENV VIRTUAL_ENV=${JARGO_DIR}/demand_model_data/environment/venv

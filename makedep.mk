@@ -75,6 +75,9 @@ dep/org-netbeans-lib-profiler-charts-RELEASE139.jar \
 dep/org-netbeans-modules-profiler-api-RELEASE139.jar \
 dep/org-openide-util-lookup-RELEASE139.jar \
 dep/npy-0.3.5.jar \
+dep/derby.jar \
+dep/derbyshared.jar \
+dep/derbytools.jar \
 $(JFX)
 
 _prep :
@@ -129,6 +132,15 @@ dep/org-openide-util-lookup-RELEASE139.jar :
 
 dep/npy-0.3.5.jar :
 	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/npy-0.3.5.jar)
+
+dep/derby.jar :
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/derby.jar)
+
+dep/derbyshared.jar :
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/derbyshared.jar)
+
+dep/derbytools.jar :
+	@$(call get_jar,https://dissertationws8191868266.blob.core.windows.net/jargo-deps/derbytools.jar)
 
 $(JFX) : | dep/javafx-sdk-13.0.1
 	@printf "symlink $(@F)\n"
