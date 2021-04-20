@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 param_maxn=8
 param_instance="test_sim_15mins.instance"

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 SIMULATION_GROUP="test_group_1"
 SIMULATION_NAME="run_1"
 SIMULATION_DIR_GLOBAL="/opt/local/data/keith_azzopardi/simulations"
