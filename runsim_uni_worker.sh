@@ -7,6 +7,13 @@ SIMULATION_DIR_GLOBAL="/opt/local/data/keith_azzopardi/simulations"
 # repository inside the home directory.
 
 #compiling the code
+make clean
+make dep
+make jar
+cd solvers
+make clean
+make
+cd ..
 
 #defining the simulation parameters
 param_maxn=8
@@ -27,6 +34,7 @@ temp_dir="${SIMULATION_DIR_GLOBAL}/temp_folders/${SIMULATION_NAME}-$(date +'%d_%
 mkdir -p "${temp_dir}"
 cp -Rf . "${temp_dir}/."
 
+old_dir=${PWD}
 cd "${temp_dir}"
 
 ./run_simulation.sh \
@@ -40,3 +48,5 @@ cd "${temp_dir}"
     --dir_instances "${param_intances_dir}" \
     "${param_overwrite_instances}" \
     "${param_overwrite_venv}"
+
+cd ${old_dir}
