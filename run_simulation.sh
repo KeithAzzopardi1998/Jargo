@@ -144,7 +144,7 @@ mv sim.log ./export
 results_zip="${SIMULATION_IDENTIFIER}.zip"
 zip -r "${results_zip}" ./export
 
-echo "~~ COPYING OVER THE RESULTS ~~"
+echo "~~ COPYING OVER THE RESULTS (${results_zip}) TO ${DIR_RESULTS}~~"
 # 9. copy over the zip file to the directory specified as a parameter
 if [[ ! -d "${DIR_RESULTS}" ]]; then
     mkdir -p "${DIR_RESULTS}"
