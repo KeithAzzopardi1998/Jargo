@@ -64,10 +64,11 @@ public abstract class MLridesharing extends Client {
 
   //Constraints implemented by Simonetto
   //use the same arguments as is used in the controller
-  protected final int MAX_DT =   // in minutes
-      Integer.parseInt(System.getProperty("jargors.controller.max_delay", "7"));
-  protected final int MAX_WT =   // in minutes
-      Integer.parseInt(System.getProperty("jargors.controller.max_wait", "7")); 
+
+  protected final int MAX_DT =   // property is in minutes, but convert to seconds here
+      Integer.parseInt(System.getProperty("jargors.controller.max_delay", "7")) * 60;
+  protected final int MAX_WT =   // property is in minutes, but convert to seconds here
+      Integer.parseInt(System.getProperty("jargors.controller.max_wait", "7")) * 60; 
   //additional constraint: journey length = twice the length of a vehicle's capacity)
 
   protected final boolean REBALANCING_ENABLED =

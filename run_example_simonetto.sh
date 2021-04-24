@@ -13,7 +13,7 @@ PROB="${data_dir}/simonetto/${1}"
 
 
 CLIENT="solvers/jar/solvers.jar"
-CLASSNAME="Exhaustive"
+CLASSNAME="Baseline"
 _CLASSPATH=.:jar/*:dep:dep/*:solvers:solvers/jar/*
 
 #CLIENT="example/jar/examples.jar"

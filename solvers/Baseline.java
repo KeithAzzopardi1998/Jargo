@@ -3,7 +3,7 @@ import com.github.jargors.sim.*;
 import java.util.Random;
 import java.util.Arrays;
 
-public class Exhaustive extends MLridesharing {
+public class Baseline extends MLridesharing {
   
   private final boolean DEBUG =
     "true".equals(System.getProperty("jargors.costcalculation.debug"));
