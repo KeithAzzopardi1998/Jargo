@@ -616,6 +616,12 @@ public abstract class MLridesharing extends Client {
     // 6 -> base cost
     int[][] s_rb = new int[num_samples][7];
 
+    //the highest request ID so far in the database
+    //this is fetched to ensure that there is no overlap
+    //with the current requests
+    //TODO fetch this
+    final int idmax = 500;
+
     for (int i=0; i<num_samples; i++) {
       //generate a random number within the cumulative distribution
       float r = (float)Math.random() * s;
@@ -640,7 +646,7 @@ public abstract class MLridesharing extends Client {
       s_rb[i][5] = 0;
 
       //the request ID should not overlap with any other ID in the database
-      s_rb[i][0] = 0; 
+      s_rb[i][0] = idmax + i; 
 
       //the quantity is always 1 passenger, as per previous work
       s_rb[i][1] = 1;
