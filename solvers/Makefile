@@ -5,17 +5,17 @@ JC = javac
 		$(JC) $(JFLAGS) $*.java -Xlint:unchecked
 
 CLASSES = \
-        HungarianAlgorithm.java \
-        MLridesharing.java \
-        Baseline.java
+        baseline/HungarianAlgorithm.java \
+        baseline/CostComputationModule.java \
+        baseline/RideSharingAlgorithm.java
 
-default: classes jar 
+.PHONY : compile jar clean
 
-classes: $(CLASSES:.java=.class)
+compile: $(CLASSES:.java=.class)
 
-jar:
+jar: compile
 	@mkdir -p jar/
-	@jar cvf jar/solvers.jar HungarianAlgorithm.class MLridesharing.class Baseline.class
+	@jar cvf jar/baseline.jar baseline/HungarianAlgorithm.class baseline/RideSharingAlgorithm.class baseline/CostComputationModule.class
 
 clean:
-		$(RM) *.class jar/solvers.jar
+	$(RM) baseline/*.class jar/*.jar

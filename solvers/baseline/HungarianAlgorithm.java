@@ -1,8 +1,7 @@
+package baseline;
 //obtained from https://github.com/KevinStern/software-and-algorithms/blob/master/src/main/java/blogspot/software_and_algorithms/stern_library/optimization/HungarianAlgorithm.java
 
-//package blogspot.software_and_algorithms.stern_library.optimization;
-//package com.github.jargors.batchprocessing;
-
+//package blogspot.software_and_algorithms.stern_library.optimization;  
 import java.util.Arrays;
 
 /* Copyright (c) 2012 Kevin L. Stern

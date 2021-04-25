@@ -1,3 +1,4 @@
+package baseline;
 import com.github.jargors.sim.*;
 import java.util.Arrays;
 import java.util.Map;
@@ -51,7 +52,7 @@ class Key<K1, K2> {
   }
 }
 
-public abstract class MLridesharing extends Client {
+public abstract class RideSharingAlgorithm extends Client {
 
   //max number of vehicles to be considered by the context mapping
   //module (per request), as defined by Simonetto
