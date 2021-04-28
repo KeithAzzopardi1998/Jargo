@@ -1,9 +1,10 @@
 //package com.github.jargors.batchprocessing;
+package baseline;
 import com.github.jargors.sim.*;
 import java.util.Random;
 import java.util.Arrays;
 
-public class Baseline extends MLridesharing {
+public class CostComputationModule extends RideSharingAlgorithm {
   
   private final boolean DEBUG =
     "true".equals(System.getProperty("jargors.costcalculation.debug"));

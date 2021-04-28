@@ -7,6 +7,6 @@ www/
 *.log
 export*/
 *.log
-solvers/*.class
+solvers/**/*.class
 solvers/jar
 .ipynb_checkpoints/

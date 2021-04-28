@@ -7,9 +7,10 @@ MAXN=8
 INSTANCE="sim-5pc-c4.instance"
 REBALANCING="true"
 DEMAND_MODEL_ENABLE="true"
-SOLVER="baseline"
+SOLVER="baseline.CostComputationModule"
 OVERWRITE_INSTANCES="false"
 OVERWRITE_VENV="false"
+JARFILE="baseline.jar"
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -39,6 +40,11 @@ case $key in
     ;;
     -s|--solver) #name of the solver to use
     SOLVER="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -j|--jar) #name of the jar file to use (from solvers/jar)
+    JARFILE="$2"
     shift # past argument
     shift # past value
     ;;
@@ -110,7 +116,7 @@ data_dir="data/manhattan"
 param_road="${data_dir}/mny.rnet"
 param_gtree="${data_dir}/mny.gtree"
 param_instance="${data_dir}/simonetto/${INSTANCE}"
-param_client="solvers/jar/solvers.jar"
+param_client="solvers/jar/${JARFILE}"
 
 echo "~~ STARTING SIMULATION ~~"
 java \
