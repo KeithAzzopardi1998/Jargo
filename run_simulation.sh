@@ -7,9 +7,10 @@ MAXN=8
 INSTANCE="sim-5pc-c4.instance"
 REBALANCING="true"
 DEMAND_MODEL_ENABLE="true"
-SOLVER="CostComputationModule"
+SOLVER="baseline.CostComputationModule"
 OVERWRITE_INSTANCES="false"
 OVERWRITE_VENV="false"
+JARFILE="baseline.jar"
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]

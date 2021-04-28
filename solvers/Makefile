@@ -9,7 +9,9 @@ CLASSES = \
         baseline/CostComputationModule.java \
         baseline/RideSharingAlgorithm.java
 
-.PHONY : compile jar clean
+.PHONY : all compile jar clean
+
+all : compile jar
 
 compile: $(CLASSES:.java=.class)
 

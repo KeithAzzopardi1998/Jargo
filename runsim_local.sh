@@ -1,16 +1,20 @@
 #!/bin/bash
 
+#the algorithm to use
+algorithm="baseline"
+
+#Jargo parameters
 param_maxn=8
 param_instance="test_sim_15mins.instance"
 param_rebalancing="true"
 param_dm_enable="true"
-param_solver="baseline.CostComputationModule"
-param_jar_file="baseline.jar"
+param_solver="${algorithm}.CostComputationModule"
+param_jar_file="${algorithm}.jar"
 param_intances_dir="/home/keith/Dissertation/test_instances"
 param_overwrite_instances="" #set to --overwrite_instances to overwrite
 param_venv_dir="/home/keith/Dissertation/inference_env"
 param_overwrite_venv=""      #set to --overwrite_venv to overwrite
-param_results_dir="/home/keith/Dissertation/results/test7"
+param_results_dir="/home/keith/Dissertation/results/test8"
 
 simulation_dir="/home/keith/Dissertation/github/jargo"
 
