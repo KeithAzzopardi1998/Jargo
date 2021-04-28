@@ -134,7 +134,7 @@ java \
     -Djargors.traffic.debug=false \
     -cp .:jar/*:dep:dep/*:solvers:solvers/jar/* \
 com.github.jargors.ui.Command "real" ${param_road} ${param_gtree} ${param_instance} ${param_client} ${SOLVER} \
-    2>&1 | tee sim.log
+    &> sim.log
 
 echo "~~ FINISHED SIMULATION ~~"
 # 7. move the simulation log to the export folder

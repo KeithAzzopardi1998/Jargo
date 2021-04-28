@@ -11,8 +11,6 @@
 #SBATCH --mail-user=keith.azzopardi.16@um.edu.mt
 #SBATCH --mail-type=all
 #SBATCH --job-name=jargosim
-#SBATCH --output=slurm-$jobid.out
-#SBATCH --error=slurm-$jobid.err
 
 
 # This script should always be run on radagast, and 
