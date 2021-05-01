@@ -4,9 +4,9 @@ import com.github.jargors.sim.VertexNotFoundException;
 import com.github.jargors.sim.GtreeNotLoadedException;
 import com.github.jargors.sim.GtreeIllegalSourceException;
 import com.github.jargors.sim.GtreeIllegalTargetException;
-import com.github.jamjpan.gtree.GTree;
-import com.github.jamjpan.gtree.gtreeJNI;
-import com.github.jamjpan.gtree.IntVector;
+import com.github.jamjpan.libgtree_jni.GTree;
+import com.github.jamjpan.libgtree_jni.gtreeJNI;
+import com.github.jamjpan.libgtree_jni.IntVector;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -57,7 +57,7 @@ public class Tools {
          }
   public void GTGtreeLoad(final String p) throws FileNotFoundException {
            try {
-             System.loadLibrary("gtree");
+             System.loadLibrary("gtree_jni");
            } catch (UnsatisfiedLinkError e) {
              System.err.println("Native code library failed to load: "+e);
              System.exit(1);
@@ -170,7 +170,7 @@ public class Tools {
              gtree.shortest_path_querying((u - 1), (v - 1)); // L1
              gtree.path_recovery((u - 1), (v - 1), path);
              if (path != null) {
-               output = new int[path.size()];
+               output = new int[(int)path.size()];
                for (int i = 0; i < path.size(); i++) {
                  output[i] = path.get(i) + 1;                // L2
                }

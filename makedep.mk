@@ -66,8 +66,8 @@ _prep \
 dep/commons-dbcp2-2.7.0.jar \
 dep/commons-logging-1.2.jar \
 dep/commons-pool2-2.7.0.jar \
-dep/gtree-2.0.jar \
-dep/libgtree.so \
+dep/libgtree_jni.jar \
+dep/libgtree_jni.so \
 dep/com-sun-tools-visualvm-charts-RELEASE139.jar \
 dep/com-sun-tools-visualvm-uisupport-RELEASE139.jar \
 dep/org-netbeans-lib-profiler-ui-RELEASE139.jar \
@@ -95,20 +95,34 @@ dep/commons-logging-1.2.jar :
 dep/commons-pool2-2.7.0.jar :
 	@$(call get_jar,https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.7.0/commons-pool2-2.7.0.jar)
 
-dep/gtree-2.0.jar : | dep/gtree-2.0-linux
-	@printf "symlink gtree-2.0.jar\n"
-	@ln -s -t dep/ gtree-2.0-linux/$(@F)
+# uncomment these to use the "old" gtree jar
+# dep/gtree-2.0.jar : | dep/gtree-2.0-linux
+# 	@printf "symlink gtree-2.0.jar\n"
+# 	@ln -s -t dep/ gtree-2.0-linux/$(@F)
+# dep/libgtree.so : | dep/gtree-2.0-linux
+# 	@printf "symlink libgtree.so\n"
+# 	@ln -s -t dep/ gtree-2.0-linux/$(@F)
+# dep/gtree-2.0-linux : | dep/archive/gtree-2.0-linux.tar
+# 	@printf "extract gtree-2.0-linux.tar\n"
+# 	@tar xvf dep/archive/gtree-2.0-linux.tar --one-top-level=dep/gtree-2.0-linux > /dev/null
+# dep/archive/gtree-2.0-linux.tar :
+# 	@$(call get_tar,https://dissertationws8191868266.blob.core.windows.net/jargo-gtree-jar/gtree-2.0-linux.tar)
 
-dep/libgtree.so : | dep/gtree-2.0-linux
-	@printf "symlink libgtree.so\n"
-	@ln -s -t dep/ gtree-2.0-linux/$(@F)
+dep/libgtree_jni.jar : | dep/libgtree_jni-1.0_linux_amd64
+	@printf "symlink libgtree_jni.jar\n"
+	@ln -s -t dep/ libgtree_jni-1.0_linux_amd64/$(@F)
 
-dep/gtree-2.0-linux : | dep/archive/gtree-2.0-linux.tar
-	@printf "extract gtree-2.0-linux.tar\n"
-	@tar xvf dep/archive/gtree-2.0-linux.tar --one-top-level=dep/gtree-2.0-linux > /dev/null
+dep/libgtree_jni.so : | dep/libgtree_jni-1.0_linux_amd64
+	@printf "symlink libgtree_jni.so\n"
+	@ln -s -t dep/ libgtree_jni-1.0_linux_amd64/$(@F)
 
-dep/archive/gtree-2.0-linux.tar :
-	@$(call get_tar,https://dissertationws8191868266.blob.core.windows.net/jargo-gtree-jar/gtree-2.0-linux.tar)
+dep/libgtree_jni-1.0_linux_amd64 : | dep/archive/libgtree_jni-1.0_linux_amd64.tar
+	@printf "extract libgtree_jni-1.0_linux_amd64.tar\n"
+	@tar xvf dep/archive/libgtree_jni-1.0_linux_amd64.tar --one-top-level=dep/libgtree_jni-1.0_linux_amd64 --strip-components=1 > /dev/null
+
+dep/archive/libgtree_jni-1.0_linux_amd64.tar :
+	@$(call get_tar,https://github.com/jamjpan/libgtree_jni_native/releases/download/v1.0/libgtree_jni-1.0_linux_amd64.tar)
+
 
 ####### Dependencies for Jargo Desktop #########################################
 
