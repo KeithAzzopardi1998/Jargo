@@ -14,7 +14,7 @@ param_intances_dir="/home/keith/Dissertation/test_instances"
 param_overwrite_instances="" #set to --overwrite_instances to overwrite
 param_venv_dir="/home/keith/Dissertation/inference_env"
 param_overwrite_venv=""      #set to --overwrite_venv to overwrite
-param_results_dir="/home/keith/Dissertation/results/test8"
+param_results_dir="/data/dissertation_results/test_simulations/sim1"
 
 simulation_dir="/home/keith/Dissertation/github/jargo"
 
