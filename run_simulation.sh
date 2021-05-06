@@ -136,7 +136,7 @@ java \
     -Djargors.algorithm.debug=true \
     -Djargors.algorithm.rebalance_enable=${REBALANCING} \
     -Djargors.algorithm.maxn=${MAXN} \
-    -Djargors.costcalculation.debug=false \
+    -Djargors.costcomputation.debug=false \
     -Djargors.traffic.debug=false \
     -cp .:jar/*:dep:dep/*:solvers:solvers/jar/* \
 com.github.jargors.ui.Command "real" ${param_road} ${param_gtree} ${param_instance} ${param_client} ${SOLVER} \

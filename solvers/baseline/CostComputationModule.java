@@ -7,7 +7,7 @@ import java.util.Arrays;
 public class CostComputationModule extends RideSharingAlgorithm {
   
   private final boolean DEBUG =
-    "true".equals(System.getProperty("jargors.costcalculation.debug"));
+    "true".equals(System.getProperty("jargors.costcomputation.debug"));
   
   //takes a request and vehicle id and returns the insertion cost
   protected double getInsertionCost_random(final int[] r, final int sid){
