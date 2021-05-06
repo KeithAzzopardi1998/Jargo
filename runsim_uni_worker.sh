@@ -11,7 +11,7 @@ algorithm="baseline"
 
 #defining the simulation parameters
 echo "defining parameters"
-param_maxn=16
+param_maxn=8
 param_instance="sim-10pc-c10.instance"
 param_rebalancing="true"
 param_dm_enable="false"
