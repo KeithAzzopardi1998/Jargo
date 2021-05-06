@@ -6,13 +6,17 @@ SIMULATION_DIR_GLOBAL="/opt/local/data/keith_azzopardi/simulations"
 # this script is meant to be run from a clone of the git
 # repository inside the home directory.
 
+#the algorithm to use
+algorithm="baseline"
+
 #defining the simulation parameters
 echo "defining parameters"
 param_maxn=16
 param_instance="sim-10pc-c10.instance"
 param_rebalancing="true"
 param_dm_enable="false"
-param_solver="Baseline"
+param_solver="${algorithm}.CostComputationModule"
+param_jar_file="${algorithm}.jar"
 param_intances_dir="${SIMULATION_DIR_GLOBAL}/test_instances"
 param_overwrite_instances="" #set to --overwrite_instances to overwrite
 param_venv_dir="${SIMULATION_DIR_GLOBAL}/inference_env"
@@ -48,6 +52,7 @@ echo "running simulation"
     --instance "${param_instance}" \
     --rebalancing "${param_rebalancing}" \
     --demand_model_enable "${param_dm_enable}" \
+    --jar "${param_jar_file}" \
     --solver "${param_solver}" \
     --dir_results "${param_results_dir}" \
     --dir_venv "${param_venv_dir}" \
@@ -55,4 +60,4 @@ echo "running simulation"
     "${param_overwrite_instances}" \
     "${param_overwrite_venv}"
 
-cd ${old_dir}
+#cd ${old_dir}
