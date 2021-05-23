@@ -21,7 +21,7 @@ param_intances_dir="${SIMULATION_DIR_GLOBAL}/test_instances"
 param_overwrite_instances="" #set to --overwrite_instances to overwrite
 param_venv_dir="${SIMULATION_DIR_GLOBAL}/inference_env"
 param_overwrite_venv=""      #set to --overwrite_venv to overwrite
-param_results_dir="/opt/users/kazz0036/msc_dissertation/results/${SIMULATION_GROUP}/${SIMULATION_NAME}"
+param_results_dir="/opt/users/kazz0036/msc_dissertation/results/${SIMULATION_GROUP}/${SIMULATION_NAME}_JOB${SLURM_JOBID}"
 
 # Before running the simulation, we copy over the repository to
 # a temporary folder on /opt, so that we can run multiple simulations
