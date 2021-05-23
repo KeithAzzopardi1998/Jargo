@@ -27,7 +27,7 @@ param_results_dir="/opt/users/kazz0036/msc_dissertation/results/${SIMULATION_GRO
 # a temporary folder on /opt, so that we can run multiple simulations
 # concurrently
 echo "creating temporary folder"
-temp_dir="${SIMULATION_DIR_GLOBAL}/temp_folders/${SIMULATION_NAME}-$(date +'%d_%m_%y-%k_%M')"
+temp_dir="${SIMULATION_DIR_GLOBAL}/temp_folders/${SIMULATION_NAME}-$(date +'%F-%T')"
 mkdir -p "${temp_dir}"
 cp -Rf . "${temp_dir}/."
 
