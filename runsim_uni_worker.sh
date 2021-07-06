@@ -7,9 +7,11 @@ SIMULATION_DIR_GLOBAL="/opt/local/data/keith_azzopardi/simulations"
 # repository inside the home directory.
 
 #the algorithm to use (baseline/sampling/routing)
-variant="baseline"
+param_variant="baseline"
 #the demand model to use (dnn/frequentist)
-dm_type="dnn"
+param_dm_type="dnn"
+param_dm_height=20
+param_dm_width=5
 
 #defining the simulation parameters
 echo "defining parameters"
@@ -50,8 +52,10 @@ echo "running simulation"
     --maxn "${param_maxn}" \
     --instance "${param_instance}" \
     --rebalancing "${param_rebalancing}" \
-    --demand_model_type "${dm_type}" \
-    --variant "${variant}" \
+    --demand_model_type "${param_dm_type}" \
+    --demand_model_height "${param_dm_height}" \
+    --demand_model_width "${param_dm_width}" \    
+    --variant "${param_variant}" \
     --dir_results "${param_results_dir}" \
     --dir_venv "${param_venv_dir}" \
     --dir_instances "${param_intances_dir}" \

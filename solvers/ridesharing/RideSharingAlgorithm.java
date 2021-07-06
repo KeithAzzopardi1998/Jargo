@@ -44,6 +44,8 @@ public class RideSharingAlgorithm extends Client {
 
   private final String VARIANT = System.getProperty("jargors.algorithm.variant");
   private final String DEMAND_MODEL_TYPE = System.getProperty("jargors.algorithm.dm_type");
+  private final int DEMAND_MODEL_HEIGHT = Integer.parseInt(System.getProperty("jargors.algorithm.dm_height"));
+  private final int DEMAND_MODEL_WIDTH = Integer.parseInt(System.getProperty("jargors.algorithm.dm_width"));
     
   //max number of vehicles to be considered by the context mapping
   //module (per request), as defined by Simonetto
@@ -74,9 +76,9 @@ public class RideSharingAlgorithm extends Client {
     else {
       //setting the demand model
       if (DEMAND_MODEL_TYPE.equals("dnn")) {
-        dpm  = new DemandPredictionModule.DNNModel();
+        dpm  = new DemandPredictionModule.DNNModel(DEMAND_MODEL_HEIGHT, DEMAND_MODEL_WIDTH, false, this.communicator);
       } else if (DEMAND_MODEL_TYPE.equals("frequentist")) {
-        dpm  = new DemandPredictionModule.FrequentistModel();
+        dpm  = new DemandPredictionModule.FrequentistModel(DEMAND_MODEL_HEIGHT, DEMAND_MODEL_WIDTH, false, this.communicator);
       }
 
       //setting the other models

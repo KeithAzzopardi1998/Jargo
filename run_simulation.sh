@@ -7,6 +7,8 @@ MAXN=8
 INSTANCE="sim-5pc-c4.instance"
 REBALANCING="true"
 DEMAND_MODEL_TYPE="dnn"
+DEMAND_MODEL_HEIGHT=20
+DEMAND_MODEL_WIDTH=5
 OVERWRITE_INSTANCES="false"
 OVERWRITE_VENV="false"
 VARIANT="baseline"
@@ -32,8 +34,16 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -dm|--demand_model_type) #type of demand model (dnn/frequentist)
+    -dmt|--demand_model_type) #type of demand model (dnn/frequentist)
     DEMAND_MODEL_TYPE="$2"
+    shift # past argument
+    shift # past value
+    -dmh|--demand_model_height) #height of demand model grid
+    DEMAND_MODEL_HEIGHT="$2"
+    shift # past argument
+    shift # past value
+    -dmw|--demand_model_width) #width of demand model grid
+    DEMAND_MODEL_WIDTH="$2"
     shift # past argument
     shift # past value
     ;;
@@ -128,6 +138,8 @@ java \
     -Djargors.communicator.debug=false \
     -Djargors.client.debug=true \
     -Djargors.client.dm_type=${DEMAND_MODEL_TYPE} \
+    -Djargors.client.dm_height=${DEMAND_MODEL_HEIGHT} \
+    -Djargors.client.dm_width=${DEMAND_MODEL_WIDTH} \
     -Djargors.algorithm.debug=true \
     -Djargors.algorithm.rebalance_enable=${REBALANCING} \
     -Djargors.algorithm.maxn=${MAXN} \
