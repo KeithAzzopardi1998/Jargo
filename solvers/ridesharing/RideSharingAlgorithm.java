@@ -59,8 +59,8 @@ public class RideSharingAlgorithm extends Client {
     System.out.printf("Set DEMAND_MODEL_TYPE=%s\n", DEMAND_MODEL_TYPE);
     System.out.printf("Set VARIANT=%s\n", VARIANT);    
     this.batch_processing=true;
-    this.cache_w = new ConcurrentHashMap<Key<Integer,Integer>,int[]>();
-    this.cache_b = new ConcurrentHashMap<Key<Integer,Integer>,int[]>();
+    cache_w = new ConcurrentHashMap<Key<Integer,Integer>,int[]>();
+    cache_b = new ConcurrentHashMap<Key<Integer,Integer>,int[]>();
 
     //initializing common modules with the desired parameters
     cmm = new ContextMappingModule(MAXN);
@@ -71,10 +71,13 @@ public class RideSharingAlgorithm extends Client {
     if (VARIANT.equals("baseline")) {
       rcm = new RequestCollectionModule.ImmediateRCM(this.queue);
       pcm = new PathComputationModule.ShortestPCM();
-      dpm = null;//the baseline algorithm does not use predicted demand
+      //the baseline algorithm does not use predicted demand
+      dpm = null;
+      this.DM_ENABLE = false;
     }
     else {
       //setting the demand model
+      this.DM_ENABLE = true;
       if (DEMAND_MODEL_TYPE.equals("dnn")) {
         dpm  = new DemandPredictionModule.DNNModel(DEMAND_MODEL_HEIGHT, DEMAND_MODEL_WIDTH, false, this.communicator);
       } else if (DEMAND_MODEL_TYPE.equals("frequentist")) {
@@ -365,5 +368,11 @@ public class RideSharingAlgorithm extends Client {
       throw new ClientException(e);
     }
   }
-
+  public void updateDemandModelPredictions() throws ClientException {
+    try {
+      this.dpm.runDemandModel();
+    } catch (Exception e) {
+      throw new ClientException(e);
+    }
+  }
 }

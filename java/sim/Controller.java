@@ -189,7 +189,7 @@ public class Controller {
   };
   private Runnable DemandPredictionLoop = () -> {
     try{   
-      this.client.updatePredictions();
+      this.client.updateDemandModelPredictions();
     } catch (ClientException e) {
       System.err.printf("[t=%d] Controller.DemandPredictionLoop caught a ClientException: %s\n",
           this.simClock, e.toString());

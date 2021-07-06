@@ -33,6 +33,10 @@ public abstract class Client {
   protected Tools tools = new Tools();
   protected final boolean DEBUG =
       "true".equals(System.getProperty("jargors.client.debug"));
+  
+  //easy way to check if the client is goint to be using a demand model or not
+  protected final boolean DM_ENABLE=false;
+
   //map containing the ID of each server and the time at which it was at the last vertex 
   protected ConcurrentHashMap<Integer, Integer> lut = new ConcurrentHashMap<Integer, Integer>();
   //map containing the ID of each server and the last visited vertex
@@ -45,6 +49,7 @@ public abstract class Client {
       System.out.printf("create Client\n");
     }
   }
+  public boolean isDemandModelEnabled() { return DM_ENABLE; }
   public void forwardRefCacheEdges(final ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, int[]>> lu_edges) {
            this.tools.setRefCacheEdges(lu_edges);
          }
@@ -300,9 +305,11 @@ public abstract class Client {
          }
   protected void end() { }
   protected void handleRequest(final int[] r) throws ClientException, ClientFatalException { }
-  protected void handleRequestBatch() throws ClientException, ClientFatalException { }
   protected void handleServerLocation(final int[] loc) throws ClientException, ClientFatalException {
               this.lut.put(loc[0], loc[1]);//server ID and time
               this.luv.put(loc[0], loc[2]);//server ID and location
             }
+  
+  protected abstract void handleRequestBatch() throws ClientException, ClientFatalException;
+  public abstract void updateDemandModelPredictions() throws ClientException, ClientFatalException;
 }
