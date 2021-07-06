@@ -1,4 +1,4 @@
-package solvers;
+package ridesharing;
 public class DemandPredictionModule {
     
 }

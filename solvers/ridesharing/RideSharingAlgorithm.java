@@ -1,18 +1,12 @@
-package solvers;
+package ridesharing;
 import com.github.jargors.sim.*;
 import java.util.stream.IntStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.ArrayList;
-
-import solvers.ContextMappingModule;
-import solvers.CostComputationModule;
-import solvers.DemandPredictionModule;
-import solvers.PathComputationModule;
-import solvers.ReactiveRebalancingModule;
-import solvers.RequestCollectionModule;
-import solvers.VehicleRouteUpdateModule;
+import java.util.Map;
+import java.util.List;
 
 //this class handles the high-level communication between modules
 public class RideSharingAlgorithm extends Client {
@@ -65,7 +59,7 @@ public class RideSharingAlgorithm extends Client {
     //implemented as a DNN or Frequentist model
     dpm  = new DemandPredictionModule();
     if (VARIANT.equals("baseline")) {
-      rcm = new RequestCollectionModule.ImmediateRCM();
+      rcm = new RequestCollectionModule.ImmediateRCM(this.queue);
       pcm = new PathComputationModule.ShortestPCM();
     }
     else if (VARIANT.equals("sampling")) {
@@ -73,7 +67,7 @@ public class RideSharingAlgorithm extends Client {
       pcm = new PathComputationModule.ShortestPCM();
     }
     else if (VARIANT.equals("routing")) {
-      rcm = new RequestCollectionModule.ImmediateRCM();
+      rcm = new RequestCollectionModule.ImmediateRCM(this.queue);
       pcm = new PathComputationModule.MaxScorePCM();
     }
     
@@ -83,7 +77,7 @@ public class RideSharingAlgorithm extends Client {
   //NOTE: the order of rb must be preserved at all times
   //      example: in the cost matrix and context map, there is one row
   //      for each request in rb
-  protected void handleRequestBatch(final int[][] rb_toremove) throws ClientException, ClientFatalException {
+  protected void handleRequestBatch() throws ClientException, ClientFatalException {
     try{
 
       //TODO
@@ -96,10 +90,6 @@ public class RideSharingAlgorithm extends Client {
       if (rb.length < 1) { 
         return; 
       }
-      
-      //now that we have a copy of the request batch in rb, we can clear the queue
-      //any unserved requests are added back once we know that they cannot be served
-      this.queue.clear();
 
       //2. call context mapping module
       long time_start = System.currentTimeMillis();

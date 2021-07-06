@@ -160,14 +160,13 @@ public abstract class Client {
   public void notifyNew() throws ClientException, ClientFatalException {
             if (batch_processing==true) {
               if (!this.queue.isEmpty()){
-                int[][] rb = this.queue.toArray(new int[this.queue.size()][7]);
                 if (DEBUG) {
                   int now = this.communicator.retrieveClock();
                   System.out.printf("[t=%d] ---> started processing batch (%d in queue)\n",now,this.queue.size());
                   //System.out.println(Arrays.deepToString(rb).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
                 }
                 long A0 = System.currentTimeMillis();
-                this.handleRequestBatch(rb);
+                this.handleRequestBatch();
                 this.dur_handle_request = System.currentTimeMillis() - A0;
                 if (DEBUG) {
                   int now = this.communicator.retrieveClock();
@@ -569,7 +568,7 @@ public abstract class Client {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   protected void end() { }
   protected void handleRequest(final int[] r) throws ClientException, ClientFatalException { }
-  protected void handleRequestBatch(final int[][] rb) throws ClientException, ClientFatalException { }
+  protected void handleRequestBatch() throws ClientException, ClientFatalException { }
   protected void handleServerLocation(final int[] loc) throws ClientException, ClientFatalException {
               this.lut.put(loc[0], loc[1]);//server ID and time
               this.luv.put(loc[0], loc[2]);//server ID and location

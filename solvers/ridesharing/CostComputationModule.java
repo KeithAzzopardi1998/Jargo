@@ -1,8 +1,6 @@
-package solvers;
+package ridesharing;
 import java.util.Arrays;
 import com.github.jargors.sim.*;
-
-import solvers.PathComputationModule;
 
 import java.util.concurrent.ConcurrentHashMap;
 

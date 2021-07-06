@@ -1,4 +1,5 @@
-package solvers;
+package ridesharing;
+
 public class OptimizationModule {
 
     //uses the Hungarian Algorithm to calculate the assignments
