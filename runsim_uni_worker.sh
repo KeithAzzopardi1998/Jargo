@@ -7,7 +7,7 @@ SIMULATION_DIR_GLOBAL="/opt/local/data/keith_azzopardi/simulations"
 # repository inside the home directory.
 
 #the algorithm to use
-algorithm="baseline"
+variant="baseline"
 
 #defining the simulation parameters
 echo "defining parameters"
@@ -15,8 +15,6 @@ param_maxn=8
 param_instance="sim-10pc-c10.instance"
 param_rebalancing="true"
 param_dm_enable="false"
-param_solver="${algorithm}.CostComputationModule"
-param_jar_file="${algorithm}.jar"
 param_intances_dir="${SIMULATION_DIR_GLOBAL}/test_instances"
 param_overwrite_instances="" #set to --overwrite_instances to overwrite
 param_venv_dir="${SIMULATION_DIR_GLOBAL}/inference_env"
@@ -52,8 +50,7 @@ echo "running simulation"
     --instance "${param_instance}" \
     --rebalancing "${param_rebalancing}" \
     --demand_model_enable "${param_dm_enable}" \
-    --jar "${param_jar_file}" \
-    --solver "${param_solver}" \
+    --variant "${variant}" \
     --dir_results "${param_results_dir}" \
     --dir_venv "${param_venv_dir}" \
     --dir_instances "${param_intances_dir}" \

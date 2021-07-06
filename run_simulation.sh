@@ -7,10 +7,9 @@ MAXN=8
 INSTANCE="sim-5pc-c4.instance"
 REBALANCING="true"
 DEMAND_MODEL_ENABLE="true"
-SOLVER="baseline.CostComputationModule"
 OVERWRITE_INSTANCES="false"
 OVERWRITE_VENV="false"
-JARFILE="baseline.jar"
+VARIANT="baseline"
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -38,13 +37,8 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -s|--solver) #name of the solver to use
-    SOLVER="$2"
-    shift # past argument
-    shift # past value
-    ;;
-    -j|--jar) #name of the jar file to use (from solvers/jar)
-    JARFILE="$2"
+    -v|--variant) #name of the variant to use (baseline/sampling/routing)
+    VARIANT="$2"
     shift # past argument
     shift # past value
     ;;
@@ -110,13 +104,14 @@ echo "~~ ACTIVATING ENVIRONMENT ~~"
 source "./demand_model_data/environment/env/bin/activate"
 
 # 6. run the simulation
-SIMULATION_IDENTIFIER="$(basename -s .instance ${INSTANCE})_${SOLVER}_$(date +'started-%d_%m_%y-%k_%M')"
+SIMULATION_IDENTIFIER="$(basename -s .instance ${INSTANCE})_${VARIANT}_$(date +'started-%d_%m_%y-%k_%M')"
 
 data_dir="data/manhattan"
 param_road="${data_dir}/mny.rnet"
 param_gtree="${data_dir}/mny.gtree"
 param_instance="${data_dir}/simonetto/${INSTANCE}"
-param_client="solvers/jar/${JARFILE}"
+param_client="solvers/jar/solvers.jar"
+param_class="ridesharing.RideSharingAlgoritm"
 
 echo "~~ STARTING SIMULATION ~~"
 java \
@@ -136,10 +131,10 @@ java \
     -Djargors.algorithm.debug=true \
     -Djargors.algorithm.rebalance_enable=${REBALANCING} \
     -Djargors.algorithm.maxn=${MAXN} \
-    -Djargors.costcomputation.debug=false \
+    -Djargors.algorithm.variant=${VARIANT} \
     -Djargors.traffic.debug=false \
     -cp .:jar/*:dep:dep/*:solvers:solvers/jar/* \
-com.github.jargors.ui.Command "real" ${param_road} ${param_gtree} ${param_instance} ${param_client} ${SOLVER} \
+com.github.jargors.ui.Command "real" ${param_road} ${param_gtree} ${param_instance} ${param_client} ${param_class} \
     &> sim.log
 
 echo "~~ FINISHED SIMULATION ~~"
