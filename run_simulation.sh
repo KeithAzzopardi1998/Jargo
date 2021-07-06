@@ -6,7 +6,7 @@
 MAXN=8
 INSTANCE="sim-5pc-c4.instance"
 REBALANCING="true"
-DEMAND_MODEL_ENABLE="true"
+DEMAND_MODEL_TYPE="dnn"
 OVERWRITE_INSTANCES="false"
 OVERWRITE_VENV="false"
 VARIANT="baseline"
@@ -32,8 +32,8 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -dm|--demand_model_enable) #true/false
-    DEMAND_MODEL_ENABLE="$2"
+    -dm|--demand_model_type) #type of demand model (dnn/frequentist)
+    DEMAND_MODEL_TYPE="$2"
     shift # past argument
     shift # past value
     ;;
@@ -111,7 +111,7 @@ param_road="${data_dir}/mny.rnet"
 param_gtree="${data_dir}/mny.gtree"
 param_instance="${data_dir}/simonetto/${INSTANCE}"
 param_client="solvers/jar/solvers.jar"
-param_class="ridesharing.RideSharingAlgoritm"
+param_class="ridesharing.RideSharingAlgorithm"
 
 echo "~~ STARTING SIMULATION ~~"
 java \
@@ -127,7 +127,7 @@ java \
     -Djargors.controller.max_wait=7 \
     -Djargors.communicator.debug=false \
     -Djargors.client.debug=true \
-    -Djargors.client.dm_enable=${DEMAND_MODEL_ENABLE} \
+    -Djargors.client.dm_type=${DEMAND_MODEL_TYPE} \
     -Djargors.algorithm.debug=true \
     -Djargors.algorithm.rebalance_enable=${REBALANCING} \
     -Djargors.algorithm.maxn=${MAXN} \

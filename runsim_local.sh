@@ -7,7 +7,7 @@ variant="baseline"
 param_maxn=8
 param_instance="test_sim_15mins.instance"
 param_rebalancing="true"
-param_dm_enable="true"
+param_dm_type="dnn"
 param_intances_dir="/home/keith/Dissertation/test_instances"
 param_overwrite_instances="" #set to --overwrite_instances to overwrite
 param_venv_dir="/home/keith/Dissertation/inference_env"
@@ -24,7 +24,7 @@ cd "${simulation_dir}"
     --maxn "${param_maxn}" \
     --instance "${param_instance}" \
     --rebalancing "${param_rebalancing}" \
-    --demand_model_enable "${param_dm_enable}" \
+    --demand_model_type "${param_dm_type}" \
     --variant "${variant}" \
     --dir_results "${param_results_dir}" \
     --dir_venv "${param_venv_dir}" \

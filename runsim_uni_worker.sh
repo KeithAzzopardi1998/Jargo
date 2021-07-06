@@ -6,15 +6,16 @@ SIMULATION_DIR_GLOBAL="/opt/local/data/keith_azzopardi/simulations"
 # this script is meant to be run from a clone of the git
 # repository inside the home directory.
 
-#the algorithm to use
+#the algorithm to use (baseline/sampling/routing)
 variant="baseline"
+#the demand model to use (dnn/frequentist)
+dm_type="dnn"
 
 #defining the simulation parameters
 echo "defining parameters"
 param_maxn=8
 param_instance="sim-10pc-c10.instance"
 param_rebalancing="true"
-param_dm_enable="false"
 param_intances_dir="${SIMULATION_DIR_GLOBAL}/test_instances"
 param_overwrite_instances="" #set to --overwrite_instances to overwrite
 param_venv_dir="${SIMULATION_DIR_GLOBAL}/inference_env"
@@ -49,7 +50,7 @@ echo "running simulation"
     --maxn "${param_maxn}" \
     --instance "${param_instance}" \
     --rebalancing "${param_rebalancing}" \
-    --demand_model_enable "${param_dm_enable}" \
+    --demand_model_type "${dm_type}" \
     --variant "${variant}" \
     --dir_results "${param_results_dir}" \
     --dir_venv "${param_venv_dir}" \
