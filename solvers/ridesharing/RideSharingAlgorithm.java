@@ -43,6 +43,7 @@ public class RideSharingAlgorithm extends Client {
       "true".equals(System.getProperty("jargors.algorithm.rebalance_enable"));
 
   private final String VARIANT = System.getProperty("jargors.algorithm.variant");
+  private final String DEMAND_MODEL_TYPE = System.getProperty("jargors.algorithm.dm_type");
     
   //max number of vehicles to be considered by the context mapping
   //module (per request), as defined by Simonetto
@@ -51,26 +52,43 @@ public class RideSharingAlgorithm extends Client {
 
   protected ConcurrentLinkedQueue<int[]> rebalancing_queue = new ConcurrentLinkedQueue<int[]>();
   public void init() {
-    //initializing modules with the desired parameters
+    System.out.printf("Set MAXN=%d\n", MAXN);
+    System.out.printf("Set REBALANCING_ENABLED=%b\n", REBALANCING_ENABLED);
+    System.out.printf("Set DEMAND_MODEL_TYPE=%s\n", DEMAND_MODEL_TYPE);
+    System.out.printf("Set VARIANT=%s\n", VARIANT);    
+    this.batch_processing=true;
+    this.cache_w = new ConcurrentHashMap<Key<Integer,Integer>,int[]>();
+    this.cache_b = new ConcurrentHashMap<Key<Integer,Integer>,int[]>();
+
+    //initializing common modules with the desired parameters
     cmm = new ContextMappingModule(MAXN);
     ccm = new CostComputationModule(COST_INFEASIBLE, false, MAX_WT, MAX_DT);
     om  = new OptimizationModule();
-    //TODO move DemandPredictionModule to an interface, and have it
-    //implemented as a DNN or Frequentist model
-    dpm  = new DemandPredictionModule();
+    
+    //setting the modules which defer between algorithms
     if (VARIANT.equals("baseline")) {
       rcm = new RequestCollectionModule.ImmediateRCM(this.queue);
       pcm = new PathComputationModule.ShortestPCM();
+      dpm = null;//the baseline algorithm does not use predicted demand
     }
-    else if (VARIANT.equals("sampling")) {
-      rcm = new RequestCollectionModule.ImmediateAndSampledRCM();
-      pcm = new PathComputationModule.ShortestPCM();
+    else {
+      //setting the demand model
+      if (DEMAND_MODEL_TYPE.equals("dnn")) {
+        dpm  = new DemandPredictionModule.DNNModel();
+      } else if (DEMAND_MODEL_TYPE.equals("frequentist")) {
+        dpm  = new DemandPredictionModule.FrequentistModel();
+      }
+
+      //setting the other models
+      if (VARIANT.equals("sampling")) {
+        rcm = new RequestCollectionModule.ImmediateAndSampledRCM();
+        pcm = new PathComputationModule.ShortestPCM();
+      }
+      else if (VARIANT.equals("routing")) {
+        rcm = new RequestCollectionModule.ImmediateRCM(this.queue);
+        pcm = new PathComputationModule.MaxScorePCM();
+      }
     }
-    else if (VARIANT.equals("routing")) {
-      rcm = new RequestCollectionModule.ImmediateRCM(this.queue);
-      pcm = new PathComputationModule.MaxScorePCM();
-    }
-    
   }
 
   //used to process a batch of requests rb

@@ -1,4 +1,12 @@
 package ridesharing;
-public class DemandPredictionModule {
-    
-}
+
+public interface DemandPredictionModule {
+ 
+    class DNNModel implements DemandPredictionModule {
+
+    }
+ 
+    class FrequentistModel implements DemandPredictionModule {
+
+    }    
+ }
