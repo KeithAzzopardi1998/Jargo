@@ -1,6 +1,6 @@
 #!/bin/bash
-SIMULATION_GROUP="test_group_1"
-SIMULATION_NAME="baseline_10pc_c10"
+SIMULATION_GROUP="pre_maxn"
+SIMULATION_NAME="PM12"
 SIMULATION_DIR_GLOBAL="/opt/local/data/keith_azzopardi/simulations"
 
 # this script is meant to be run from a clone of the git
@@ -15,9 +15,9 @@ param_dm_width=5
 
 #defining the simulation parameters
 echo "defining parameters"
-param_maxn=8
+param_maxn=16
 param_instance="sim-10pc-c10.instance"
-param_rebalancing="true"
+param_rebalancing="false"
 param_intances_dir="${SIMULATION_DIR_GLOBAL}/test_instances"
 param_overwrite_instances="" #set to --overwrite_instances to overwrite
 param_venv_dir="${SIMULATION_DIR_GLOBAL}/inference_env"
@@ -54,7 +54,7 @@ echo "running simulation"
     --rebalancing "${param_rebalancing}" \
     --demand_model_type "${param_dm_type}" \
     --demand_model_height "${param_dm_height}" \
-    --demand_model_width "${param_dm_width}" \    
+    --demand_model_width "${param_dm_width}" \
     --variant "${param_variant}" \
     --dir_results "${param_results_dir}" \
     --dir_venv "${param_venv_dir}" \

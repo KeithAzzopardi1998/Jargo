@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # 0. parse the arguments
-
+echo "run_simulation.sh called with the following arguments:"
+echo "$@"
+echo "------------------------------------------------------"
 #default values
 MAXN=8
 INSTANCE="sim-5pc-c4.instance"
