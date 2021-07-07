@@ -38,10 +38,12 @@ case $key in
     DEMAND_MODEL_TYPE="$2"
     shift # past argument
     shift # past value
+    ;;
     -dmh|--demand_model_height) #height of demand model grid
     DEMAND_MODEL_HEIGHT="$2"
     shift # past argument
     shift # past value
+    ;;
     -dmw|--demand_model_width) #width of demand model grid
     DEMAND_MODEL_WIDTH="$2"
     shift # past argument
@@ -137,9 +139,9 @@ java \
     -Djargors.controller.max_wait=7 \
     -Djargors.communicator.debug=false \
     -Djargors.client.debug=true \
-    -Djargors.client.dm_type=${DEMAND_MODEL_TYPE} \
-    -Djargors.client.dm_height=${DEMAND_MODEL_HEIGHT} \
-    -Djargors.client.dm_width=${DEMAND_MODEL_WIDTH} \
+    -Djargors.algorithm.dm_type=${DEMAND_MODEL_TYPE} \
+    -Djargors.algorithm.dm_height=${DEMAND_MODEL_HEIGHT} \
+    -Djargors.algorithm.dm_width=${DEMAND_MODEL_WIDTH} \
     -Djargors.algorithm.debug=true \
     -Djargors.algorithm.rebalance_enable=${REBALANCING} \
     -Djargors.algorithm.maxn=${MAXN} \
