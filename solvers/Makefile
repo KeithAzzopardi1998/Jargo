@@ -11,6 +11,8 @@ CLASSES = \
         ridesharing/HungarianAlgorithm.java \
 		ridesharing/ContextMappingModule.java \
 		ridesharing/DemandPredictionModule.java \
+		ridesharing/DNNModel.java \
+		ridesharing/FrequentistModel.java \
 		ridesharing/PathComputationModule.java \
         ridesharing/CostComputationModule.java \
 		ridesharing/RequestCollectionModule.java \
@@ -30,6 +32,8 @@ jar: compile
 								ridesharing/OptimizationModule.class \
 								ridesharing/ContextMappingModule.class \
 								ridesharing/DemandPredictionModule.class \
+								ridesharing/DNNModel.class \
+								ridesharing/FrequentistModel.class \
 								ridesharing/CostComputationModule.class \
 								ridesharing/PathComputationModule.class \
 								ridesharing/RequestCollectionModule.class \

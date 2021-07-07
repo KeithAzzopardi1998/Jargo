@@ -1,5 +1,8 @@
 package ridesharing;
 import com.github.jargors.sim.*;
+
+import ridesharing.DemandPredictionModule;
+
 import java.util.stream.IntStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -79,9 +82,9 @@ public class RideSharingAlgorithm extends Client {
       //setting the demand model
       this.DM_ENABLE = true;
       if (DEMAND_MODEL_TYPE.equals("dnn")) {
-        dpm  = new DemandPredictionModule.DNNModel(DEMAND_MODEL_HEIGHT, DEMAND_MODEL_WIDTH, false, this.communicator);
+        dpm  = new DNNModel(DEMAND_MODEL_HEIGHT, DEMAND_MODEL_WIDTH, false, this.communicator);
       } else if (DEMAND_MODEL_TYPE.equals("frequentist")) {
-        dpm  = new DemandPredictionModule.FrequentistModel(DEMAND_MODEL_HEIGHT, DEMAND_MODEL_WIDTH, false, this.communicator);
+        dpm  = new FrequentistModel(DEMAND_MODEL_HEIGHT, DEMAND_MODEL_WIDTH, false, this.communicator);
       }
 
       //setting the other models

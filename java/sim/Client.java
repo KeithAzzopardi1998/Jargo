@@ -35,7 +35,7 @@ public abstract class Client {
       "true".equals(System.getProperty("jargors.client.debug"));
   
   //easy way to check if the client is goint to be using a demand model or not
-  protected final boolean DM_ENABLE=false;
+  protected boolean DM_ENABLE=false;
 
   //map containing the ID of each server and the time at which it was at the last vertex 
   protected ConcurrentHashMap<Integer, Integer> lut = new ConcurrentHashMap<Integer, Integer>();
