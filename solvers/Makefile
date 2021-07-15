@@ -1,5 +1,5 @@
 SOURCEPATH = .
-CLASSPATH = .:../jar/*
+CLASSPATH = .:../jar/*:../dep/*
 JFLAGS = -g -classpath $(CLASSPATH) -sourcepath $(SOURCEPATH)
 JC = javac
 .SUFFIXES: .java .class
